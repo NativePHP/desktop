@@ -14,8 +14,6 @@ class Composer
     public static function desktopPackagePath(string $path = '')
     {
         return Path::join(__DIR__, '../../', $path);
-
-        // return self::vendorPath("nativephp/desktop/{$path}");
     }
 
     public static function phpPackagePath(string $path = '')
@@ -87,8 +85,8 @@ class Composer
                     return;
                 }
 
-                // The install script is present but the --publish flag doesn't match what's expected
-                // We can unset it
+                // The install script is present but the --publish flag
+                // doesn't match what's expected. We can unset it.
                 unset($postUpdateScripts[$key]);
             }
         }
