@@ -24,6 +24,7 @@ class InstallCommand extends Command
 
     protected $signature = 'native:install
         {--force : Overwrite existing files by default}
+        {--publish : Publish the Electron project to your project\'s root}
         {--installer=npm : The package installer to use: npm, yarn or pnpm}';
 
     public function handle(): void
@@ -37,14 +38,22 @@ class InstallCommand extends Command
 
         // Install Composer scripts
         intro('Installing composer scripts');
-        Composer::installScripts();
+        Composer::installDevScript();
+
+        // Install `native:install` script with a --publish flag
+        // if either publishing now or already published
+        $this->option('publish') || is_dir(base_path('nativephp/electron'))
+            ? Composer::installUpdateScript(publish: true)
+            : Composer::installUpdateScript();
 
         // Create Electron project
         // NOTE: Consider making this optional
-        intro('Creating Electron project');
-        $installPath = base_path('nativephp/electron');
-        $this->createElectronProject($installPath);
-        info('Created Electron project in `./nativephp/electron`');
+        if ($this->option('publish')) {
+            intro('Creating Electron project');
+            $installPath = base_path('nativephp/electron');
+            $this->createElectronProject($installPath);
+            info('Created Electron project in `./nativephp/electron`');
+        }
 
         // Install NPM Dependencies
         $installer = $this->getInstaller($this->option('installer'));

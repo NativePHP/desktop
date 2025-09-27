@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use RuntimeException;
 use Symfony\Component\Filesystem\Path;
 
+use function Laravel\Prompts\info;
 use function Laravel\Prompts\note;
 
 class Composer
@@ -29,17 +30,17 @@ class Composer
         return Path::join($rootPath, 'vendor', $path);
     }
 
-    public static function installScripts()
+    public static function composerFileContents(): object
     {
         $composer = json_decode(file_get_contents(base_path('composer.json')));
         throw_unless($composer, RuntimeException::class, "composer.json couldn't be parsed");
 
-        self::installDevScript($composer);
-        self::installUpdateScript($composer);
+        return $composer;
     }
 
-    private static function installDevScript(object $composer)
+    public static function installDevScript()
     {
+        $composer = self::composerFileContents();
         $composerScripts = $composer->scripts ?? (object) [];
 
         info('Installing `composer native:dev` script alias...');
@@ -65,23 +66,36 @@ class Composer
         note('native:dev script installed!');
     }
 
-    private static function installUpdateScript(object $composer)
+    public static function installUpdateScript(bool $publish = false)
     {
+        $composer = self::composerFileContents();
         $postUpdateScripts = data_get($composer, 'scripts.post-update-cmd', []);
 
-        info('Installing `native:install` post-update-cmd script');
+        $scriptSuffix = $publish ? '--publish' : '';
+        $installScript = "@php artisan native:install --force --quiet {$scriptSuffix}";
 
-        foreach ($postUpdateScripts as $script) {
+        info("Installing `native:install {$scriptSuffix}` post-update-cmd script");
+
+        foreach ($postUpdateScripts as $key => $script) {
             if (str_contains($script, 'native:install')) {
-                note('native:install script already present in post-update-cmd... skipping.');
+                $hasPublishFlag = str_contains($script, '--publish');
 
-                return;
+                // The install script is present with or without the expected publish flag
+                if ($hasPublishFlag === $publish) {
+                    note("`native:install {$scriptSuffix}` script already present in post-update-cmd... skipping.");
+
+                    return;
+                }
+
+                // The install script is present but the --publish flag doesn't match what's expected
+                // We can unset it
+                unset($postUpdateScripts[$key]);
             }
         }
 
-        $postUpdateScripts[] = '@php artisan native:install --force --quiet';
+        $postUpdateScripts[] = $installScript;
 
-        data_set($composer, 'scripts.post-update-cmd', $postUpdateScripts);
+        data_set($composer, 'scripts.post-update-cmd', array_values($postUpdateScripts));
 
         file_put_contents(
             base_path('composer.json'),
