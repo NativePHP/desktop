@@ -15,17 +15,17 @@ use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
 
 #[AsCommand(
-    name: 'native:serve',
+    name: 'native:run',
     description: 'Start the NativePHP development server with the Electron app',
 )]
-class DevelopCommand extends Command
+class RunCommand extends Command
 {
     use Developer;
     use Installer;
     use InstallsAppIcon;
     use PatchesPackagesJson;
 
-    protected $signature = 'native:serve {--no-queue} {--D|no-dependencies} {--installer=npm}';
+    protected $signature = 'native:run {--no-queue} {--D|no-dependencies} {--installer=npm}';
 
     public function __construct(
         protected Builder $builder

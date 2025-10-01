@@ -75,7 +75,7 @@ class InstallCommand extends Command
         // Promt to serve the app
         $shouldPromptForServe = ! $withoutInteraction && ! $force;
         if ($shouldPromptForServe && confirm('Would you like to start the NativePHP development server', false)) {
-            $this->call('native:serve', [
+            $this->call('native:run', [
                 '--installer' => $installer,
                 '--no-dependencies',
                 '--no-interaction' => $withoutInteraction,
