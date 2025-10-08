@@ -63,7 +63,7 @@ class InstallCommand extends Command
 
         // Install `native:install` script with a --publish flag
         // if either publishing now or already published
-        $publish || is_dir(base_path('nativephp/electron'))
+        $publish || file_exists(base_path('nativephp/electron/package.json'))
             ? Composer::installUpdateScript(publish: true)
             : Composer::installUpdateScript();
 

@@ -56,7 +56,7 @@ export default {
     copyright: appCopyright,
     directories: {
         buildResources: 'build',
-        output: isBuilding ? join(process.env.APP_PATH, 'dist') : undefined,
+        output: isBuilding ? join(process.env.APP_PATH, 'nativephp', 'electron', 'dist') : undefined,
     },
     files: [
         '!**/.vscode/*',

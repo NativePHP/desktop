@@ -196,6 +196,7 @@ function getArgumentEnv() {
 }
 
 function getAppPath() {
+    // This is relative to Contents/Resources/app.asar/out/main and points to the app's location inside the bundle
     let appPath = join(import.meta.dirname, '../../../build/app/')
 
     if (process.env.NODE_ENV === 'development' || argumentEnv.TESTING == 1) {

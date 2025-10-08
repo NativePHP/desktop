@@ -23,7 +23,7 @@ class ElectronServiceProvider extends PackageServiceProvider
         // Will use the published electron project, or fallback to the vendor default
         $publishedProjectPath = base_path("nativephp/electron/{$path}");
 
-        return is_dir($publishedProjectPath)
+        return file_exists("{$publishedProjectPath}/package.json")
             ? $publishedProjectPath
             : Composer::desktopPackagePath("resources/electron/{$path}");
     }
