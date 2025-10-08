@@ -10,6 +10,7 @@ use Native\Desktop\Drivers\Electron\Commands\InstallCommand;
 use Native\Desktop\Drivers\Electron\Commands\PublishCommand;
 use Native\Desktop\Drivers\Electron\Commands\ResetCommand;
 use Native\Desktop\Drivers\Electron\Commands\RunCommand;
+use Native\Desktop\Drivers\Electron\Commands\ServeCommand;
 use Native\Desktop\Drivers\Electron\Updater\UpdaterManager;
 use Native\Desktop\Support\Composer;
 use Spatie\LaravelPackageTools\Package;
@@ -43,6 +44,7 @@ class ElectronServiceProvider extends PackageServiceProvider
                 PublishCommand::class,
                 BundleCommand::class,
                 ResetCommand::class,
+                ServeCommand::class, // Deprecated
             ]);
     }
 
