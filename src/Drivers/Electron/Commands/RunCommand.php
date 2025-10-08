@@ -15,17 +15,17 @@ use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
 
 #[AsCommand(
-    name: 'native:serve',
+    name: 'native:run',
     description: 'Start the NativePHP development server with the Electron app',
 )]
-class DevelopCommand extends Command
+class RunCommand extends Command
 {
     use Developer;
     use Installer;
     use InstallsAppIcon;
     use PatchesPackagesJson;
 
-    protected $signature = 'native:serve {--no-queue} {--D|no-dependencies} {--installer=npm}';
+    protected $signature = 'native:run {--no-queue} {--D|no-dependencies} {--installer=npm}';
 
     public function __construct(
         protected Builder $builder
@@ -57,7 +57,7 @@ class DevelopCommand extends Command
 
         $this->installIcon();
 
-        $this->builder->copyCertificateAuthority(path: ElectronServiceProvider::ELECTRON_PATH.'/resources');
+        $this->builder->copyCertificateAuthority();
 
         $this->runDeveloper(
             installer: $this->option('installer'),
@@ -72,7 +72,7 @@ class DevelopCommand extends Command
      */
     protected function patchPlist(): void
     {
-        $pList = file_get_contents(ElectronServiceProvider::ELECTRON_PATH.'/node_modules/electron/dist/Electron.app/Contents/Info.plist');
+        $pList = file_get_contents(ElectronServiceProvider::electronPath('node_modules/electron/dist/Electron.app/Contents/Info.plist'));
 
         // Change the CFBundleName to the correct app name
         $pattern = '/(<key>CFBundleName<\/key>\s+<string>)(.*?)(<\/string>)/m';
@@ -81,6 +81,6 @@ class DevelopCommand extends Command
         $pattern = '/(<key>CFBundleDisplayName<\/key>\s+<string>)(.*?)(<\/string>)/m';
         $pList = preg_replace($pattern, '$1'.config('app.name').'$3', $pList);
 
-        file_put_contents(ElectronServiceProvider::ELECTRON_PATH.'/node_modules/electron/dist/Electron.app/Contents/Info.plist', $pList);
+        file_put_contents(ElectronServiceProvider::electronPath('node_modules/electron/dist/Electron.app/Contents/Info.plist'), $pList);
     }
 }
