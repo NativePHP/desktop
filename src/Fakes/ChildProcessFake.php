@@ -29,6 +29,11 @@ class ChildProcessFake implements ChildProcessContract
     public array $artisans = [];
 
     /**
+     * @var array<int, array{cmd: array|string, alias: string, env: array|null, persistent: bool}>
+     */
+    public array $nodes = [];
+
+    /**
      * @var array<int, string|null>
      */
     public array $stops = [];
@@ -108,6 +113,23 @@ class ChildProcessFake implements ChildProcessContract
 
         return $this;
     }
+
+    public function node(
+        string|array $cmd,
+        string $alias,
+        ?array $env = null,
+        ?bool $persistent = false
+    ): self {
+        $this->nodes[] = [
+            'cmd' => $cmd,
+            'alias' => $alias,
+            'env' => $env,
+            'persistent' => $persistent,
+        ];
+
+        return $this;
+    }
+
 
     public function stop(?string $alias = null): void
     {
@@ -191,6 +213,21 @@ class ChildProcessFake implements ChildProcessContract
             array_filter(
                 $this->artisans,
                 fn (array $artisan) => $callback(...$artisan) === true
+            )
+        ) === false;
+
+        PHPUnit::assertTrue($hit);
+    }
+
+    /**
+     * @param  Closure(array|string $cmd, string $alias, ?array $env, ?bool $persistent): bool  $callback
+     */
+    public function assertNode(Closure $callback): void
+    {
+        $hit = empty(
+            array_filter(
+                $this->nodes,
+                fn (array $node) => $callback(...$node) === true
             )
         ) === false;
 
