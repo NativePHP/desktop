@@ -22,17 +22,15 @@ class Builder
     use CopiesBundleToBuildDirectory;
 
     public function __construct(
-        private string $buildPath,
+        private ?string $buildPath = null,
         private ?string $sourcePath = null,
     ) {
-
-        $this->sourcePath = $sourcePath
-            ? $sourcePath
-            : base_path();
+        $this->buildPath = $buildPath ?? base_path('build');
+        $this->sourcePath = $sourcePath ?? base_path();
     }
 
     public static function make(
-        string $buildPath,
+        ?string $buildPath = null,
         ?string $sourcePath = null
     ) {
         return new self($buildPath, $sourcePath);

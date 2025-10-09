@@ -11,6 +11,8 @@ namespace Native\Desktop\Builder\Concerns;
 
 trait ManagesEnvFile
 {
+    abstract public function buildPath(string $path = ''): string;
+
     public array $overrideKeys = [
         'LOG_CHANNEL',
         'LOG_STACK',
@@ -21,11 +23,10 @@ trait ManagesEnvFile
     /**
      * Clean sensitive information from .env file for production builds
      */
-    public function cleanEnvFile(): void
+    public function cleanEnvFile(?string $envPath = null): void
     {
+        $envFile = $envPath ?? $this->getEnvPath();
         $cleanUpKeys = array_merge($this->overrideKeys, config('nativephp.cleanup_env_keys', []));
-
-        $envFile = $this->getEnvPath();
 
         $contents = collect(file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES))
             // Remove cleanup keys
@@ -49,7 +50,7 @@ trait ManagesEnvFile
     /**
      * Update or add an environment variable
      */
-    protected function updateEnvFile(string $key, string $value, ?string $envPath = null): void
+    public function updateEnvFile(string $key, string $value, ?string $envPath = null): void
     {
         $envPath = $envPath ?? $this->getEnvPath();
         $envContent = file_get_contents($envPath);
@@ -68,7 +69,7 @@ trait ManagesEnvFile
     /**
      * Remove environment variables
      */
-    protected function removeFromEnvFile(array $keys, ?string $envPath = null): void
+    public function removeFromEnvFile(array $keys, ?string $envPath = null): void
     {
         $envPath = $envPath ?? $this->getEnvPath();
         $envContent = file_get_contents($envPath);
@@ -87,7 +88,7 @@ trait ManagesEnvFile
     /**
      * Get an environment variable value
      */
-    protected function getEnvValue(string $key, ?string $envPath = null): ?string
+    public function getEnvValue(string $key, ?string $envPath = null): ?string
     {
         $envPath = $envPath ?? $this->getEnvPath();
 
@@ -109,12 +110,6 @@ trait ManagesEnvFile
      */
     private function getEnvPath(): string
     {
-        // If buildPath method exists (BuildCommand context), use build directory
-        if (method_exists($this, 'buildPath')) {
-            return $this->buildPath(app()->environmentFile());
-        }
-
-        // Default to base path (Bifrost commands context)
-        return base_path('.env');
+        return $this->buildPath('app/' .app()->environmentFile());
     }
 }

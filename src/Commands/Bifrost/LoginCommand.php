@@ -6,10 +6,10 @@ use Exception;
 use Illuminate\Console\Command;
 use function Laravel\Prompts\text;
 use function Laravel\Prompts\intro;
+use Native\Desktop\Builder\Builder;
 use Illuminate\Support\Facades\Http;
 use function Laravel\Prompts\password;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Native\Desktop\Builder\Concerns\ManagesEnvFile;
 use Native\Desktop\Commands\Bifrost\Concerns\HandlesBifrost;
 
 #[AsCommand(
@@ -19,7 +19,6 @@ use Native\Desktop\Commands\Bifrost\Concerns\HandlesBifrost;
 class LoginCommand extends Command
 {
     use HandlesBifrost;
-    use ManagesEnvFile;
 
     protected $signature = 'bifrost:login';
 
@@ -70,7 +69,7 @@ class LoginCommand extends Command
             $token = $responseData['data']['token'];
 
             // Store token in .env file
-            $this->updateEnvFile('BIFROST_TOKEN', $token);
+            Builder::make()->updateEnvFile('BIFROST_TOKEN', $token, app()->environmentFile());
 
             // Fetch and display user info
             $this->displayUserInfo($token);

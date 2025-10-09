@@ -5,9 +5,9 @@ namespace Native\Desktop\Commands\Bifrost;
 use Exception;
 use Illuminate\Console\Command;
 use function Laravel\Prompts\intro;
+use Native\Desktop\Builder\Builder;
 use function Laravel\Prompts\select;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Native\Desktop\Builder\Concerns\ManagesEnvFile;
 use Native\Desktop\Commands\Bifrost\Concerns\HandlesBifrost;
 
 #[AsCommand(
@@ -17,7 +17,6 @@ use Native\Desktop\Commands\Bifrost\Concerns\HandlesBifrost;
 class InitCommand extends Command
 {
     use HandlesBifrost;
-    use ManagesEnvFile;
 
     protected $signature = 'bifrost:init';
 
@@ -84,7 +83,7 @@ class InitCommand extends Command
             }
 
             // Store project UUID in .env file
-            $this->updateEnvFile('BIFROST_PROJECT', $selectedProjectUuid);
+            Builder::make()->updateEnvFile('BIFROST_PROJECT', $selectedProjectUuid, app()->environmentFile());
 
             $this->displaySuccessMessage($selectedProject);
 
