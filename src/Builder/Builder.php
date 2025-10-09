@@ -2,24 +2,24 @@
 
 namespace Native\Desktop\Builder;
 
-use Native\Desktop\Builder\Concerns\CleansEnvFile;
 use Native\Desktop\Builder\Concerns\CopiesBundleToBuildDirectory;
 use Native\Desktop\Builder\Concerns\CopiesCertificateAuthority;
-use Native\Desktop\Builder\Concerns\CopiesToBuildDirectory;
 use Native\Desktop\Builder\Concerns\HasPreAndPostProcessing;
-use Native\Desktop\Builder\Concerns\LocatesPhpBinary;
+use Native\Desktop\Builder\Concerns\CopiesToBuildDirectory;
 use Native\Desktop\Builder\Concerns\PrunesVendorDirectory;
+use Native\Desktop\Builder\Concerns\LocatesPhpBinary;
+use Native\Desktop\Builder\Concerns\ManagesEnvFile;
 use Symfony\Component\Filesystem\Path;
 
 class Builder
 {
-    use CleansEnvFile;
-    use CopiesBundleToBuildDirectory;
-    use CopiesCertificateAuthority;
-    use CopiesToBuildDirectory;
-    use HasPreAndPostProcessing;
+    use ManagesEnvFile;
     use LocatesPhpBinary;
     use PrunesVendorDirectory;
+    use CopiesToBuildDirectory;
+    use HasPreAndPostProcessing;
+    use CopiesCertificateAuthority;
+    use CopiesBundleToBuildDirectory;
 
     public function __construct(
         private string $buildPath,

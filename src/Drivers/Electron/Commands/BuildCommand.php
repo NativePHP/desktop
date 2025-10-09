@@ -22,8 +22,8 @@ use function Laravel\Prompts\intro;
 )]
 class BuildCommand extends Command
 {
-    use InstallsAppIcon;
     use OsAndArch;
+    use InstallsAppIcon;
     use PatchesPackagesJson;
 
     protected $signature = 'native:build

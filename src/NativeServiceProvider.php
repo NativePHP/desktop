@@ -2,36 +2,37 @@
 
 namespace Native\Desktop;
 
-use Illuminate\Console\Application;
-use Illuminate\Foundation\Application as Foundation;
-use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use Native\Desktop\ChildProcess as ChildProcessImplementation;
+use Illuminate\Console\Application;
+use Native\Desktop\Commands\Bifrost;
+use Illuminate\Foundation\Http\Kernel;
+use Native\Desktop\Exceptions\Handler;
+use Native\Desktop\Logging\LogWatcher;
+use Illuminate\Support\Facades\Artisan;
+use Native\Desktop\Events\EventWatcher;
+use Spatie\LaravelPackageTools\Package;
 use Native\Desktop\Commands\DebugCommand;
 use Native\Desktop\Commands\FreshCommand;
-use Native\Desktop\Commands\LoadPHPConfigurationCommand;
-use Native\Desktop\Commands\LoadStartupConfigurationCommand;
 use Native\Desktop\Commands\MigrateCommand;
+use Native\Desktop\DataObjects\QueueConfig;
 use Native\Desktop\Commands\SeedDatabaseCommand;
 use Native\Desktop\Commands\WipeDatabaseCommand;
-use Native\Desktop\Contracts\ChildProcess as ChildProcessContract;
-use Native\Desktop\Contracts\GlobalShortcut as GlobalShortcutContract;
-use Native\Desktop\Contracts\PowerMonitor as PowerMonitorContract;
-use Native\Desktop\Contracts\QueueWorker as QueueWorkerContract;
-use Native\Desktop\Contracts\WindowManager as WindowManagerContract;
-use Native\Desktop\DataObjects\QueueConfig;
-use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
-use Native\Desktop\Events\EventWatcher;
-use Native\Desktop\Exceptions\Handler;
-use Native\Desktop\GlobalShortcut as GlobalShortcutImplementation;
-use Native\Desktop\Http\Middleware\PreventRegularBrowserAccess;
-use Native\Desktop\Logging\LogWatcher;
-use Native\Desktop\PowerMonitor as PowerMonitorImplementation;
-use Native\Desktop\Windows\WindowManager as WindowManagerImplementation;
-use Spatie\LaravelPackageTools\Package;
+use Illuminate\Foundation\Application as Foundation;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Native\Desktop\Commands\LoadPHPConfigurationCommand;
+use Native\Desktop\Commands\LoadStartupConfigurationCommand;
+use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
+use Native\Desktop\ChildProcess as ChildProcessImplementation;
+use Native\Desktop\PowerMonitor as PowerMonitorImplementation;
+use Native\Desktop\Http\Middleware\PreventRegularBrowserAccess;
+use Native\Desktop\Contracts\QueueWorker as QueueWorkerContract;
+use Native\Desktop\Contracts\ChildProcess as ChildProcessContract;
+use Native\Desktop\Contracts\PowerMonitor as PowerMonitorContract;
+use Native\Desktop\GlobalShortcut as GlobalShortcutImplementation;
+use Native\Desktop\Contracts\WindowManager as WindowManagerContract;
+use Native\Desktop\Contracts\GlobalShortcut as GlobalShortcutContract;
+use Native\Desktop\Windows\WindowManager as WindowManagerImplementation;
 
 class NativeServiceProvider extends PackageServiceProvider
 {
@@ -46,6 +47,11 @@ class NativeServiceProvider extends PackageServiceProvider
                 MigrateCommand::class,
                 SeedDatabaseCommand::class,
                 WipeDatabaseCommand::class,
+                Bifrost\LoginCommand::class,
+                Bifrost\LogoutCommand::class,
+                Bifrost\InitCommand::class,
+                Bifrost\DownloadBundleCommand::class,
+                Bifrost\ClearBundleCommand::class,
             ])
             ->hasConfigFile()
             ->hasRoute('api')
