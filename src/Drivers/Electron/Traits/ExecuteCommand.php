@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Process;
 use Native\Desktop\Builder\Builder;
 use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
 
-use function Laravel\Prompts\note;
-
 trait ExecuteCommand
 {
     protected function executeCommand(
@@ -34,8 +32,6 @@ trait ExecuteCommand
                 'NATIVEPHP_BUILD_PATH' => ElectronServiceProvider::buildPath(),
             ],
         ];
-
-        note('Fetching latest dependencies…');
 
         Process::path(ElectronServiceProvider::electronPath())
             ->env($envs[$type])
