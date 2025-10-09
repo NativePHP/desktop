@@ -24,7 +24,7 @@ it('can start a child process', function () {
     Http::assertSent(function (Request $request) {
         return $request->url() === 'http://localhost:4000/api/child-process/start' &&
                $request['alias'] === 'some-alias' &&
-               $request['cmd'] === ['foo bar'] &&
+               $request['cmd'] === ['foo', 'bar'] &&
                $request['cwd'] === 'path/to/dir' &&
                $request['env'] === ['baz' => 'zah'];
     });
@@ -36,7 +36,7 @@ it('can start a php command', function () {
     Http::assertSent(function (Request $request) {
         return $request->url() === 'http://localhost:4000/api/child-process/start-php' &&
                $request['alias'] === 'some-alias' &&
-               $request['cmd'] === ["-r 'sleep(5);'"] &&
+               $request['cmd'] === ['-r', "'sleep(5);'"] &&
                $request['cwd'] === base_path() &&
                $request['env'] === ['baz' => 'zah'];
     });
@@ -48,7 +48,7 @@ it('can start a artisan command', function () {
     Http::assertSent(function (Request $request) {
         return $request->url() === 'http://localhost:4000/api/child-process/start-php' &&
                $request['alias'] === 'some-alias' &&
-               $request['cmd'] === ['artisan', 'foo:bar --verbose'] &&
+               $request['cmd'] === ['artisan', 'foo:bar', '--verbose'] &&
                $request['cwd'] === base_path() &&
                $request['env'] === ['baz' => 'zah'];
     });
