@@ -57,21 +57,21 @@ class ShellFake implements ShellContract
         return;
     }
 
-    public function assertOpenFile(string $path): void
+    public function assertOpenedFile(string $path): void
     {
         PHPUnit::assertContains($path, $this->openFileCalls);
 
         return;
     }
 
-    public function assertTrashFile(string $path): void
+    public function assertTrashedFile(string $path): void
     {
         PHPUnit::assertContains($path, $this->trashFileCalls);
 
         return;
     }
 
-    public function assertOpenExternal(string $url): void
+    public function assertOpenedExternal(string $url): void
     {
         PHPUnit::assertContains($url, $this->openExternalCalls);
 
