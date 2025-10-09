@@ -25,11 +25,12 @@ class NativePHP {
         this.mainWindow = null;
         this.schedulerInterval = undefined;
     }
-    bootstrap(app, icon, phpBinary, cert) {
+    bootstrap(app, icon, phpBinary, cert, appPath) {
         initialize();
         state.icon = icon;
         state.php = phpBinary;
         state.caCert = cert;
+        state.appPath = appPath;
         this.bootstrapApp(app);
         this.addEventListeners(app);
     }
