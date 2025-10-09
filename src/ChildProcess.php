@@ -98,6 +98,21 @@ class ChildProcess implements ChildProcessContract
         return $this->fromRuntimeProcess($process);
     }
 
+    public function node(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false): self
+    {
+        $cmd = is_array($cmd) ? array_values($cmd) : [$cmd];
+
+        $process = $this->client->post('child-process/start-node', [
+            'alias' => $alias,
+            'cmd' => $cmd,
+            'cwd' => base_path(),
+            'env' => $env,
+            'persistent' => $persistent,
+        ])->json();
+
+        return $this->fromRuntimeProcess($process);
+    }
+
     /**
      * @param  string|string[]  $cmd
      * @return $this

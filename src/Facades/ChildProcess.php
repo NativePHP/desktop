@@ -12,8 +12,9 @@ use Native\Desktop\Fakes\ChildProcessFake;
  * @method static \Native\Desktop\ChildProcess message(string $message, string $alias = null)
  * @method static \Native\Desktop\ChildProcess restart(string $alias = null)
  * @method static \Native\Desktop\ChildProcess start(string|array $cmd, string $alias, string $cwd = null, array $env = null, bool $persistent = false)
- * @method static \Native\Desktop\ChildProcess php(string|array $cmd, string $alias, array $env = null, bool $persistent = false)
- * @method static \Native\Desktop\ChildProcess artisan(string|array $cmd, string $alias, array $env = null, bool $persistent = false)
+ * @method static \Native\Desktop\ChildProcess node(string|array $cmd, string $alias, array $env = null, bool $persistent = false)
+ * @method static \Native\Desktop\ChildProcess php(string|array $cmd, string $alias, array $env = null, bool $persistent = false, array iniSettings = null)
+ * @method static \Native\Desktop\ChildProcess artisan(string|array $cmd, string $alias, array $env = null, bool $persistent = false, array iniSettings = null)
  * @method static void stop(string $alias = null)
  */
 class ChildProcess extends Facade

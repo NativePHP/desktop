@@ -3,15 +3,13 @@ import {utilityProcess, UtilityProcess} from 'electron';
 import state from '../state.js';
 import {notifyLaravel} from "../utils.js";
 import {getAppPath, getDefaultEnvironmentVariables, getDefaultPhpIniSettings, runningSecureBuild} from "../php.js";
-
-
 import killSync from "kill-sync";
 import {fileURLToPath} from "url";
 import {join} from "path";
 
 const router = express.Router();
 
-function startProcess(settings) {
+function startProcess(settings, useNodeRuntime = false) {
     const {alias, cmd, cwd, env, persistent, spawnTimeout = 30000} = settings;
 
     if (getProcess(alias) !== undefined) {
@@ -29,6 +27,7 @@ function startProcess(settings) {
                 env: {
                     ...process.env,
                     ...env,
+                    USE_NODE_RUNTIME: useNodeRuntime ? '1' : '0'
                 }
             }
         );
@@ -220,6 +219,12 @@ router.post('/start', (req, res) => {
 
     res.json(proc);
 });
+
+router.post('/start-node', (req, res) => {
+    const proc = startProcess(req.body, true);
+
+    res.json(proc);
+})
 
 router.post('/start-php', (req, res) => {
     const proc = startPhpProcess(req.body);
