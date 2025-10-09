@@ -61,6 +61,7 @@ export default {
     files: [
         '!**/.vscode/*',
         '!src/*',
+        '!dist/*',
         '!electron.vite.config.{js,ts,mjs,cjs}',
         '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}',
         '!{.env,.env.*,.npmrc,pnpm-lock.yaml}',
