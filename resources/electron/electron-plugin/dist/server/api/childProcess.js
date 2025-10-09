@@ -16,7 +16,7 @@ import killSync from "kill-sync";
 import { fileURLToPath } from "url";
 import { join } from "path";
 const router = express.Router();
-function startProcess(settings) {
+function startProcess(settings, useNodeRuntime = false) {
     const { alias, cmd, cwd, env, persistent, spawnTimeout = 30000 } = settings;
     if (getProcess(alias) !== undefined) {
         return state.processes[alias];
@@ -26,7 +26,7 @@ function startProcess(settings) {
             cwd,
             stdio: 'pipe',
             serviceName: alias,
-            env: Object.assign(Object.assign({}, process.env), env)
+            env: Object.assign(Object.assign(Object.assign({}, process.env), env), { USE_NODE_RUNTIME: useNodeRuntime ? '1' : '0' })
         });
         const startTimeout = setTimeout(() => {
             if (!state.processes[alias] || !state.processes[alias].pid) {
@@ -155,6 +155,10 @@ function getSettings(alias) {
 }
 router.post('/start', (req, res) => {
     const proc = startProcess(req.body);
+    res.json(proc);
+});
+router.post('/start-node', (req, res) => {
+    const proc = startProcess(req.body, true);
     res.json(proc);
 });
 router.post('/start-php', (req, res) => {
