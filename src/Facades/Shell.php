@@ -2,7 +2,9 @@
 
 namespace Native\Desktop\Facades;
 
+use Native\Desktop\Fakes\ShellFake;
 use Illuminate\Support\Facades\Facade;
+use Native\Desktop\Contracts\Shell as ShellContract;
 
 /**
  * @method static void showInFolder(string $path)
@@ -12,8 +14,17 @@ use Illuminate\Support\Facades\Facade;
  */
 class Shell extends Facade
 {
+    public static function fake()
+    {
+        return tap(static::getFacadeApplication()->make(ShellFake::class), function ($fake) {
+            static::swap($fake);
+        });
+    }
+
     protected static function getFacadeAccessor()
     {
-        return \Native\Desktop\Shell::class;
+        self::clearResolvedInstance(ShellContract::class);
+
+        return ShellContract::class;
     }
 }

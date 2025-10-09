@@ -8,6 +8,7 @@ use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Native\Desktop\Shell as ShellImplementation;
 use Native\Desktop\ChildProcess as ChildProcessImplementation;
 use Native\Desktop\Commands\DebugCommand;
 use Native\Desktop\Commands\FreshCommand;
@@ -16,6 +17,7 @@ use Native\Desktop\Commands\LoadStartupConfigurationCommand;
 use Native\Desktop\Commands\MigrateCommand;
 use Native\Desktop\Commands\SeedDatabaseCommand;
 use Native\Desktop\Commands\WipeDatabaseCommand;
+use Native\Desktop\Contracts\Shell as ShellContract;
 use Native\Desktop\Contracts\ChildProcess as ChildProcessContract;
 use Native\Desktop\Contracts\GlobalShortcut as GlobalShortcutContract;
 use Native\Desktop\Contracts\PowerMonitor as PowerMonitorContract;
@@ -72,6 +74,10 @@ class NativeServiceProvider extends PackageServiceProvider
 
         $this->app->bind(ChildProcessContract::class, function (Foundation $app) {
             return $app->make(ChildProcessImplementation::class);
+        });
+
+        $this->app->bind(ShellContract::class, function (Foundation $app) {
+            return $app->make(ShellImplementation::class);
         });
 
         $this->app->bind(GlobalShortcutContract::class, function (Foundation $app) {

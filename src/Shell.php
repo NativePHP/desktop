@@ -4,7 +4,9 @@ namespace Native\Desktop;
 
 use Native\Desktop\Client\Client;
 
-class Shell
+use Native\Desktop\Contracts\Shell as ShellContract;
+
+class Shell implements ShellContract
 {
     public function __construct(protected Client $client) {}
 
