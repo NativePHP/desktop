@@ -5,7 +5,6 @@ namespace Native\Desktop\Drivers\Electron;
 use Illuminate\Foundation\Application;
 use Native\Desktop\Builder\Builder;
 use Native\Desktop\Drivers\Electron\Commands\BuildCommand;
-use Native\Desktop\Drivers\Electron\Commands\BundleCommand;
 use Native\Desktop\Drivers\Electron\Commands\InstallCommand;
 use Native\Desktop\Drivers\Electron\Commands\PublishCommand;
 use Native\Desktop\Drivers\Electron\Commands\ResetCommand;
@@ -41,7 +40,6 @@ class ElectronServiceProvider extends PackageServiceProvider
                 RunCommand::class,
                 BuildCommand::class,
                 PublishCommand::class,
-                BundleCommand::class,
                 ResetCommand::class,
             ]);
     }
