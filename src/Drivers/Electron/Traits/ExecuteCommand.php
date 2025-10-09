@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Process;
 use Native\Desktop\Builder\Builder;
 use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
 
-use function Laravel\Prompts\note;
-
 trait ExecuteCommand
 {
     protected function executeCommand(
@@ -30,12 +28,12 @@ trait ExecuteCommand
                 'NATIVEPHP_PHP_BINARY_PATH' => $builder->phpBinaryPath(),
                 'NATIVE_PHP_SKIP_QUEUE' => $skip_queue,
                 'NATIVEPHP_BUILDING' => false,
+                'NATIVEPHP_ELECTRON_PATH' => ElectronServiceProvider::electronPath(),
+                'NATIVEPHP_BUILD_PATH' => ElectronServiceProvider::buildPath(),
             ],
         ];
 
-        note('Fetching latest dependencies…');
-
-        Process::path(ElectronServiceProvider::ELECTRON_PATH)
+        Process::path(ElectronServiceProvider::electronPath())
             ->env($envs[$type])
             ->forever()
             ->tty(! $withoutInteraction && PHP_OS_FAMILY != 'Windows')

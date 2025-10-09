@@ -65,9 +65,6 @@ export default {
         '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}',
         '!{.env,.env.*,.npmrc,pnpm-lock.yaml}',
     ],
-    asarUnpack: [
-        'resources/**',
-    ],
     beforePack: async (context) => {
         let arch = {
             1: 'x64',
@@ -136,6 +133,16 @@ export default {
         version: appVersion,
         author: appAuthor,
     },
+    extraResources: [
+        {
+            from: process.env.NATIVEPHP_BUILD_PATH,
+            to: 'build',
+            filter: [
+                '**/*',
+                '!{.git}',
+            ]
+        }
+    ],
     extraFiles: [
         {
             from: join(process.env.APP_PATH, 'extras'),
