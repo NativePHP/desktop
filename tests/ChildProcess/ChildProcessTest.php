@@ -24,7 +24,7 @@ it('can start a child process', function () {
     Http::assertSent(function (Request $request) {
         return $request->url() === 'http://localhost:4000/api/child-process/start' &&
                $request['alias'] === 'some-alias' &&
-               $request['cmd'] === ['foo bar'] &&
+               $request['cmd'] === ['foo', 'bar'] &&
                $request['cwd'] === 'path/to/dir' &&
                $request['env'] === ['baz' => 'zah'];
     });
@@ -36,7 +36,7 @@ it('can start a php command', function () {
     Http::assertSent(function (Request $request) {
         return $request->url() === 'http://localhost:4000/api/child-process/start-php' &&
                $request['alias'] === 'some-alias' &&
-               $request['cmd'] === ["-r 'sleep(5);'"] &&
+               $request['cmd'] === ['-r', "'sleep(5);'"] &&
                $request['cwd'] === base_path() &&
                $request['env'] === ['baz' => 'zah'];
     });
@@ -48,7 +48,19 @@ it('can start a artisan command', function () {
     Http::assertSent(function (Request $request) {
         return $request->url() === 'http://localhost:4000/api/child-process/start-php' &&
                $request['alias'] === 'some-alias' &&
-               $request['cmd'] === ['artisan', 'foo:bar --verbose'] &&
+               $request['cmd'] === ['artisan', 'foo:bar', '--verbose'] &&
+               $request['cwd'] === base_path() &&
+               $request['env'] === ['baz' => 'zah'];
+    });
+});
+
+it('can start a node process', function () {
+    ChildProcess::node('path/to/file.js', 'some-alias', ['baz' => 'zah']);
+
+    Http::assertSent(function (Request $request) {
+        return $request->url() === 'http://localhost:4000/api/child-process/start-node' &&
+               $request['alias'] === 'some-alias' &&
+               $request['cmd'] === ['path/to/file.js'] &&
                $request['cwd'] === base_path() &&
                $request['env'] === ['baz' => 'zah'];
     });
@@ -56,7 +68,7 @@ it('can start a artisan command', function () {
 
 it('accepts either a string or a array as start command argument', function () {
     ChildProcess::start('foo bar', 'some-alias');
-    Http::assertSent(fn (Request $request) => $request['cmd'] === ['foo bar']);
+    Http::assertSent(fn (Request $request) => $request['cmd'] === ['foo', 'bar']);
 
     ChildProcess::start(['foo', 'baz'], 'some-alias');
     Http::assertSent(fn (Request $request) => $request['cmd'] === ['foo', 'baz']);
@@ -64,7 +76,7 @@ it('accepts either a string or a array as start command argument', function () {
 
 it('accepts either a string or a array as php command argument', function () {
     ChildProcess::php("-r 'sleep(5);'", 'some-alias');
-    Http::assertSent(fn (Request $request) => $request['cmd'] === ["-r 'sleep(5);'"]);
+    Http::assertSent(fn (Request $request) => $request['cmd'] === ['-r', "'sleep(5);'"]);
 
     ChildProcess::php(['-r', "'sleep(5);'"], 'some-alias');
     Http::assertSent(fn (Request $request) => $request['cmd'] === ['-r', "'sleep(5);'"]);
@@ -76,6 +88,14 @@ it('accepts either a string or a array as artisan command argument', function ()
 
     ChildProcess::artisan(['foo:baz'], 'some-alias');
     Http::assertSent(fn (Request $request) => $request['cmd'] === ['artisan', 'foo:baz']);
+});
+
+it('accepts either a string or a array as node process argument', function () {
+    ChildProcess::node('path/to/file.js --some-option', 'some-alias');
+    Http::assertSent(fn (Request $request) => $request['cmd'] === ['path/to/file.js', '--some-option']);
+
+    ChildProcess::node(['path/to/other-file.js', '--some-option'], 'some-alias');
+    Http::assertSent(fn (Request $request) => $request['cmd'] === ['path/to/other-file.js', '--some-option']);
 });
 
 it('sets the cwd to the base path if none was given', function () {

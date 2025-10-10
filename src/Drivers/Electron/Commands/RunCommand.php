@@ -16,7 +16,7 @@ use function Laravel\Prompts\note;
 
 #[AsCommand(
     name: 'native:run',
-    description: 'Start the NativePHP development server with the Electron app',
+    description: 'Start the NativePHP development server',
 )]
 class RunCommand extends Command
 {

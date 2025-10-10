@@ -9,6 +9,7 @@ use Native\Desktop\Drivers\Electron\Commands\InstallCommand;
 use Native\Desktop\Drivers\Electron\Commands\PublishCommand;
 use Native\Desktop\Drivers\Electron\Commands\ResetCommand;
 use Native\Desktop\Drivers\Electron\Commands\RunCommand;
+use Native\Desktop\Drivers\Electron\Commands\ServeCommand;
 use Native\Desktop\Drivers\Electron\Updater\UpdaterManager;
 use Native\Desktop\Support\Composer;
 use Spatie\LaravelPackageTools\Package;
@@ -21,7 +22,7 @@ class ElectronServiceProvider extends PackageServiceProvider
         // Will use the published electron project, or fallback to the vendor default
         $publishedProjectPath = base_path("nativephp/electron/{$path}");
 
-        return is_dir($publishedProjectPath)
+        return file_exists("{$publishedProjectPath}/package.json")
             ? $publishedProjectPath
             : Composer::desktopPackagePath("resources/electron/{$path}");
     }
@@ -41,6 +42,7 @@ class ElectronServiceProvider extends PackageServiceProvider
                 BuildCommand::class,
                 PublishCommand::class,
                 ResetCommand::class,
+                ServeCommand::class, // Deprecated
             ]);
     }
 

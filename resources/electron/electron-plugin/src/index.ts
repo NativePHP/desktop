@@ -31,7 +31,8 @@ class NativePHP {
     app: CrossProcessExports.App,
     icon: string,
     phpBinary: string,
-    cert: string
+    cert: string,
+    appPath: string
   ) {
 
     initialize();
@@ -39,6 +40,7 @@ class NativePHP {
     state.icon = icon;
     state.php = phpBinary;
     state.caCert = cert;
+    state.appPath = appPath;
 
     this.bootstrapApp(app);
     this.addEventListeners(app);
