@@ -9,6 +9,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Native\Desktop\ChildProcess as ChildProcessImplementation;
+use Native\Desktop\Commands\Bifrost;
 use Native\Desktop\Commands\DebugCommand;
 use Native\Desktop\Commands\FreshCommand;
 use Native\Desktop\Commands\LoadPHPConfigurationCommand;
@@ -48,6 +49,11 @@ class NativeServiceProvider extends PackageServiceProvider
                 MigrateCommand::class,
                 SeedDatabaseCommand::class,
                 WipeDatabaseCommand::class,
+                Bifrost\LoginCommand::class,
+                Bifrost\LogoutCommand::class,
+                Bifrost\InitCommand::class,
+                Bifrost\DownloadBundleCommand::class,
+                Bifrost\ClearBundleCommand::class,
             ])
             ->hasConfigFile()
             ->hasRoute('api')

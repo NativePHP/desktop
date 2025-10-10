@@ -1,6 +1,6 @@
 <?php
 
-use Native\Desktop\Builder\Concerns\CleansEnvFile;
+use Native\Desktop\Builder\Concerns\ManagesEnvFile;
 use Native\Desktop\NativeServiceProvider;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -27,7 +27,7 @@ afterEach(fn () => (new Filesystem)->remove($buildPath));
 */
 $command = new class($buildPath)
 {
-    use CleansEnvFile;
+    use ManagesEnvFile;
 
     public function __construct(
         public $buildPath
