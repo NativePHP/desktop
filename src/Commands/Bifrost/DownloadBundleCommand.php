@@ -2,14 +2,14 @@
 
 namespace Native\Desktop\Commands\Bifrost;
 
-use Exception;
 use Carbon\CarbonInterface;
+use Exception;
 use Illuminate\Console\Command;
-use function Laravel\Prompts\intro;
 use Illuminate\Support\Facades\Http;
 use Native\Desktop\Commands\Bifrost\Concerns\HandlesBifrost;
-
 use Symfony\Component\Console\Attribute\AsCommand;
+
+use function Laravel\Prompts\intro;
 
 #[AsCommand(
     name: 'bifrost:download-bundle',

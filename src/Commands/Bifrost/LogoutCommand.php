@@ -3,11 +3,12 @@
 namespace Native\Desktop\Commands\Bifrost;
 
 use Illuminate\Console\Command;
-use Native\Desktop\Builder\Builder;
-use function Laravel\Prompts\intro;
 use Illuminate\Support\Facades\Http;
-use Symfony\Component\Console\Attribute\AsCommand;
+use Native\Desktop\Builder\Builder;
 use Native\Desktop\Commands\Bifrost\Concerns\HandlesBifrost;
+use Symfony\Component\Console\Attribute\AsCommand;
+
+use function Laravel\Prompts\intro;
 
 #[AsCommand(
     name: 'bifrost:logout',

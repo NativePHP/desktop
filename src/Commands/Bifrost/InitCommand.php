@@ -4,11 +4,12 @@ namespace Native\Desktop\Commands\Bifrost;
 
 use Exception;
 use Illuminate\Console\Command;
-use function Laravel\Prompts\intro;
 use Native\Desktop\Builder\Builder;
-use function Laravel\Prompts\select;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Native\Desktop\Commands\Bifrost\Concerns\HandlesBifrost;
+use Symfony\Component\Console\Attribute\AsCommand;
+
+use function Laravel\Prompts\intro;
+use function Laravel\Prompts\select;
 
 #[AsCommand(
     name: 'bifrost:init',

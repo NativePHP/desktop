@@ -1,9 +1,8 @@
 <?php
 
+use Native\Desktop\Builder\Concerns\ManagesEnvFile;
 use Native\Desktop\NativeServiceProvider;
 use Symfony\Component\Filesystem\Filesystem;
-use Native\Desktop\Builder\Concerns\CleansEnvFile;
-use Native\Desktop\Builder\Concerns\ManagesEnvFile;
 
 /*
 |--------------------------------------------------------------------------

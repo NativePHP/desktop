@@ -110,6 +110,6 @@ trait ManagesEnvFile
      */
     private function getEnvPath(): string
     {
-        return $this->buildPath('app/' .app()->environmentFile());
+        return $this->buildPath('app/'.app()->environmentFile());
     }
 }
