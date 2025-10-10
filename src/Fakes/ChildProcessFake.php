@@ -130,7 +130,6 @@ class ChildProcessFake implements ChildProcessContract
         return $this;
     }
 
-
     public function stop(?string $alias = null): void
     {
         $this->stops[] = $alias;

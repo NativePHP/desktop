@@ -3,7 +3,6 @@
 namespace Native\Desktop;
 
 use Native\Desktop\Client\Client;
-
 use Native\Desktop\Contracts\Shell as ShellContract;
 
 class Shell implements ShellContract

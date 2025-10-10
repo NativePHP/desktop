@@ -2,9 +2,9 @@
 
 namespace Native\Desktop\Facades;
 
-use Native\Desktop\Fakes\ShellFake;
 use Illuminate\Support\Facades\Facade;
 use Native\Desktop\Contracts\Shell as ShellContract;
+use Native\Desktop\Fakes\ShellFake;
 
 /**
  * @method static void showInFolder(string $path)

@@ -2,7 +2,6 @@
 
 namespace Native\Desktop\Fakes;
 
-use Closure;
 use Native\Desktop\Contracts\Shell as ShellContract;
 use PHPUnit\Framework\Assert as PHPUnit;
 
@@ -54,27 +53,23 @@ class ShellFake implements ShellContract
     {
         PHPUnit::assertContains($path, $this->showInFolderCalls);
 
-        return;
     }
 
     public function assertOpenedFile(string $path): void
     {
         PHPUnit::assertContains($path, $this->openFileCalls);
 
-        return;
     }
 
     public function assertTrashedFile(string $path): void
     {
         PHPUnit::assertContains($path, $this->trashFileCalls);
 
-        return;
     }
 
     public function assertOpenedExternal(string $url): void
     {
         PHPUnit::assertContains($url, $this->openExternalCalls);
 
-        return;
     }
 }

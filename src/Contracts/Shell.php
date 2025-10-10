@@ -2,8 +2,6 @@
 
 namespace Native\Desktop\Contracts;
 
-use Native\Desktop\Client\Client;
-
 interface Shell
 {
     public function showInFolder(string $path): void;
