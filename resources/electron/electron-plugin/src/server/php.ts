@@ -19,7 +19,6 @@ const databasePath = join(app.getPath('userData'), 'database')
 const databaseFile = join(databasePath, 'database.sqlite')
 const bootstrapCache = join(app.getPath('userData'), 'bootstrap', 'cache')
 const argumentEnv = getArgumentEnv();
-const appPath = getAppPath();
 
 mkdirpSync(bootstrapCache);
 mkdirpSync(join(storagePath, 'logs'));
@@ -29,7 +28,7 @@ mkdirpSync(join(storagePath, 'framework', 'views'));
 mkdirpSync(join(storagePath, 'framework', 'testing'));
 
 function runningSecureBuild() {
-    return existsSync(join(appPath, 'build', '__nativephp_app_bundle'))
+    return existsSync(join(getAppPath(), 'build', '__nativephp_app_bundle'))
         && process.env.NODE_ENV !== 'development';
 }
 
@@ -90,6 +89,7 @@ function canBindToPort(port: number): Promise<boolean> {
 
 async function retrievePhpIniSettings() {
     const env = getDefaultEnvironmentVariables() as any;
+    const appPath = getAppPath();
 
     const phpOptions = {
         cwd: appPath,
@@ -107,6 +107,7 @@ async function retrievePhpIniSettings() {
 
 async function retrieveNativePHPConfig() {
     const env = getDefaultEnvironmentVariables() as any;
+    const appPath = getAppPath()
 
     const phpOptions = {
         cwd: appPath,
@@ -125,7 +126,7 @@ async function retrieveNativePHPConfig() {
 function callPhp(args, options, phpIniSettings = {}) {
 
     if (args[0] === 'artisan' && runningSecureBuild()) {
-        args.unshift(join(appPath, 'build', '__nativephp_app_bundle'));
+        args.unshift(join(getAppPath(), 'build', '__nativephp_app_bundle'));
     }
 
     let iniSettings = Object.assign(getDefaultPhpIniSettings(), phpIniSettings);
@@ -154,7 +155,7 @@ function callPhp(args, options, phpIniSettings = {}) {
 function callPhpSync(args, options, phpIniSettings = {}) {
 
     if (args[0] === 'artisan' && runningSecureBuild()) {
-        args.unshift(join(appPath, 'build', '__nativephp_app_bundle'));
+        args.unshift(join(getAppPath(), 'build', '__nativephp_app_bundle'));
     }
 
     let iniSettings = Object.assign(getDefaultPhpIniSettings(), phpIniSettings);
@@ -196,7 +197,7 @@ function getArgumentEnv() {
 }
 
 function getAppPath() {
-    let appPath = join(import.meta.dirname, '../../../build/app/')
+    let appPath = state.appPath
 
     if (process.env.NODE_ENV === 'development' || argumentEnv.TESTING == 1) {
         appPath = process.env.APP_PATH || argumentEnv.APP_PATH;
@@ -209,10 +210,12 @@ function ensureAppFoldersAreAvailable() {
     // if (!runningSecureBuild()) {
     console.log('Copying storage folder...');
     console.log('Storage path:', storagePath);
-        if (!existsSync(storagePath) || process.env.NODE_ENV === 'development') {
-            console.log("App path:", appPath);
-            copySync(join(appPath, 'storage'), storagePath)
-        }
+
+    if (!existsSync(storagePath) || process.env.NODE_ENV === 'development') {
+        const appPath = getAppPath();
+        console.log("App path:", appPath);
+        copySync(join(appPath, 'storage'), storagePath)
+    }
     // }
 
     mkdirSync(databasePath, {recursive: true})
@@ -227,6 +230,7 @@ function ensureAppFoldersAreAvailable() {
 
 function startScheduler(secret, apiPort, phpIniSettings = {}) {
     const env = getDefaultEnvironmentVariables(secret, apiPort);
+    const appPath = getAppPath();
 
     const phpOptions = {
         cwd: appPath,

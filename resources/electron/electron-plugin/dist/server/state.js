@@ -30,6 +30,7 @@ export default {
     phpPort: null,
     phpIni: null,
     caCert: null,
+    appPath: null,
     icon: null,
     store: settingsStore,
     randomSecret: generateRandomString(32),

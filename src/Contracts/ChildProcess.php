@@ -20,6 +20,8 @@ interface ChildProcess
 
     public function artisan(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null): self;
 
+    public function node(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false): self;
+
     public function stop(?string $alias = null): void;
 
     public function restart(?string $alias = null): ?self;

@@ -65,7 +65,7 @@ class ChildProcess implements ChildProcessContract
         ?array $env = null,
         bool $persistent = false
     ): self {
-        $cmd = is_array($cmd) ? array_values($cmd) : [$cmd];
+        $cmd = $this->parseCommand($cmd);
 
         $process = $this->client->post('child-process/start', [
             'alias' => $alias,
@@ -84,7 +84,7 @@ class ChildProcess implements ChildProcessContract
      */
     public function php(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null): self
     {
-        $cmd = is_array($cmd) ? array_values($cmd) : [$cmd];
+        $cmd = $this->parseCommand($cmd);
 
         $process = $this->client->post('child-process/start-php', [
             'alias' => $alias,
@@ -100,7 +100,7 @@ class ChildProcess implements ChildProcessContract
 
     public function node(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false): self
     {
-        $cmd = is_array($cmd) ? array_values($cmd) : [$cmd];
+        $cmd = $this->parseCommand($cmd);
 
         $process = $this->client->post('child-process/start-node', [
             'alias' => $alias,
@@ -119,7 +119,7 @@ class ChildProcess implements ChildProcessContract
      */
     public function artisan(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null): self
     {
-        $cmd = is_array($cmd) ? array_values($cmd) : [$cmd];
+        $cmd = $this->parseCommand($cmd);
 
         $cmd = ['artisan', ...$cmd];
 
@@ -172,5 +172,17 @@ class ChildProcess implements ChildProcessContract
         }
 
         return $this;
+    }
+
+    /* Convert a cmd string to array representation (explode on space, except within quotes) */
+    protected function parseCommand(string|array $cmd): array
+    {
+        if (is_array($cmd)) {
+            return array_values($cmd);
+        }
+
+        preg_match_all('/"[^"]*"|\'[^\']*\'|[^\s]+/', $cmd, $matches);
+
+        return array_filter($matches[0]);
     }
 }
