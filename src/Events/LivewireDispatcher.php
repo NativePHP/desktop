@@ -19,19 +19,19 @@ class LivewireDispatcher
     public function handle(RequestHandled $handled)
     {
         $identifier = 'NativePHP Livewire Dispatcher';
+        $html = $handled->response->getContent();
+        $originalContent = $handled->response->original;
 
         if (! $handled->response->isSuccessful()) {
             return;
         }
-
-        $html = $handled->response->getContent();
 
         // Skip if request doesn't return a full page
         if (! str_contains($html, '</html>')) {
             return;
         }
 
-        // Skip if core was included before
+        // Skip when included before
         if (str_contains($html, "<!--[{$identifier}]-->")) {
             return;
         }
@@ -40,9 +40,6 @@ class LivewireDispatcher
         $javascript = file_get_contents(
             ElectronServiceProvider::electronPath('electron-plugin/src/preload/livewire-dispatcher.js')
         );
-
-        // Keep a copy of the original response
-        $originalContent = $handled->response->original;
 
         $handled->response->setContent(
             $this->inject($html, <<< HTML
