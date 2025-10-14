@@ -25,6 +25,7 @@ class GitHubProvider implements Updater
             'private' => $this->config['private'],
             'channel' => $this->config['channel'],
             'releaseType' => $this->config['releaseType'],
+            'token' => $this->config['token'],
         ];
     }
 }

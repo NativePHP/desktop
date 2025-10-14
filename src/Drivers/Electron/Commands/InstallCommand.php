@@ -34,12 +34,14 @@ class InstallCommand extends Command
         $withoutInteraction = $this->option('no-interaction');
 
         // Prompt for publish
-        $shouldPromptForPublish = ! $force || ! $withoutInteraction;
-        $publish = $publish ?? $shouldPromptForPublish ?: confirm(
-            label: 'Would you like to publish the Electron project?',
-            hint: 'You\'ll only need this if you\'d like to customize NativePHP\'s inner workings.',
-            default: false
-        );
+        $shouldPromptForPublish = ! $force && ! $withoutInteraction;
+        if (! $publish && $shouldPromptForPublish) {
+            $publish = confirm(
+                label: 'Would you like to publish the Electron project?',
+                hint: 'You\'ll only need this if you\'d like to customize NativePHP\'s inner workings.',
+                default: false
+            );
+        }
 
         // Prompt to install NPM Dependencies
         $installer = $this->getInstaller($this->option('installer'));
@@ -63,7 +65,7 @@ class InstallCommand extends Command
 
         // Install `native:install` script with a --publish flag
         // if either publishing now or already published
-        $publish || is_dir(base_path('nativephp/electron'))
+        $publish || file_exists(base_path('nativephp/electron/package.json'))
             ? Composer::installUpdateScript(publish: true)
             : Composer::installUpdateScript();
 

@@ -56,11 +56,12 @@ export default {
     copyright: appCopyright,
     directories: {
         buildResources: 'build',
-        output: isBuilding ? join(process.env.APP_PATH, 'dist') : undefined,
+        output: isBuilding ? join(process.env.APP_PATH, 'nativephp', 'electron', 'dist') : undefined,
     },
     files: [
         '!**/.vscode/*',
         '!src/*',
+        '!dist/*',
         '!electron.vite.config.{js,ts,mjs,cjs}',
         '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}',
         '!{.env,.env.*,.npmrc,pnpm-lock.yaml}',

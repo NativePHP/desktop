@@ -9,6 +9,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Native\Desktop\ChildProcess as ChildProcessImplementation;
+use Native\Desktop\Commands\Bifrost;
 use Native\Desktop\Commands\DebugCommand;
 use Native\Desktop\Commands\FreshCommand;
 use Native\Desktop\Commands\LoadPHPConfigurationCommand;
@@ -20,6 +21,7 @@ use Native\Desktop\Contracts\ChildProcess as ChildProcessContract;
 use Native\Desktop\Contracts\GlobalShortcut as GlobalShortcutContract;
 use Native\Desktop\Contracts\PowerMonitor as PowerMonitorContract;
 use Native\Desktop\Contracts\QueueWorker as QueueWorkerContract;
+use Native\Desktop\Contracts\Shell as ShellContract;
 use Native\Desktop\Contracts\WindowManager as WindowManagerContract;
 use Native\Desktop\DataObjects\QueueConfig;
 use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
@@ -29,6 +31,7 @@ use Native\Desktop\GlobalShortcut as GlobalShortcutImplementation;
 use Native\Desktop\Http\Middleware\PreventRegularBrowserAccess;
 use Native\Desktop\Logging\LogWatcher;
 use Native\Desktop\PowerMonitor as PowerMonitorImplementation;
+use Native\Desktop\Shell as ShellImplementation;
 use Native\Desktop\Windows\WindowManager as WindowManagerImplementation;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -46,6 +49,11 @@ class NativeServiceProvider extends PackageServiceProvider
                 MigrateCommand::class,
                 SeedDatabaseCommand::class,
                 WipeDatabaseCommand::class,
+                Bifrost\LoginCommand::class,
+                Bifrost\LogoutCommand::class,
+                Bifrost\InitCommand::class,
+                Bifrost\DownloadBundleCommand::class,
+                Bifrost\ClearBundleCommand::class,
             ])
             ->hasConfigFile()
             ->hasRoute('api')
@@ -72,6 +80,10 @@ class NativeServiceProvider extends PackageServiceProvider
 
         $this->app->bind(ChildProcessContract::class, function (Foundation $app) {
             return $app->make(ChildProcessImplementation::class);
+        });
+
+        $this->app->bind(ShellContract::class, function (Foundation $app) {
+            return $app->make(ShellImplementation::class);
         });
 
         $this->app->bind(GlobalShortcutContract::class, function (Foundation $app) {

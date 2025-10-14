@@ -26,6 +26,7 @@ interface State {
   phpPort: number | null;
   phpIni: any;
   caCert: string | null;
+  appPath: string | null;
   icon: string | null;
   processes: Record<string, {pid: any, proc: UtilityProcess, settings: Record<string, any>}>;
   windows: Record<string, BrowserWindow>;
@@ -56,6 +57,7 @@ export default {
   phpPort: null,
   phpIni: null,
   caCert: null,
+  appPath: null,
   icon: null,
   store: settingsStore,
   randomSecret: generateRandomString(32),
