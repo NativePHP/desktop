@@ -11,6 +11,7 @@ use Native\Desktop\Drivers\Electron\Commands\ResetCommand;
 use Native\Desktop\Drivers\Electron\Commands\RunCommand;
 use Native\Desktop\Drivers\Electron\Commands\ServeCommand;
 use Native\Desktop\Drivers\Electron\Updater\UpdaterManager;
+use Native\Desktop\Events\LivewireDispatcher;
 use Native\Desktop\Support\Composer;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -57,5 +58,10 @@ class ElectronServiceProvider extends PackageServiceProvider
                 buildPath: self::buildPath()
             );
         });
+    }
+
+    public function packageBooted(): void
+    {
+        app(LivewireDispatcher::class)->register();
     }
 }
