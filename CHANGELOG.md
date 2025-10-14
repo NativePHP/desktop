@@ -2,6 +2,22 @@
 
 All notable changes to `nativephp-laravel` will be documented in this file.
 
+## 2.0.0 - 2025-10-14
+
+### What's Changed
+
+- Electron v38
+- 🔒 Enhanced Security by Default
+- 🔧 Modifiable Electron runtime
+- 📦 Bundle Additional Files with Your App
+- ✨ Run JavaScript ChildProcesses in Node from PHP
+- 🪟 WebPreferences for Menubar Windows
+- 🐚 New `Shell` fake
+
+⚠️ v2 contains **breaking changes**. Please read the [upgrade guide](https://nativephp.com.test/docs/desktop/2/getting-started/upgrade-guide).
+
+**Full Changelog**: https://github.com/NativePHP/desktop/commits/2.0.0
+
 ## 1.0.0-beta.1 - 2025-01-21
 
 ### What's Changed
