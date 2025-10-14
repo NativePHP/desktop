@@ -2,6 +2,14 @@
 
 All notable changes to `nativephp-laravel` will be documented in this file.
 
+## 2.0.1 - 2025-10-14
+
+### What's Changed
+
+* Fix livewire event forwarding by @gwleuverink in https://github.com/NativePHP/desktop/pull/9
+
+**Full Changelog**: https://github.com/NativePHP/desktop/compare/2.0.0...2.0.1
+
 ## 2.0.0 - 2025-10-14
 
 ### What's Changed
