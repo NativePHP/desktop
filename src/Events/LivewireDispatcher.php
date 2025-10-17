@@ -20,7 +20,11 @@ class LivewireDispatcher
     {
         $identifier = 'NativePHP Livewire Dispatcher';
         $html = $handled->response->getContent();
-        $originalContent = $handled->response->original;
+        $originalContent = $handled->response->original ?? null;
+
+        if (! $originalContent) {
+            return;
+        }
 
         if (! $handled->response->isSuccessful()) {
             return;
