@@ -154,6 +154,41 @@ it('asserts that a window was shown', function () {
     $this->fail('Expected assertion to fail');
 });
 
+it('asserts that a window was reloaded', function () {
+    swap(WindowManagerContract::class, $fake = app(WindowManagerFake::class));
+
+    app(WindowManagerContract::class)->reload('main');
+    app(WindowManagerContract::class)->reload('secondary');
+
+    $fake->assertReloaded('main');
+    $fake->assertReloaded('secondary');
+
+    try {
+        $fake->assertReloaded('tertiary');
+    } catch (AssertionFailedError) {
+        return;
+    }
+
+    $this->fail('Expected assertion to fail');
+});
+
+it('asserts that a window was\'t reloaded', function () {
+    swap(WindowManagerContract::class, $fake = app(WindowManagerFake::class));
+
+    app(WindowManagerContract::class)->reload('main');
+    app(WindowManagerContract::class)->reload('secondary');
+
+    $fake->assertNotReloaded('tertiary');
+
+    try {
+        $fake->assertNotReloaded('main');
+    } catch (AssertionFailedError) {
+        return;
+    }
+
+    $this->fail('Expected assertion to fail');
+});
+
 it('asserts opened count', function () {
     Http::fake(['*' => Http::response(status: 200)]);
 
