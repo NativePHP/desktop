@@ -1,6 +1,6 @@
 {
-    "name": "NativePHP",
-    "version": "1.0.0",
+    "name": "nativephp",
+    "version": "v2",
     "description": "A NativePHP Electron application",
     "main": "./out/main/index.js",
     "author": "NativePHP",
