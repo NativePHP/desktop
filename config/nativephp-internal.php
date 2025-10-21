@@ -92,6 +92,7 @@ return [
         'vendor/nativephp/desktop/resources',
         'vendor/nativephp/desktop/vendor',
         'vendor/nativephp/php-bin',
+        'nativephp',
 
         // Also deleted in PrunesVendorDirectory after fresh composer install
         'vendor/bin',
