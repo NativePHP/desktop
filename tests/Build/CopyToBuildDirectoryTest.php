@@ -219,3 +219,24 @@ it('preserves file permissions', function () use ($sourcePath, $buildPath, $comm
 
     expect(fileperms("$buildPath/app/file-under-test.txt"))->toBe($originalPermissions);
 });
+
+it('keeps cleanup_include_files if their parent directory is excluded', function () use ($sourcePath, $buildPath, $command) {
+
+    createFiles([
+        "$sourcePath/excluded/foo/remove.txt",
+        "$sourcePath/excluded/foo/keep.txt",
+    ]);
+
+    config()->set('nativephp.cleanup_exclude_files', [
+        'excluded/*',
+    ]);
+
+    config()->set('nativephp-internal.cleanup_include_files', [
+        'excluded/foo/keep.txt',
+    ]);
+
+    $command->copyToBuildDirectory();
+
+    expect("$buildPath/app/excluded/foo/remove.txt")->not->toBeFile();
+    expect("$buildPath/app/excluded/foo/keep.txt")->toBeFile();
+});

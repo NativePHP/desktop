@@ -88,7 +88,7 @@ trait CopiesToBuildDirectory
         }
 
         $this->keepRequiredDirectories();
-        $this->keepLivewireDispatcher();
+        $this->copyIncludedFiles();
 
         return true;
     }
@@ -108,16 +108,45 @@ trait CopiesToBuildDirectory
         $filesystem->dumpFile("{$buildPath}/storage/logs/_native.json", '{}');
     }
 
-    private function keepLivewireDispatcher()
+    private function copyIncludedFiles(): void
     {
-        // This is a bit leaky, since we only need this for electron, not potential other drivers
-        // We'll find a better place for it when we add more drivers.
-        $dispatcherPath = 'vendor/nativephp/desktop/resources/electron/electron-plugin/src/preload/livewire-dispatcher.js';
+
+        $sourcePath = $this->sourcePath();
+        $buildPath = $this->buildPath('app');
         $filesystem = new Filesystem;
 
-        $filesystem->copy(
-            $this->sourcePath($dispatcherPath),
-            $this->buildPath("app/{$dispatcherPath}")
+        $patterns = array_merge(
+            config('nativephp-internal.cleanup_include_files', []),
+            config('nativephp.cleanup_include_files', []),
         );
+
+        foreach ($patterns as $pattern) {
+            $matchingFiles = glob($sourcePath . '/' . $pattern, GLOB_BRACE);
+
+            foreach ($matchingFiles as $sourceFile) {
+                $relativePath = substr($sourceFile, strlen($sourcePath) + 1);
+                $targetFile = $buildPath . '/' . $relativePath;
+
+                // Create target directory if it doesn't exist
+                $targetDir = dirname($targetFile);
+                if (!is_dir($targetDir)) {
+                    $filesystem->mkdir($targetDir, 0755);
+                }
+
+                // Copy the file
+                if (is_file($sourceFile)) {
+                    copy($sourceFile, $targetFile);
+
+                    // Preserve permissions on non-Windows systems
+                    if (PHP_OS_FAMILY !== 'Windows') {
+                        $perms = fileperms($sourceFile);
+                        if ($perms !== false) {
+                            chmod($targetFile, $perms);
+                        }
+                    }
+                }
+            }
+        }
     }
+
 }
