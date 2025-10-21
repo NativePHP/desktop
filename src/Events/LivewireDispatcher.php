@@ -16,15 +16,11 @@ class LivewireDispatcher
     }
 
     /** Injects assets inside every full-page response */
-    public function handle(RequestHandled $handled)
+    public function handle(RequestHandled $handled): void
     {
         $identifier = 'NativePHP Livewire Dispatcher';
         $html = $handled->response->getContent();
         $originalContent = $handled->response->original ?? null;
-
-        if (! $originalContent) {
-            return;
-        }
 
         if (! $handled->response->isSuccessful()) {
             return;
@@ -54,7 +50,9 @@ class LivewireDispatcher
             HTML)
         );
 
-        $handled->response->original = $originalContent;
+        if (property_exists($handled->response, 'original')) {
+            $handled->response->original = $originalContent;
+        }
     }
 
     /** Injects assets into given html string (taken from Livewire's injection mechanism) */
