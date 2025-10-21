@@ -88,6 +88,7 @@ trait CopiesToBuildDirectory
         }
 
         $this->keepRequiredDirectories();
+        $this->keepLivewireDispatcher();
 
         return true;
     }
@@ -105,5 +106,18 @@ trait CopiesToBuildDirectory
         $filesystem->dumpFile("{$buildPath}/storage/framework/views/_native.json", '{}');
         $filesystem->dumpFile("{$buildPath}/storage/app/public/_native.json", '{}');
         $filesystem->dumpFile("{$buildPath}/storage/logs/_native.json", '{}');
+    }
+
+    private function keepLivewireDispatcher()
+    {
+        // This is a bit leaky, since we only need this for electron, not potential other drivers
+        // We'll find a better place for it when we add more drivers.
+        $dispatcherPath = 'vendor/nativephp/desktop/resources/electron/electron-plugin/src/preload/livewire-dispatcher.js';
+        $filesystem = new Filesystem;
+
+        $filesystem->copy(
+            $this->sourcePath($dispatcherPath),
+            $this->buildPath("app/{$dispatcherPath}")
+        );
     }
 }
