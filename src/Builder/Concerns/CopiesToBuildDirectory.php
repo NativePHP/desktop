@@ -121,15 +121,15 @@ trait CopiesToBuildDirectory
         ));
 
         foreach ($patterns as $pattern) {
-            $matchingFiles = glob($sourcePath . '/' . $pattern, GLOB_BRACE);
+            $matchingFiles = glob($sourcePath.'/'.$pattern, GLOB_BRACE);
 
             foreach ($matchingFiles as $sourceFile) {
                 $relativePath = substr($sourceFile, strlen($sourcePath) + 1);
-                $targetFile = $buildPath . '/' . $relativePath;
+                $targetFile = $buildPath.'/'.$relativePath;
 
                 // Create target directory if it doesn't exist
                 $targetDir = dirname($targetFile);
-                if (!is_dir($targetDir)) {
+                if (! is_dir($targetDir)) {
                     $filesystem->mkdir($targetDir, 0755);
                 }
 
@@ -148,5 +148,4 @@ trait CopiesToBuildDirectory
             }
         }
     }
-
 }
