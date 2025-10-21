@@ -121,7 +121,22 @@ trait CopiesToBuildDirectory
         ));
 
         foreach ($patterns as $pattern) {
-            $matchingFiles = glob($sourcePath.'/'.$pattern, GLOB_BRACE);
+            // Skip empty patterns
+            if (empty($pattern)) {
+                continue;
+            }
+
+            // Ensure pattern is relative (not absolute) for security
+            // Prevents /absolute/path on Unix and C:\path on Windows
+            if (str_starts_with($pattern, '/') || str_contains($pattern, '..') || (PHP_OS_FAMILY === 'Windows' && preg_match('/^[A-Za-z]:/', $pattern))) {
+                warning("[WARNING] Skipping potentially unsafe include pattern: {$pattern}");
+                continue;
+            }
+
+            // Normalize the pattern path separators
+            $pattern = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $pattern);
+
+            $matchingFiles = glob($sourcePath.DIRECTORY_SEPARATOR.$pattern, GLOB_BRACE);
 
             foreach ($matchingFiles as $sourceFile) {
                 $relativePath = substr($sourceFile, strlen($sourcePath) + 1);
