@@ -99,6 +99,16 @@ return [
     ],
 
     /**
+     * A list of files and folders that should be forcibly included
+     * even if they match exclusion patterns.
+     *
+     * Internal use only for now
+     */
+    'cleanup_include_files' => [
+        'vendor/nativephp/desktop/resources/electron/electron-plugin/src/preload/livewire-dispatcher.js',
+    ],
+
+    /**
      * The binary path of PHP for NativePHP to use at build.
      */
     'php_binary_path' => env('NATIVEPHP_PHP_BINARY_PATH'),

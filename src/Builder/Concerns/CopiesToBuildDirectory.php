@@ -28,10 +28,10 @@ trait CopiesToBuildDirectory
 
         $filesystem = new Filesystem;
 
-        $patterns = array_merge(
+        $patterns = array_unique(array_merge(
             config('nativephp-internal.cleanup_exclude_files', []),
             config('nativephp.cleanup_exclude_files', []),
-        );
+        ));
 
         // Clean and create build directory
         $filesystem->remove($buildPath);
@@ -88,7 +88,7 @@ trait CopiesToBuildDirectory
         }
 
         $this->keepRequiredDirectories();
-        $this->keepLivewireDispatcher();
+        $this->copyIncludedFiles();
 
         return true;
     }
@@ -108,16 +108,60 @@ trait CopiesToBuildDirectory
         $filesystem->dumpFile("{$buildPath}/storage/logs/_native.json", '{}');
     }
 
-    private function keepLivewireDispatcher()
+    private function copyIncludedFiles(): void
     {
-        // This is a bit leaky, since we only need this for electron, not potential other drivers
-        // We'll find a better place for it when we add more drivers.
-        $dispatcherPath = 'vendor/nativephp/desktop/resources/electron/electron-plugin/src/preload/livewire-dispatcher.js';
+
+        $sourcePath = $this->sourcePath();
+        $buildPath = $this->buildPath('app');
         $filesystem = new Filesystem;
 
-        $filesystem->copy(
-            $this->sourcePath($dispatcherPath),
-            $this->buildPath("app/{$dispatcherPath}")
-        );
+        $patterns = array_unique(array_merge(
+            config('nativephp-internal.cleanup_include_files', []),
+            config('nativephp.cleanup_include_files', []),
+        ));
+
+        foreach ($patterns as $pattern) {
+            // Skip empty patterns
+            if (empty($pattern)) {
+                continue;
+            }
+
+            // Ensure pattern is relative (not absolute) for security
+            // Prevents /absolute/path on Unix and C:\path on Windows
+            if (str_starts_with($pattern, '/') || str_contains($pattern, '..') || (PHP_OS_FAMILY === 'Windows' && preg_match('/^[A-Za-z]:/', $pattern))) {
+                warning("[WARNING] Skipping potentially unsafe include pattern: {$pattern}");
+
+                continue;
+            }
+
+            // Normalize the pattern path separators
+            $pattern = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $pattern);
+
+            $matchingFiles = glob($sourcePath.DIRECTORY_SEPARATOR.$pattern, GLOB_BRACE);
+
+            foreach ($matchingFiles as $sourceFile) {
+                $relativePath = substr($sourceFile, strlen($sourcePath) + 1);
+                $targetFile = $buildPath.'/'.$relativePath;
+
+                // Create target directory if it doesn't exist
+                $targetDir = dirname($targetFile);
+                if (! is_dir($targetDir)) {
+                    $filesystem->mkdir($targetDir, 0755);
+                }
+
+                // Copy the file
+                if (is_file($sourceFile)) {
+                    copy($sourceFile, $targetFile);
+
+                    // Preserve permissions on non-Windows systems
+                    if (PHP_OS_FAMILY !== 'Windows') {
+                        $perms = fileperms($sourceFile);
+                        if ($perms !== false) {
+                            chmod($targetFile, $perms);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
