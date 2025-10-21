@@ -130,6 +130,7 @@ trait CopiesToBuildDirectory
             // Prevents /absolute/path on Unix and C:\path on Windows
             if (str_starts_with($pattern, '/') || str_contains($pattern, '..') || (PHP_OS_FAMILY === 'Windows' && preg_match('/^[A-Za-z]:/', $pattern))) {
                 warning("[WARNING] Skipping potentially unsafe include pattern: {$pattern}");
+
                 continue;
             }
 
