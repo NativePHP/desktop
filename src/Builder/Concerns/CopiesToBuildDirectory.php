@@ -28,10 +28,10 @@ trait CopiesToBuildDirectory
 
         $filesystem = new Filesystem;
 
-        $patterns = array_merge(
+        $patterns = array_unique(array_merge(
             config('nativephp-internal.cleanup_exclude_files', []),
             config('nativephp.cleanup_exclude_files', []),
-        );
+        ));
 
         // Clean and create build directory
         $filesystem->remove($buildPath);
@@ -115,10 +115,10 @@ trait CopiesToBuildDirectory
         $buildPath = $this->buildPath('app');
         $filesystem = new Filesystem;
 
-        $patterns = array_merge(
+        $patterns = array_unique(array_merge(
             config('nativephp-internal.cleanup_include_files', []),
             config('nativephp.cleanup_include_files', []),
-        );
+        ));
 
         foreach ($patterns as $pattern) {
             $matchingFiles = glob($sourcePath . '/' . $pattern, GLOB_BRACE);
