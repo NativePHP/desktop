@@ -28,7 +28,7 @@ class BuildCommand extends Command
 
     protected $signature = 'native:build
         {os? : The operating system to build for (all, linux, mac, win)}
-        {arch? : The Processor Architecture to build for (x64, x86, arm64)}
+        {arch? : The Processor Architecture to build for (x64, arm64)}
         {--publish : to publish the app}';
 
     protected array $availableOs = ['win', 'linux', 'mac', 'all'];
