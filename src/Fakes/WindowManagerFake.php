@@ -20,6 +20,8 @@ class WindowManagerFake implements WindowManagerContract
 
     public array $shown = [];
 
+    public array $reloaded = [];
+
     public array $forcedWindowReturnValues = [];
 
     public function __construct(
@@ -69,6 +71,11 @@ class WindowManagerFake implements WindowManagerContract
     public function show($id = null)
     {
         $this->shown[] = $id;
+    }
+
+    public function reload($id = null): void
+    {
+        $this->reloaded[] = $id;
     }
 
     public function current(): Window
@@ -183,6 +190,48 @@ class WindowManagerFake implements WindowManagerContract
 
         PHPUnit::assertTrue($hit);
     }
+
+    /**
+     * @param  string|Closure(string): bool  $id
+     */
+    public function assertReloaded(string|Closure $id): void
+    {
+        if (is_callable($id) === false) {
+            PHPUnit::assertContains($id, $this->reloaded);
+
+            return;
+        }
+
+        $hit = empty(
+            array_filter(
+                $this->reloaded,
+                fn (mixed $reloadedId) => $id($reloadedId) === true
+            )
+        ) === false;
+
+        PHPUnit::assertTrue($hit);
+    }
+
+    /**
+     * @param  string|Closure(string): bool  $id
+     */
+    public function assertNotReloaded(string|Closure $id): void
+    {
+        if (is_callable($id) === false) {
+            PHPUnit::assertNotContains($id, $this->reloaded);
+            return;
+        }
+
+        $hit = empty(
+            array_filter(
+                $this->reloaded,
+                fn (mixed $reloadedId) => $id($reloadedId) === true
+            )
+            ) === true;
+
+        PHPUnit::assertTrue($hit);
+    }
+
 
     public function assertOpenedCount(int $expected): void
     {
