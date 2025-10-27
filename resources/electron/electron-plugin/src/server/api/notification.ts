@@ -1,6 +1,51 @@
 import express from 'express';
 import { Notification } from 'electron';
 import {notifyLaravel} from "../utils.js";
+import fs from 'fs';
+declare const require: any;
+
+let player: any;
+try {
+    player = require('play-sound')();
+} catch (e) {
+    player = null;
+}
+
+const isLocalFile = (sound: unknown) => {
+    if (typeof sound !== 'string') return false;
+    if (/^https?:\/\//i.test(sound)) return false;
+    return sound.startsWith('/') || sound.startsWith('file:') || /^[a-zA-Z]:\\/.test(sound);
+};
+
+const normalizePath = (raw: string) => {
+    if (raw.startsWith('file://')) return raw.replace(/^file:\/\//, '');
+    return raw;
+};
+
+const playSound = async (sound: string) => {
+    const filePath = normalizePath(sound);
+    try {
+        await fs.promises.access(filePath, fs.constants.R_OK);
+    } catch (err) {
+        return Promise.reject(new Error(`sound file not accessible: ${filePath}`));
+    }
+
+    return new Promise<void>((resolve, reject) => {
+        if (player) {
+            player.play(filePath, (err: any) => {
+                if (err) return reject(err);
+                resolve();
+            });
+            return;
+        }
+
+        const { exec } = require('child_process');
+        exec(`afplay ${JSON.stringify(filePath)}`, (err: any) => {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+};
 const router = express.Router();
 
 router.post('/', (req, res) => {
@@ -26,21 +71,50 @@ router.post('/', (req, res) => {
 
     const notificationReference = reference ?? (Date.now() + '.' + Math.random().toString(36).slice(2, 9));
 
-    const notification = new Notification({
+    const usingLocalFile = isLocalFile(sound);
+
+    const createNotification = (opts: any) => {
+        try {
+            if (typeof (Notification as any) === 'function') {
+                return new (Notification as any)(opts);
+            }
+        } catch (e) {
+
+        }
+
+        return {
+            show: () => {},
+            on: (_: string, __: Function) => {},
+        };
+    };
+
+    const notification = createNotification({
         title,
         body,
         subtitle,
-        silent,
+        silent: usingLocalFile ? true : silent,
         icon,
         hasReply,
         timeoutType,
         replyPlaceholder,
-        sound,
+        sound: usingLocalFile ? undefined : sound,
         urgency,
         actions,
         closeButtonText,
         toastXml
     });
+
+    if (usingLocalFile && typeof sound === 'string') {
+        playSound(sound).catch((err) => {
+            notifyLaravel('events', {
+                event: '\\Native\\Desktop\\Events\\Notifications\\NotificationSoundFailed',
+                payload: {
+                    reference: notificationReference,
+                    error: String(err),
+                },
+            });
+        });
+    }
 
     notification.on("click", (event) => {
         notifyLaravel('events', {
