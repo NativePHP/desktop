@@ -90,7 +90,7 @@ router.post('/', (req, res) => {
     });
 
     if (usingLocalFile && typeof sound === 'string') {
-        playSound(sound);
+        playSound(sound).catch(() => {});
     }
 
     notification.on("click", (event) => {
