@@ -73,22 +73,7 @@ router.post('/', (req, res) => {
 
     const usingLocalFile = isLocalFile(sound);
 
-    const createNotification = (opts: any) => {
-        try {
-            if (typeof (Notification as any) === 'function') {
-                return new (Notification as any)(opts);
-            }
-        } catch (e) {
-
-        }
-
-        return {
-            show: () => {},
-            on: (_: string, __: Function) => {},
-        };
-    };
-
-    const notification = createNotification({
+    const notification = new Notification({
         title,
         body,
         subtitle,
