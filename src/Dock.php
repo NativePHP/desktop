@@ -2,9 +2,9 @@
 
 namespace Native\Desktop;
 
-use Native\Desktop\Menu\Menu;
-use Native\Desktop\Client\Client;
 use Illuminate\Support\Traits\Conditionable;
+use Native\Desktop\Client\Client;
+use Native\Desktop\Menu\Menu;
 
 class Dock
 {
