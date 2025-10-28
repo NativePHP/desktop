@@ -2,11 +2,14 @@
 
 namespace Native\Desktop;
 
-use Native\Desktop\Client\Client;
 use Native\Desktop\Menu\Menu;
+use Native\Desktop\Client\Client;
+use Illuminate\Support\Traits\Conditionable;
 
 class Dock
 {
+    use Conditionable;
+
     public function __construct(protected Client $client) {}
 
     public function menu(Menu $menu)

@@ -16,6 +16,8 @@ use Native\Desktop\Fakes\ChildProcessFake;
  * @method static \Native\Desktop\ChildProcess php(string|array $cmd, string $alias, array $env = null, bool $persistent = false, ?array $iniSettings = null)
  * @method static \Native\Desktop\ChildProcess artisan(string|array $cmd, string $alias, array $env = null, bool $persistent = false, ?array $iniSettings = null)
  * @method static void stop(string $alias = null)
+ * @method static static when($value = null, ?callable $callback = null, ?callable $default = null)
+ * @method static static unless($value = null, ?callable $callback = null, ?callable $default = null)
  */
 class ChildProcess extends Facade
 {

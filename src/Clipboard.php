@@ -3,9 +3,12 @@
 namespace Native\Desktop;
 
 use Native\Desktop\Client\Client;
+use Illuminate\Support\Traits\Conditionable;
 
 class Clipboard
 {
+    use Conditionable;
+
     public function __construct(protected Client $client) {}
 
     public function clear()

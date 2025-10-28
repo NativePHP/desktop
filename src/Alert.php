@@ -3,9 +3,12 @@
 namespace Native\Desktop;
 
 use Native\Desktop\Client\Client;
+use Illuminate\Support\Traits\Conditionable;
 
 class Alert
 {
+    use Conditionable;
+
     protected ?string $type = null;
 
     protected ?string $title = null;

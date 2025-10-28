@@ -3,9 +3,12 @@
 namespace Native\Desktop;
 
 use Native\Desktop\Client\Client;
+use Illuminate\Support\Traits\Conditionable;
 
 class Notification
 {
+    use Conditionable;
+
     public ?string $reference = null;
 
     protected string $title;

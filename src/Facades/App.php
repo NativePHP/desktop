@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool openAtLogin(?bool $open = null)
  * @method static bool isEmojiPanelSupported()
  * @method static void showEmojiPanel()
+ * @method static static when($value = null, ?callable $callback = null, ?callable $default = null)
+ * @method static static unless($value = null, ?callable $callback = null, ?callable $default = null)
  */
 class App extends Facade
 {
