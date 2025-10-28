@@ -105,15 +105,7 @@ router.post('/', (req, res) => {
     });
 
     if (usingLocalFile && typeof sound === 'string') {
-        playSound(sound).catch((err) => {
-            notifyLaravel('events', {
-                event: '\\Native\\Desktop\\Events\\Notifications\\NotificationSoundFailed',
-                payload: {
-                    reference: notificationReference,
-                    error: String(err),
-                },
-            });
-        });
+        playSound(sound);
     }
 
     notification.on("click", (event) => {
