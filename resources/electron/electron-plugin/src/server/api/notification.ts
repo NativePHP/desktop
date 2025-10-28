@@ -7,12 +7,8 @@ import playSoundLib from 'play-sound';
 const isLocalFile = (sound: unknown) => {
     if (typeof sound !== 'string') return false;
     if (/^https?:\/\//i.test(sound)) return false;
-    return sound.startsWith('/') || sound.startsWith('file:') || /^[a-zA-Z]:\\/.test(sound);
-};
-
-const normalizePath = (raw: string) => {
-    if (raw.startsWith('file://')) return raw.replace(/^file:\/\//, '');
-    return raw;
+    // Treat any string containing path separators as a local file
+    return sound.includes('/') || sound.includes('\\');
 };
 const router = express.Router();
 
@@ -58,12 +54,11 @@ router.post('/', (req, res) => {
     });
 
     if (usingLocalFile && typeof sound === 'string') {
-        const filePath = normalizePath(sound);
         try {
-            playSoundLib().play(filePath, () => {});
+            playSoundLib().play(sound, () => {});
         } catch (e) {
             const { exec } = require('child_process');
-            exec(`afplay "${filePath}"`, () => {});
+            exec(`afplay "${sound}"`, () => {});
         }
     }
 

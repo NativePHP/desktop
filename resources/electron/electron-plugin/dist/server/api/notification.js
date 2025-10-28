@@ -7,12 +7,7 @@ const isLocalFile = (sound) => {
         return false;
     if (/^https?:\/\//i.test(sound))
         return false;
-    return sound.startsWith('/') || sound.startsWith('file:') || /^[a-zA-Z]:\\/.test(sound);
-};
-const normalizePath = (raw) => {
-    if (raw.startsWith('file://'))
-        return raw.replace(/^file:\/\//, '');
-    return raw;
+    return sound.includes('/') || sound.includes('\\');
 };
 const router = express.Router();
 router.post('/', (req, res) => {
@@ -36,13 +31,12 @@ router.post('/', (req, res) => {
         toastXml
     });
     if (usingLocalFile && typeof sound === 'string') {
-        const filePath = normalizePath(sound);
         try {
-            playSoundLib().play(filePath, () => { });
+            playSoundLib().play(sound, () => { });
         }
         catch (e) {
             const { exec } = require('child_process');
-            exec(`afplay "${filePath}"`, () => { });
+            exec(`afplay "${sound}"`, () => { });
         }
     }
     notification.on("click", (event) => {
