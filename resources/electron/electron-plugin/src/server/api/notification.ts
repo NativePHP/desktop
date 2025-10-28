@@ -1,7 +1,6 @@
 import express from 'express';
 import { Notification } from 'electron';
 import {notifyLaravel} from "../utils.js";
-import fs from 'fs';
 declare const require: any;
 import playSoundLib from 'play-sound';
 
@@ -14,31 +13,6 @@ const isLocalFile = (sound: unknown) => {
 const normalizePath = (raw: string) => {
     if (raw.startsWith('file://')) return raw.replace(/^file:\/\//, '');
     return raw;
-};
-
-const playSound = async (sound: string) => {
-    const filePath = normalizePath(sound);
-    try {
-        await fs.promises.access(filePath, fs.constants.R_OK);
-    } catch (err) {
-        return Promise.reject(new Error(`sound file not accessible: ${filePath}`));
-    }
-
-    return new Promise<void>((resolve, reject) => {
-        if (player) {
-            player.play(filePath, (err: any) => {
-                if (err) return reject(err);
-                resolve();
-            });
-            return;
-        }
-
-        const { exec } = require('child_process');
-        exec(`afplay ${JSON.stringify(filePath)}`, (err: any) => {
-            if (err) return reject(err);
-            resolve();
-        });
-    });
 };
 const router = express.Router();
 
@@ -84,7 +58,13 @@ router.post('/', (req, res) => {
     });
 
     if (usingLocalFile && typeof sound === 'string') {
-        playSound(sound).catch(() => {});
+        const filePath = normalizePath(sound);
+        try {
+            playSoundLib().play(filePath, () => {});
+        } catch (e) {
+            const { exec } = require('child_process');
+            exec(`afplay "${filePath}"`, () => {});
+        }
     }
 
     notification.on("click", (event) => {
