@@ -3,13 +3,7 @@ import { Notification } from 'electron';
 import {notifyLaravel} from "../utils.js";
 import fs from 'fs';
 declare const require: any;
-
-let player: any;
-try {
-    player = require('play-sound')();
-} catch (e) {
-    player = null;
-}
+import playSoundLib from 'play-sound';
 
 const isLocalFile = (sound: unknown) => {
     if (typeof sound !== 'string') return false;
