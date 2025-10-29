@@ -3,6 +3,7 @@ import { Notification } from 'electron';
 import {notifyLaravel} from "../utils.js";
 declare const require: any;
 import playSoundLib from 'play-sound';
+import fs from 'fs';
 
 const isLocalFile = (sound: unknown) => {
     if (typeof sound !== 'string') return false;
@@ -54,12 +55,13 @@ router.post('/', (req, res) => {
     });
 
     if (usingLocalFile && typeof sound === 'string') {
-        try {
+        fs.access(sound, fs.constants.F_OK, (err) => {
+            if (err) {
+                return;
+            }
+
             playSoundLib().play(sound, () => {});
-        } catch (e) {
-            const { exec } = require('child_process');
-            exec(`afplay "${sound}"`, () => {});
-        }
+        });
     }
 
     notification.on("click", (event) => {
