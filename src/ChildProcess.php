@@ -2,11 +2,14 @@
 
 namespace Native\Desktop;
 
+use Illuminate\Support\Traits\Conditionable;
 use Native\Desktop\Client\Client;
 use Native\Desktop\Contracts\ChildProcess as ChildProcessContract;
 
 class ChildProcess implements ChildProcessContract
 {
+    use Conditionable;
+
     public readonly int $pid;
 
     public readonly string $alias;

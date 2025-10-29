@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static static hasReply(string $placeholder = '')
  * @method static static addAction(string $label)
  * @method static void show()
+ * @method static static when($value = null, ?callable $callback = null, ?callable $default = null)
+ * @method static static unless($value = null, ?callable $callback = null, ?callable $default = null)
  */
 class Notification extends Facade
 {

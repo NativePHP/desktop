@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static static cancelId(int $cancelId)
  * @method static int show(string $message)
  * @method static bool error(string $title, string $message)
+ * @method static static when($value = null, ?callable $callback = null, ?callable $default = null)
+ * @method static static unless($value = null, ?callable $callback = null, ?callable $default = null)
  */
 class Alert extends Facade
 {

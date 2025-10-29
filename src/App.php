@@ -2,11 +2,14 @@
 
 namespace Native\Desktop;
 
+use Illuminate\Support\Traits\Conditionable;
 use Native\Desktop\Client\Client;
 use Phar;
 
 class App
 {
+    use Conditionable;
+
     public function __construct(protected Client $client) {}
 
     public function quit(): void
