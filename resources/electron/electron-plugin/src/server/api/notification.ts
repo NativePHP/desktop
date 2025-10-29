@@ -54,7 +54,7 @@ router.post('/', (req, res) => {
         toastXml
     });
 
-    if (usingLocalFile && typeof sound === 'string') {
+    if (usingLocalFile) {
         fs.access(sound, fs.constants.F_OK, (err) => {
             if (err) {
                 return;
