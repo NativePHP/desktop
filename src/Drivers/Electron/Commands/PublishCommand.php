@@ -17,7 +17,7 @@ class PublishCommand extends Command
 
     protected $signature = 'native:publish
         {os? : The operating system to build for (all, linux, mac, win)}
-        {arch? : The Processor Architecture to build for (x64, x86, arm64)}';
+        {arch? : The Processor Architecture to build for (x64, arm64)}';
 
     protected array $availableOs = ['win', 'linux', 'mac', 'all'];
 
