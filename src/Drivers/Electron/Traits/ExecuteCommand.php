@@ -2,9 +2,12 @@
 
 namespace Native\Desktop\Drivers\Electron\Traits;
 
+use Illuminate\Process\ProcessResult;
 use Illuminate\Support\Facades\Process;
 use Native\Desktop\Builder\Builder;
 use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
+
+use function Laravel\Prompts\error;
 
 trait ExecuteCommand
 {
@@ -41,7 +44,9 @@ trait ExecuteCommand
                 if ($this->getOutput()->isVerbose()) {
                     echo $output;
                 }
-            })->throw();
+            })->throw(function (ProcessResult $result) use ($command) {
+                error("Command failed: {$command} (exit code {$result->exitCode()})");
+            });
     }
 
     protected function getCommandArrays(string $type = 'install'): array
