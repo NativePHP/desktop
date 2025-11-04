@@ -2,7 +2,6 @@
 
 namespace Native\Desktop\Drivers\Electron\Traits;
 
-use Illuminate\Process\ProcessResult;
 use Illuminate\Support\Facades\Process;
 use Native\Desktop\Builder\Builder;
 use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
@@ -36,7 +35,7 @@ trait ExecuteCommand
             ],
         ];
 
-        Process::path(ElectronServiceProvider::electronPath())
+        $result = Process::path(ElectronServiceProvider::electronPath())
             ->env($envs[$type])
             ->forever()
             ->tty(! $withoutInteraction && PHP_OS_FAMILY != 'Windows')
@@ -44,9 +43,13 @@ trait ExecuteCommand
                 if ($this->getOutput()->isVerbose()) {
                     echo $output;
                 }
-            })->throw(function (ProcessResult $result) use ($command) {
-                error("Command failed: {$command} (exit code {$result->exitCode()})");
             });
+
+        if ($result->failed()) {
+            echo PHP_EOL;
+            error("Command failed: '{$command}' (exit code {$result->exitCode()})");
+            exit();
+        }
     }
 
     protected function getCommandArrays(string $type = 'install'): array
