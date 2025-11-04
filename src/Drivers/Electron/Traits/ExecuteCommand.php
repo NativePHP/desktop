@@ -41,7 +41,7 @@ trait ExecuteCommand
                 if ($this->getOutput()->isVerbose()) {
                     echo $output;
                 }
-            });
+            })->throw();
     }
 
     protected function getCommandArrays(string $type = 'install'): array
