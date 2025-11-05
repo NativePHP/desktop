@@ -2,6 +2,7 @@
 
 namespace Native\Desktop\Windows;
 
+use Illuminate\Support\Traits\Conditionable;
 use Native\Desktop\Client\Client;
 use Native\Desktop\Concerns\HasDimensions;
 use Native\Desktop\Concerns\HasUrl;
@@ -10,6 +11,7 @@ use Native\Desktop\Facades\Window as WindowFacade;
 
 class Window
 {
+    use Conditionable;
     use HasDimensions;
     use HasUrl {
         HasUrl::url as defaultUrl;
