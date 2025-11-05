@@ -1,6 +1,6 @@
 import express from 'express';
 import { Notification } from 'electron';
-import {notifyLaravel} from "../utils.js";
+import {notifyLaravel, broadcastToWindows} from "../utils.js";
 declare const require: any;
 import playSoundLib from 'play-sound';
 import fs from 'fs';
@@ -57,6 +57,11 @@ router.post('/', (req, res) => {
     if (usingLocalFile && !silent) {
         fs.access(sound, fs.constants.F_OK, (err) => {
             if (err) {
+                broadcastToWindows('log', {
+                    level: 'error',
+                    message: `Sound file not found: ${sound}`,
+                    context: { sound }
+                });
                 return;
             }
 
