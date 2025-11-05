@@ -24,7 +24,7 @@ describe('architecture', function () {
         ])->each->toUseTrait(Conditionable::class);
 
 })->skip(function () {
-    $version = Process::run('vendor/bin/pest --version')->throw()->output();
+    $version = Process::run('./vendor/bin/pest --version')->throw()->output();
 
     // Cleanup output
     $version = preg_replace('/\e\[[0-9;]*m/', '', $version);
