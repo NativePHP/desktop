@@ -45,10 +45,12 @@ trait ExecuteCommand
                 }
             });
 
+        // Don't throw. PHP Exception won't give any valuable info.
+        // Error lines already echoed in the process output.
         if ($result->failed()) {
             echo PHP_EOL;
             error("Command failed: '{$command}' (exit code {$result->exitCode()})");
-            exit();
+            exit($result->exitCode());
         }
     }
 
