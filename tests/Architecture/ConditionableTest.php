@@ -1,20 +1,35 @@
 <?php
 
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Traits\Conditionable;
+use Native\Desktop;
 
-arch('ensure api is conditionable')
-    ->expect([
-        Native\Desktop\Alert::class,
-        Native\Desktop\App::class,
-        Native\Desktop\AutoUpdater::class,
-        Native\Desktop\ChildProcess::class,
-        Native\Desktop\Clipboard::class,
-        Native\Desktop\Dock::class,
-        Native\Desktop\Menu\Menu::class,
-        Native\Desktop\Notification::class,
-        Native\Desktop\Windows\Window::class,
-        Native\Desktop\Windows\WindowManager::class,
+describe('architecture', function () {
 
-        Native\Desktop\Fakes\ChildProcessFake::class,
-        Native\Desktop\Fakes\WindowManagerFake::class,
-    ])->each->toUseTrait(Conditionable::class);
+    arch('ensure api is conditionable')
+        ->expect([
+            Desktop\App::class,
+            Desktop\Dock::class,
+            Desktop\Alert::class,
+            Desktop\Clipboard::class,
+            Desktop\AutoUpdater::class,
+            Desktop\ChildProcess::class,
+            Desktop\Notification::class,
+            Desktop\Menu\Menu::class,
+            Desktop\Windows\Window::class,
+            Desktop\Windows\WindowManager::class,
+
+            Desktop\Fakes\ChildProcessFake::class,
+            Desktop\Fakes\WindowManagerFake::class,
+        ])->each->toUseTrait(Conditionable::class);
+
+})->skip(function () {
+    $version = Process::run('vendor/bin/pest --version')->throw()->output();
+
+    // Cleanup output
+    $version = preg_replace('/\e\[[0-9;]*m/', '', $version);
+    $version = trim(preg_replace('/[^\d.]/', '', $version));
+
+    // Only run test when pest version is at least 3
+    return version_compare($version, '3.0.0', '<');
+}, 'Test not supporten on Pest < v3');
