@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Traits\Conditionable;
 
-arch()
+arch('ensure api is conditionable')
     ->expect([
         Native\Desktop\Alert::class,
         Native\Desktop\App::class,
