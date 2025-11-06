@@ -25,7 +25,7 @@ class InstallCommand extends Command
     protected $signature = 'native:install
         {--force : Overwrite existing files by default}
         {--publish : Publish the Electron project to your project\'s root}
-        {--installer=npm : The package installer to use: npm, yarn or pnpm}';
+        {--installer=npm : The package installer to use: npm or yarn}';
 
     public function handle(): void
     {

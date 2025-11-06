@@ -60,12 +60,10 @@ trait ExecuteCommand
             'install' => [
                 'npm' => 'npm install',
                 'yarn' => 'yarn',
-                'pnpm' => 'pnpm install',
             ],
             'dev' => [
                 'npm' => 'npm run dev',
                 'yarn' => 'yarn dev',
-                'pnpm' => 'pnpm run dev',
             ],
         ];
 
