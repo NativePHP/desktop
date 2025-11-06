@@ -4,6 +4,7 @@ namespace Native\Desktop\Fakes;
 
 use Closure;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Traits\Conditionable;
 use Native\Desktop\Client\Client;
 use Native\Desktop\Contracts\WindowManager as WindowManagerContract;
 use Native\Desktop\Windows\Window;
@@ -12,6 +13,8 @@ use Webmozart\Assert\Assert;
 
 class WindowManagerFake implements WindowManagerContract
 {
+    use Conditionable;
+
     public array $opened = [];
 
     public array $closed = [];

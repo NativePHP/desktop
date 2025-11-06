@@ -24,8 +24,8 @@ const platform = {
 
 if (isWindows) {
     platform.os = 'win';
-    platform.phpBinary += '.exe';
     platform.arch = 'x64';
+    platform.phpBinary += '.exe';
 }
 
 if (isLinux) {
@@ -35,7 +35,7 @@ if (isLinux) {
 
 if (isDarwin) {
     platform.os = 'mac';
-    platform.arch = 'x86';
+    platform.arch = 'x64';
 }
 
 if (isArm64) {
@@ -46,7 +46,6 @@ if (isArm64) {
 if (isBuilding) {
     // Only one will be used by the configured build commands in package.json
     platform.arch = process.argv.includes('--x64') ? 'x64' : platform.arch;
-    platform.arch = process.argv.includes('--x86') ? 'x86' : platform.arch;
     platform.arch = process.argv.includes('--arm64') ? 'arm64' : platform.arch;
 }
 

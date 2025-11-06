@@ -8,6 +8,7 @@ use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
+use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
 use Native\Desktop\Support\Environment;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -82,6 +83,7 @@ class DebugCommand extends Command implements PromptsForMissingInput
                 'Path' => trim(Process::run("$locationCommand npm")->output()),
             ],
             'OperatingSystem' => PHP_OS,
+            'ElectronRoot' => str_replace(base_path(DIRECTORY_SEPARATOR), '', ElectronServiceProvider::electronPath()),
         ];
 
         $this->debugInfo->put('Environment', $environment);

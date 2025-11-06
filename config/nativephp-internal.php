@@ -92,9 +92,20 @@ return [
         'vendor/nativephp/desktop/resources',
         'vendor/nativephp/desktop/vendor',
         'vendor/nativephp/php-bin',
+        'nativephp',
 
         // Also deleted in PrunesVendorDirectory after fresh composer install
         'vendor/bin',
+    ],
+
+    /**
+     * A list of files and folders that should be forcibly included
+     * even if they match exclusion patterns.
+     *
+     * Internal use only for now
+     */
+    'cleanup_include_files' => [
+        'vendor/nativephp/desktop/resources/electron/electron-plugin/src/preload/livewire-dispatcher.js',
     ],
 
     /**

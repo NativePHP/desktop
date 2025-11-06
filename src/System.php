@@ -55,8 +55,6 @@ class System
                 data_get($printer, 'name'),
                 data_get($printer, 'displayName'),
                 data_get($printer, 'description'),
-                data_get($printer, 'status'),
-                data_get($printer, 'isDefault'),
                 data_get($printer, 'options'),
             );
         })->toArray();

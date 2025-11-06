@@ -1,6 +1,6 @@
 {
-    "name": "NativePHP",
-    "version": "1.0.0",
+    "name": "nativephp",
+    "version": "v2",
     "description": "A NativePHP Electron application",
     "main": "./out/main/index.js",
     "author": "NativePHP",
@@ -21,7 +21,7 @@
         "publish:win-x64": "cross-env npm run build && cross-env node ./node_modules/electron-builder/cli.js -p always --win --config electron-builder.mjs --x64",
         "publish:mac": "cross-env npm run publish:mac-arm64 -- --x64",
         "publish:mac-arm64": "cross-env npm run build && cross-env node ./node_modules/electron-builder/cli.js -p always --mac --config electron-builder.mjs --arm64 -p always",
-        "publish:mac-x86": "cross-env npm run build && cross-env node ./node_modules/electron-builder/cli.js -p always --mac --config electron-builder.mjs --x64 -p always",
+        "publish:mac-x64": "cross-env npm run build && cross-env node ./node_modules/electron-builder/cli.js -p always --mac --config electron-builder.mjs --x64 -p always",
         "publish:linux": "cross-env npm run publish:linux-x64",
         "publish:linux-x64": "cross-env npm run build && cross-env node ./node_modules/electron-builder/cli.js --linux --config electron-builder.mjs --x64 -p always",
         "build:all": "cross-env npm run build:mac && cross-env npm run build:win && cross-env npm run build:linux",
@@ -29,7 +29,7 @@
         "build:win-x64": "cross-env npm run build && cross-env node ./node_modules/electron-builder/cli.js -p never --win --config electron-builder.mjs --x64",
         "build:mac": "cross-env npm run build:mac-arm64 -- --x64",
         "build:mac-arm64": "cross-env npm run build && cross-env node ./node_modules/electron-builder/cli.js -p never --mac --config electron-builder.mjs --arm64",
-        "build:mac-x86": "cross-env npm run build && cross-env node ./node_modules/electron-builder/cli.js -p never --mac --config electron-builder.mjs --x64",
+        "build:mac-x64": "cross-env npm run build && cross-env node ./node_modules/electron-builder/cli.js -p never --mac --config electron-builder.mjs --x64",
         "build:linux": "cross-env npm run build:linux-x64",
         "build:linux-x64": "cross-env npm run build && cross-env node ./node_modules/electron-builder/cli.js -p never --linux --config electron-builder.mjs --x64",
         "plugin:build": "rimraf electron-plugin/dist/ && node node_modules/typescript/bin/tsc --project electron-plugin",
@@ -101,6 +101,5 @@
     "exports": "./electron-plugin/dist/index.js",
     "imports": {
         "#plugin": "./electron-plugin/dist/index.js"
-    },
-    "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+    }
 }
