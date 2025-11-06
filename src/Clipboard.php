@@ -2,10 +2,13 @@
 
 namespace Native\Desktop;
 
+use Illuminate\Support\Traits\Conditionable;
 use Native\Desktop\Client\Client;
 
 class Clipboard
 {
+    use Conditionable;
+
     public function __construct(protected Client $client) {}
 
     public function clear()

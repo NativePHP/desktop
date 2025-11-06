@@ -3,11 +3,14 @@
 namespace Native\Desktop\Fakes;
 
 use Closure;
+use Illuminate\Support\Traits\Conditionable;
 use Native\Desktop\Contracts\ChildProcess as ChildProcessContract;
 use PHPUnit\Framework\Assert as PHPUnit;
 
 class ChildProcessFake implements ChildProcessContract
 {
+    use Conditionable;
+
     /**
      * @var array<int, string|null>
      */

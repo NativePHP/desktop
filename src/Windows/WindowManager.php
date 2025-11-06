@@ -2,12 +2,14 @@
 
 namespace Native\Desktop\Windows;
 
+use Illuminate\Support\Traits\Conditionable;
 use Native\Desktop\Client\Client;
 use Native\Desktop\Concerns\DetectsWindowId;
 use Native\Desktop\Contracts\WindowManager as WindowManagerContract;
 
 class WindowManager implements WindowManagerContract
 {
+    use Conditionable;
     use DetectsWindowId;
 
     public function __construct(protected Client $client) {}
