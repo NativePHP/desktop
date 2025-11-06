@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Process;
 use Native\Desktop\Builder\Builder;
 use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
 
+use function Laravel\Prompts\error;
+
 trait ExecuteCommand
 {
     protected function executeCommand(
@@ -33,7 +35,7 @@ trait ExecuteCommand
             ],
         ];
 
-        Process::path(ElectronServiceProvider::electronPath())
+        $result = Process::path(ElectronServiceProvider::electronPath())
             ->env($envs[$type])
             ->forever()
             ->tty(! $withoutInteraction && PHP_OS_FAMILY != 'Windows')
@@ -42,6 +44,14 @@ trait ExecuteCommand
                     echo $output;
                 }
             });
+
+        // Don't throw. PHP Exception won't give any valuable info.
+        // Error lines already echoed in the process output.
+        if ($result->failed()) {
+            echo PHP_EOL;
+            error("Command failed: '{$command}' (exit code {$result->exitCode()})");
+            exit($result->exitCode());
+        }
     }
 
     protected function getCommandArrays(string $type = 'install'): array

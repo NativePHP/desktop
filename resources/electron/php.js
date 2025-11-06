@@ -64,9 +64,6 @@ if (platform.phpBinary) {
 
         ensureDirSync(binaryDestDir);
 
-        console.log('FOOOOO')
-        console.dir(binarySrcDir);
-
         // Unzip the files
         unzip.open(binarySrcDir, {lazyEntries: true}, function (err, zipfile) {
             if (err) throw err;
