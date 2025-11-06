@@ -111,9 +111,9 @@ class WindowManagerFake implements WindowManagerContract
     }
 
     /**
-     * @param  string|Closure(string): bool  $id
+     * @param  null|string|Closure(string): bool  $id
      */
-    public function assertOpened(string|Closure $id): void
+    public function assertOpened(null|string|Closure $id = null): void
     {
         if (is_callable($id) === false) {
             PHPUnit::assertContains($id, $this->opened);
@@ -132,9 +132,9 @@ class WindowManagerFake implements WindowManagerContract
     }
 
     /**
-     * @param  string|Closure(string): bool  $id
+     * @param  null|string|Closure(string): bool  $id
      */
-    public function assertClosed(string|Closure $id): void
+    public function assertClosed(null|string|Closure $id = null): void
     {
         if (is_callable($id) === false) {
             PHPUnit::assertContains($id, $this->closed);
@@ -153,9 +153,9 @@ class WindowManagerFake implements WindowManagerContract
     }
 
     /**
-     * @param  string|Closure(string): bool  $id
+     * @param  null|string|Closure(string): bool  $id
      */
-    public function assertHidden(string|Closure $id): void
+    public function assertHidden(null|string|Closure $id = null): void
     {
         if (is_callable($id) === false) {
             PHPUnit::assertContains($id, $this->hidden);
@@ -174,9 +174,9 @@ class WindowManagerFake implements WindowManagerContract
     }
 
     /**
-     * @param  string|Closure(string): bool  $id
+     * @param  null;|string|Closure(string): bool  $id
      */
-    public function assertShown(string|Closure $id): void
+    public function assertShown(null|string|Closure $id = null): void
     {
         if (is_callable($id) === false) {
             PHPUnit::assertContains($id, $this->shown);
@@ -195,9 +195,9 @@ class WindowManagerFake implements WindowManagerContract
     }
 
     /**
-     * @param  string|Closure(string): bool  $id
+     * @param  null|string|Closure(string): bool  $id
      */
-    public function assertReloaded(string|Closure $id): void
+    public function assertReloaded(null|string|Closure $id = null): void
     {
         if (is_callable($id) === false) {
             PHPUnit::assertContains($id, $this->reloaded);
@@ -216,12 +216,13 @@ class WindowManagerFake implements WindowManagerContract
     }
 
     /**
-     * @param  string|Closure(string): bool  $id
+     * @param  null|string|Closure(string): bool  $id
      */
-    public function assertNotReloaded(string|Closure $id): void
+    public function assertNotReloaded(null|string|Closure $id = null): void
     {
         if (is_callable($id) === false) {
             PHPUnit::assertNotContains($id, $this->reloaded);
+
             return;
         }
 
@@ -230,11 +231,10 @@ class WindowManagerFake implements WindowManagerContract
                 $this->reloaded,
                 fn (mixed $reloadedId) => $id($reloadedId) === true
             )
-            ) === true;
+        ) === true;
 
         PHPUnit::assertTrue($hit);
     }
-
 
     public function assertOpenedCount(int $expected): void
     {
