@@ -174,7 +174,7 @@ class WindowManagerFake implements WindowManagerContract
     }
 
     /**
-     * @param  null;|string|Closure(string): bool  $id
+     * @param  null|string|Closure(string): bool  $id
      */
     public function assertShown(null|string|Closure $id = null): void
     {
