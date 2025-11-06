@@ -13,6 +13,8 @@ use Native\Desktop\Menu\Menu;
  * @method static void icon(string $Path)
  * @method static void menu(Menu $menu)
  * @method static void show()
+ * @method static static when($value = null, ?callable $callback = null, ?callable $default = null)
+ * @method static static unless($value = null, ?callable $callback = null, ?callable $default = null)
  */
 class Dock extends Facade
 {

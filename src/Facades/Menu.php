@@ -41,6 +41,8 @@ use Native\Desktop\Menu\Items\Separator;
  * @method static Role hide(?string $label = null)
  * @method static void create(MenuItem ...$items)
  * @method static void default()
+ * @method static static when($value = null, ?callable $callback = null, ?callable $default = null)
+ * @method static static unless($value = null, ?callable $callback = null, ?callable $default = null)
  */
 class Menu extends Facade
 {
