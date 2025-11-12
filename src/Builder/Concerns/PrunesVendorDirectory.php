@@ -11,11 +11,12 @@ trait PrunesVendorDirectory
 
     public function pruneVendorDirectory()
     {
-        Process::path($this->buildPath())
+        Process::path($this->buildPath('app'))
             ->timeout(300)
             ->run('composer install --no-dev', function (string $type, string $output) {
                 echo $output;
-            });
+            })
+            ->throw();
 
         $filesystem = new Filesystem;
         $filesystem->remove([
