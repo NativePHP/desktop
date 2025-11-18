@@ -34,7 +34,6 @@ class NativePHP {
     cert: string,
     appPath: string
   ) {
-
     initialize();
 
     state.icon = icon;
@@ -216,6 +215,17 @@ class NativePHP {
 
   private startAutoUpdater(config) {
     if (config?.updater?.enabled === true) {
+      // If a public URL is configured for the current provider, use it for updates
+      const defaultProvider = config?.updater?.default;
+      const publicUrl = config?.updater?.providers?.[defaultProvider]?.public_url;
+
+      if (publicUrl) {
+        autoUpdater.setFeedURL({
+          provider: 'generic',
+          url: publicUrl
+        });
+      }
+
       autoUpdater.checkForUpdatesAndNotify();
     }
   }
