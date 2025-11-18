@@ -107,7 +107,7 @@ router.post('/print-to-pdf', (req, res) => __awaiter(void 0, void 0, void 0, fun
             });
         });
     });
-    yield printWindow.loadURL(`data:text/html;charset=UTF-8,${html}`);
+    yield printWindow.loadURL(`data:text/html;base64;charset=UTF-8,${html}`);
 }));
 router.get('/theme', (req, res) => {
     res.json({
