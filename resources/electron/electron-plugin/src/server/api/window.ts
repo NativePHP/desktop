@@ -58,6 +58,14 @@ router.post('/closable', (req, res) => {
     res.sendStatus(200);
 });
 
+router.post('/window-button-visibility', (req, res) => {
+    const {id, windowButtonVisibility} = req.body;
+
+    state.windows[id]?.setWindowButtonVisibility(windowButtonVisibility);
+
+    res.sendStatus(200);
+});
+
 router.post('/show-dev-tools', (req, res) => {
     const {id} = req.body;
 
@@ -225,6 +233,7 @@ router.post('/open', (req, res) => {
         alwaysOnTop,
         titleBarStyle,
         trafficLightPosition,
+        windowButtonVisibility,
         vibrancy,
         backgroundColor,
         transparency,
@@ -311,6 +320,10 @@ router.post('/open', (req, res) => {
         window.webContents.setWindowOpenHandler(() => {
             return { action: "deny" };
         });
+    }
+
+    if (process.platform === 'darwin') {
+        window.setWindowButtonVisibility(windowButtonVisibility);
     }
 
     window.on('blur', () => {
