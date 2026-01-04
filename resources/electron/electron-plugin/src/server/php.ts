@@ -277,6 +277,8 @@ interface EnvironmentVariables {
     APP_ROUTES_CACHE?: string;
     APP_EVENTS_CACHE?: string;
     VIEW_COMPILED_PATH?: string;
+
+    NIGHTWATCH_INGEST_URI?: string;
 }
 
 function getDefaultEnvironmentVariables(secret?: string, apiPort?: number): EnvironmentVariables {
@@ -342,6 +344,12 @@ function serveApp(secret, apiPort, phpIniSettings): Promise<ProcessResult> {
 
         const env = getDefaultEnvironmentVariables(secret, apiPort);
 
+        let phpNightWatchPort: number | undefined;
+        if (process.env.NIGHTWATCH_TOKEN) {
+            phpNightWatchPort = await getPhpPort();
+            env.NIGHTWATCH_INGEST_URI = `127.0.0.1:${phpNightWatchPort}`;
+        }
+
         const phpOptions = {
             cwd: appPath,
             env
@@ -350,6 +358,12 @@ function serveApp(secret, apiPort, phpIniSettings): Promise<ProcessResult> {
         const store = new Store({
             name: 'nativephp', // So it doesn't conflict with settings of the app
         });
+
+        if(env.NIGHTWATCH_INGEST_URI && phpNightWatchPort) {
+            console.log('Starting Nightwatch server...');
+            callPhp(['artisan', 'nightwatch:agent', `--listen-on=${env.NIGHTWATCH_INGEST_URI}`], phpOptions, phpIniSettings)
+            console.log('Nightwatch server started on port:', phpNightWatchPort);
+        }
 
         // Cache the project
         if (shouldOptimize(store)) {
