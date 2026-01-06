@@ -10,19 +10,9 @@
         "noImplicitAny": false,
         "preserveConstEnums": true,
         "removeComments": true,
-        "typeRoots": [
-            "../node_modules/@types"
-        ],
-        "lib": [
-            "es2019",
-            "dom"
-        ],
-        "types": [
-            "node",
-        ]
+        "typeRoots": ["../node_modules/@types"],
+        "lib": ["es2019", "dom"],
+        "types": ["node"]
     },
-    "include": [
-        "./src/**/*.ts",
-        "./src/**/*.mts"
-    ]
+    "include": ["./src/**/*.ts", "./src/**/*.mts"]
 }

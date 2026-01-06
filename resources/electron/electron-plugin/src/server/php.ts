@@ -1,23 +1,23 @@
-import {mkdirSync, statSync, writeFileSync, existsSync} from 'fs'
+import { existsSync, mkdirSync, statSync, writeFileSync } from 'fs';
 import fs_extra from 'fs-extra';
 
-const {copySync, mkdirpSync} = fs_extra;
+const { copySync, mkdirpSync } = fs_extra;
 
-import Store from 'electron-store'
-import {promisify} from 'util'
-import {join, resolve} from 'path'
-import {app} from 'electron'
-import {execFile, spawn, spawnSync} from 'child_process'
-import {createServer} from 'net'
-import state from "./state.js";
-import getPort, {portNumbers} from 'get-port';
-import {ProcessResult} from "./ProcessResult.js";
+import { execFile, spawn, spawnSync } from 'child_process';
+import { app } from 'electron';
+import Store from 'electron-store';
+import getPort, { portNumbers } from 'get-port';
+import { createServer } from 'net';
+import { join } from 'path';
+import { promisify } from 'util';
+import { ProcessResult } from './ProcessResult.js';
+import state from './state.js';
 
 // TODO: maybe in dev, don't go to the userData folder and stay in the Laravel app folder
-const storagePath = join(app.getPath('userData'), 'storage')
-const databasePath = join(app.getPath('userData'), 'database')
-const databaseFile = join(databasePath, 'database.sqlite')
-const bootstrapCache = join(app.getPath('userData'), 'bootstrap', 'cache')
+const storagePath = join(app.getPath('userData'), 'storage');
+const databasePath = join(app.getPath('userData'), 'database');
+const databaseFile = join(databasePath, 'database.sqlite');
+const bootstrapCache = join(app.getPath('userData'), 'bootstrap', 'cache');
 const argumentEnv = getArgumentEnv();
 
 mkdirpSync(bootstrapCache);
@@ -28,16 +28,14 @@ mkdirpSync(join(storagePath, 'framework', 'views'));
 mkdirpSync(join(storagePath, 'framework', 'testing'));
 
 function runningSecureBuild() {
-    return existsSync(join(getAppPath(), 'build', '__nativephp_app_bundle'))
-        && process.env.NODE_ENV !== 'development';
+    return existsSync(join(getAppPath(), 'build', '__nativephp_app_bundle')) && process.env.NODE_ENV !== 'development';
 }
 
 function shouldMigrateDatabase(store) {
-    return store.get('migrated_version') !== app.getVersion()
-        && process.env.NODE_ENV !== 'development';
+    return store.get('migrated_version') !== app.getVersion() && process.env.NODE_ENV !== 'development';
 }
 
-function shouldOptimize(store) {
+function shouldOptimize() {
     /*
      * For some weird reason,
      * the cached config is not picked up on subsequent launches,
@@ -46,14 +44,13 @@ function shouldOptimize(store) {
 
     return process.env.NODE_ENV !== 'development';
     // return runningSecureBuild();
-    // return runningSecureBuild() && store.get('optimized_version') !== app.getVersion();
 }
 
 async function getPhpPort() {
     // Try get-port first (fast path)
     const suggestedPort = await getPort({
         host: '127.0.0.1',
-        port: portNumbers(8100, 9000)
+        port: portNumbers(8100, 9000),
     });
 
     // Validate that we can actually bind to this port
@@ -88,15 +85,19 @@ function canBindToPort(port: number): Promise<boolean> {
 }
 
 async function retrievePhpIniSettings() {
-    const env = getDefaultEnvironmentVariables() as any;
+    const env: NodeJS.ProcessEnv = {
+        ...process.env,
+        ...getDefaultEnvironmentVariables(),
+    };
+
     const appPath = getAppPath();
 
     const phpOptions = {
         cwd: appPath,
-        env
+        env,
     };
 
-    let command = ['artisan', 'native:php-ini'];
+    const command = ['artisan', 'native:php-ini'];
 
     if (runningSecureBuild()) {
         command.unshift(join(appPath, 'build', '__nativephp_app_bundle'));
@@ -106,15 +107,18 @@ async function retrievePhpIniSettings() {
 }
 
 async function retrieveNativePHPConfig() {
-    const env = getDefaultEnvironmentVariables() as any;
-    const appPath = getAppPath()
+    const env: NodeJS.ProcessEnv = {
+        ...process.env,
+        ...getDefaultEnvironmentVariables(),
+    };
+    const appPath = getAppPath();
 
     const phpOptions = {
         cwd: appPath,
-        env
+        env,
     };
 
-    let command = ['artisan', 'native:config'];
+    const command = ['artisan', 'native:config'];
 
     if (runningSecureBuild()) {
         command.unshift(join(appPath, 'build', '__nativephp_app_bundle'));
@@ -124,14 +128,13 @@ async function retrieveNativePHPConfig() {
 }
 
 function callPhp(args, options, phpIniSettings = {}) {
-
     if (args[0] === 'artisan' && runningSecureBuild()) {
         args.unshift(join(getAppPath(), 'build', '__nativephp_app_bundle'));
     }
 
-    let iniSettings = Object.assign(getDefaultPhpIniSettings(), phpIniSettings);
+    const iniSettings = Object.assign(getDefaultPhpIniSettings(), phpIniSettings);
 
-    Object.keys(iniSettings).forEach(key => {
+    Object.keys(iniSettings).forEach((key) => {
         args.unshift('-d', `${key}=${iniSettings[key]}`);
     });
 
@@ -139,28 +142,23 @@ function callPhp(args, options, phpIniSettings = {}) {
         console.log('Calling PHP', state.php, args);
     }
 
-    return spawn(
-        state.php,
-        args,
-        {
-            cwd: options.cwd,
-            env: {
-                ...process.env,
-                ...options.env
-            },
-        }
-    );
+    return spawn(state.php, args, {
+        cwd: options.cwd,
+        env: {
+            ...process.env,
+            ...options.env,
+        },
+    });
 }
 
 function callPhpSync(args, options, phpIniSettings = {}) {
-
     if (args[0] === 'artisan' && runningSecureBuild()) {
         args.unshift(join(getAppPath(), 'build', '__nativephp_app_bundle'));
     }
 
-    let iniSettings = Object.assign(getDefaultPhpIniSettings(), phpIniSettings);
+    const iniSettings = Object.assign(getDefaultPhpIniSettings(), phpIniSettings);
 
-    Object.keys(iniSettings).forEach(key => {
+    Object.keys(iniSettings).forEach((key) => {
         args.unshift('-d', `${key}=${iniSettings[key]}`);
     });
 
@@ -168,27 +166,23 @@ function callPhpSync(args, options, phpIniSettings = {}) {
         console.log('Calling PHP', state.php, args);
     }
 
-    return spawnSync(
-        state.php,
-        args,
-        {
-            cwd: options.cwd,
-            env: {
-                ...process.env,
-                ...options.env
-            }
-        }
-    );
+    return spawnSync(state.php, args, {
+        cwd: options.cwd,
+        env: {
+            ...process.env,
+            ...options.env,
+        },
+    });
 }
 
 function getArgumentEnv() {
-    const envArgs = process.argv.filter(arg => arg.startsWith('--env.'));
+    const envArgs = process.argv.filter((arg) => arg.startsWith('--env.'));
 
     const env: {
-        TESTING?: number,
-        APP_PATH?: string
+        TESTING?: number;
+        APP_PATH?: string;
     } = {};
-    envArgs.forEach(arg => {
+    envArgs.forEach((arg) => {
         const [key, value] = arg.slice(6).split('=');
         env[key] = value;
     });
@@ -197,7 +191,7 @@ function getArgumentEnv() {
 }
 
 function getAppPath() {
-    let appPath = state.appPath
+    let appPath = state.appPath;
 
     if (process.env.NODE_ENV === 'development' || argumentEnv.TESTING == 1) {
         appPath = process.env.APP_PATH || argumentEnv.APP_PATH;
@@ -206,25 +200,24 @@ function getAppPath() {
 }
 
 function ensureAppFoldersAreAvailable() {
-
     // if (!runningSecureBuild()) {
     console.log('Copying storage folder...');
     console.log('Storage path:', storagePath);
 
     if (!existsSync(storagePath) || process.env.NODE_ENV === 'development') {
         const appPath = getAppPath();
-        console.log("App path:", appPath);
-        copySync(join(appPath, 'storage'), storagePath)
+        console.log('App path:', appPath);
+        copySync(join(appPath, 'storage'), storagePath);
     }
     // }
 
-    mkdirSync(databasePath, {recursive: true})
+    mkdirSync(databasePath, { recursive: true });
 
     // Create a database file if it doesn't exist
     try {
-        statSync(databaseFile)
-    } catch (error) {
-        writeFileSync(databaseFile, '')
+        statSync(databaseFile);
+    } catch {
+        writeFileSync(databaseFile, '');
     }
 }
 
@@ -234,7 +227,7 @@ function startScheduler(secret, apiPort, phpIniSettings = {}) {
 
     const phpOptions = {
         cwd: appPath,
-        env
+        env,
     };
 
     return callPhp(['artisan', 'schedule:run'], phpOptions, phpIniSettings);
@@ -244,7 +237,7 @@ function getPath(name: string) {
     try {
         // @ts-ignore
         return app.getPath(name);
-    } catch (error) {
+    } catch {
         return '';
     }
 }
@@ -277,11 +270,13 @@ interface EnvironmentVariables {
     APP_ROUTES_CACHE?: string;
     APP_EVENTS_CACHE?: string;
     VIEW_COMPILED_PATH?: string;
+
+    NIGHTWATCH_INGEST_URI?: string;
 }
 
 function getDefaultEnvironmentVariables(secret?: string, apiPort?: number): EnvironmentVariables {
     // Base variables with string values (no null values)
-    let variables: EnvironmentVariables = {
+    const variables: EnvironmentVariables = {
         APP_ENV: process.env.NODE_ENV === 'development' ? 'local' : 'production',
         APP_DEBUG: process.env.NODE_ENV === 'development' ? 'true' : 'false',
         LARAVEL_STORAGE_PATH: storagePath,
@@ -324,95 +319,125 @@ function getDefaultEnvironmentVariables(secret?: string, apiPort?: number): Envi
 
 function getDefaultPhpIniSettings() {
     return {
-        'memory_limit': '512M',
+        memory_limit: '512M',
         'curl.cainfo': state.caCert,
-        'openssl.cafile': state.caCert
-    }
+        'openssl.cafile': state.caCert,
+    };
 }
 
-function serveApp(secret, apiPort, phpIniSettings): Promise<ProcessResult> {
-    return new Promise(async (resolve, reject) => {
-        const appPath = getAppPath();
+async function serveApp(secret, apiPort, phpIniSettings): Promise<ProcessResult> {
+    const appPath = getAppPath();
 
-        console.log('Starting PHP server...', `${state.php} artisan serve`, appPath, phpIniSettings)
+    console.log('Starting PHP server...', `${state.php} artisan serve`, appPath, phpIniSettings);
 
-        ensureAppFoldersAreAvailable();
+    ensureAppFoldersAreAvailable();
 
-        console.log('Making sure app folders are available')
+    console.log('Making sure app folders are available');
 
-        const env = getDefaultEnvironmentVariables(secret, apiPort);
+    const env = getDefaultEnvironmentVariables(secret, apiPort);
 
-        const phpOptions = {
-            cwd: appPath,
-            env
-        };
+    let phpNightWatchPort: number | undefined;
+    if (process.env.NIGHTWATCH_TOKEN) {
+        phpNightWatchPort = await getPhpPort();
+        env.NIGHTWATCH_INGEST_URI = `127.0.0.1:${phpNightWatchPort}`;
+    }
 
-        const store = new Store({
-            name: 'nativephp', // So it doesn't conflict with settings of the app
-        });
+    const phpOptions = {
+        cwd: appPath,
+        env,
+    };
 
-        // Cache the project
-        if (shouldOptimize(store)) {
-            console.log('Caching view and routes...');
+    const store = new Store({
+        name: 'nativephp', // So it doesn't conflict with settings of the app
+    });
 
-            let result = callPhpSync(['artisan', 'optimize'], phpOptions, phpIniSettings);
+    if (env.NIGHTWATCH_INGEST_URI && phpNightWatchPort) {
+        console.log('Starting Nightwatch server...');
+        callPhp(
+            ['artisan', 'nightwatch:agent', `--listen-on=${env.NIGHTWATCH_INGEST_URI}`],
+            phpOptions,
+            phpIniSettings,
+        );
+        console.log('Nightwatch server started on port:', phpNightWatchPort);
+    }
 
-            if (result.status !== 0) {
-                console.error('Failed to cache view and routes:', result.stderr.toString());
-            } else {
-                store.set('optimized_version', app.getVersion())
-            }
-        }
+    // Cache the project
+    if (shouldOptimize()) {
+        console.log('Caching view and routes...');
 
-        // Migrate the database
-        if (shouldMigrateDatabase(store)) {
-            console.log('Migrating database...');
+        const result = callPhpSync(['artisan', 'optimize'], phpOptions, phpIniSettings);
 
-            if(parseInt(process.env.SHELL_VERBOSITY) > 0) {
-                console.log('Database path:', databaseFile);
-            }
-
-            let result = callPhpSync(['artisan', 'migrate', '--force'], phpOptions, phpIniSettings);
-
-            if (result.status !== 0) {
-                console.error('Failed to migrate database:', result.stderr.toString());
-            } else {
-                store.set('migrated_version', app.getVersion())
-            }
-        }
-
-        if (process.env.NODE_ENV === 'development') {
-            console.log('Skipping Database migration while in development.')
-            console.log('You may migrate manually by running: php artisan native:migrate')
-        }
-
-        let serverPath: string;
-        let cwd: string;
-
-        if (runningSecureBuild()) {
-            serverPath = join(appPath, 'build', '__nativephp_app_bundle');
+        if (result.status !== 0) {
+            console.error('Failed to cache view and routes:', result.stderr.toString());
         } else {
-            console.log('* * * Running from source * * *');
-            serverPath = join(appPath, 'vendor', 'laravel', 'framework', 'src', 'Illuminate', 'Foundation', 'resources', 'server.php');
-            cwd = join(appPath, 'public');
+            store.set('optimized_version', app.getVersion());
+        }
+    }
+
+    // Migrate the database
+    if (shouldMigrateDatabase(store)) {
+        console.log('Migrating database...');
+
+        if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
+            console.log('Database path:', databaseFile);
         }
 
-        console.log('Starting PHP server...');
-        const phpPort = await getPhpPort();
-        const phpServer = callPhp(['-S', `127.0.0.1:${phpPort}`, serverPath], {
+        const result = callPhpSync(['artisan', 'migrate', '--force'], phpOptions, phpIniSettings);
+
+        if (result.status !== 0) {
+            console.error('Failed to migrate database:', result.stderr.toString());
+        } else {
+            store.set('migrated_version', app.getVersion());
+        }
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log('Skipping Database migration while in development.');
+        console.log('You may migrate manually by running: php artisan native:migrate');
+    }
+
+    let serverPath: string;
+    let cwd: string;
+
+    if (runningSecureBuild()) {
+        serverPath = join(appPath, 'build', '__nativephp_app_bundle');
+    } else {
+        console.log('* * * Running from source * * *');
+        serverPath = join(
+            appPath,
+            'vendor',
+            'laravel',
+            'framework',
+            'src',
+            'Illuminate',
+            'Foundation',
+            'resources',
+            'server.php',
+        );
+        cwd = join(appPath, 'public');
+    }
+
+    console.log('Starting PHP server...');
+    const phpPort = await getPhpPort();
+    const phpServer = callPhp(
+        ['-S', `127.0.0.1:${phpPort}`, serverPath],
+        {
             cwd: cwd,
-            env
-        }, phpIniSettings)
+            env,
+        },
+        phpIniSettings,
+    );
 
-        const portRegex = /Development Server \(.*:([0-9]+)\) started/gm
+    const portRegex = /Development Server \(.*:([0-9]+)\) started/gm;
 
+    return new Promise((resolve, reject) => {
         // Show urls called
         phpServer.stdout.on('data', (data) => {
             // [Tue Jan 14 19:51:00 2025] 127.0.0.1:52779 [POST] URI: /_native/api/events
             if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
                 console.log(data.toString().trim());
             }
-        })
+        });
 
         // Show PHP errors and indicate which port the server is running on
         phpServer.stderr.on('data', (data) => {
@@ -421,44 +446,42 @@ function serveApp(secret, apiPort, phpIniSettings): Promise<ProcessResult> {
 
             if (match) {
                 const port = parseInt(match[1]);
-                console.log("PHP Server started on port: ", port);
+                console.log('PHP Server started on port: ', port);
                 resolve({
                     port,
                     process: phpServer,
                 });
-            } else {
-                if (error.includes('[NATIVE_EXCEPTION]:')) {
-                    let logFile = join(storagePath, 'logs');
+            } else if (error.includes('[NATIVE_EXCEPTION]:')) {
+                const logFile = join(storagePath, 'logs');
 
-                    console.log();
-                    console.error('Error in PHP:');
-                    console.error('  ' + error.split('[NATIVE_EXCEPTION]:')[1].trim());
-                    console.log('Please check your log files:');
-                    console.log('  ' + logFile);
-                    console.log();
-                }
+                console.log();
+                console.error('Error in PHP:');
+                console.error('  ' + error.split('[NATIVE_EXCEPTION]:')[1].trim());
+                console.log('Please check your log files:');
+                console.log('  ' + logFile);
+                console.log();
             }
         });
 
         // Log when any error occurs (not started, not killed, couldn't send message, etc)
         phpServer.on('error', (error) => {
-            reject(error)
+            reject(error);
         });
 
         // Log when the PHP server exits
         phpServer.on('close', (code) => {
             console.log(`PHP server exited with code ${code}`);
         });
-    })
+    });
 }
 
 export {
-    startScheduler,
-    serveApp,
     getAppPath,
-    retrieveNativePHPConfig,
-    retrievePhpIniSettings,
     getDefaultEnvironmentVariables,
     getDefaultPhpIniSettings,
-    runningSecureBuild
-}
+    retrieveNativePHPConfig,
+    retrievePhpIniSettings,
+    runningSecureBuild,
+    serveApp,
+    startScheduler,
+};

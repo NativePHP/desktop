@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import startAPIServer, { APIProcess } from "../src/server/api";
-import axios from "axios";
+import axios from 'axios';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import startAPIServer, { APIProcess } from '../src/server/api';
 
 vi.mock('electron-updater', () => {
     return {
@@ -56,7 +56,7 @@ describe('API test', () => {
             response = await axios.get('/api/process', {
                 headers: {
                     'x-nativephp-secret': 'randomSecret',
-                }
+                },
             });
         } finally {
             expect(response.status).toBe(200);

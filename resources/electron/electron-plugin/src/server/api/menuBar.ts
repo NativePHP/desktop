@@ -1,16 +1,15 @@
-import express from "express";
-import { app, Menu, Tray } from "electron";
-import { compileMenu } from "./helper/index.js";
-import state from "../state.js";
-import { menubar } from "../../libs/menubar/index.js";
-import { notifyLaravel } from "../utils.js";
-import { fileURLToPath } from 'url'
-import { enable } from "@electron/remote/main/index.js";
-import mergePreferences from "../webPreferences.js";
+import { enable } from '@electron/remote/main/index.js';
+import { app, Menu, Tray } from 'electron';
+import express from 'express';
+import { menubar } from '../../libs/menubar/index.js';
+import state from '../state.js';
+import { notifyLaravel } from '../utils.js';
+import mergePreferences from '../webPreferences.js';
+import { compileMenu } from './helper/index.js';
 
 const router = express.Router();
 
-router.post("/label", (req, res) => {
+router.post('/label', (req, res) => {
     res.sendStatus(200);
 
     const { label } = req.body;
@@ -18,7 +17,7 @@ router.post("/label", (req, res) => {
     state.tray?.setTitle(label);
 });
 
-router.post("/tooltip", (req, res) => {
+router.post('/tooltip', (req, res) => {
     res.sendStatus(200);
 
     const { tooltip } = req.body;
@@ -26,7 +25,7 @@ router.post("/tooltip", (req, res) => {
     state.tray?.setToolTip(tooltip);
 });
 
-router.post("/icon", (req, res) => {
+router.post('/icon', (req, res) => {
     res.sendStatus(200);
 
     const { icon } = req.body;
@@ -34,7 +33,7 @@ router.post("/icon", (req, res) => {
     state.tray?.setImage(icon);
 });
 
-router.post("/context-menu", (req, res) => {
+router.post('/context-menu', (req, res) => {
     res.sendStatus(200);
 
     const { contextMenu } = req.body;
@@ -42,19 +41,19 @@ router.post("/context-menu", (req, res) => {
     state.tray?.setContextMenu(buildMenu(contextMenu));
 });
 
-router.post("/show", (req, res) => {
+router.post('/show', (req, res) => {
     res.sendStatus(200);
 
     state.activeMenuBar.showWindow();
 });
 
-router.post("/hide", (req, res) => {
+router.post('/hide', (req, res) => {
     res.sendStatus(200);
 
     state.activeMenuBar.hideWindow();
 });
 
-router.post("/resize", (req, res) => {
+router.post('/resize', (req, res) => {
     res.sendStatus(200);
 
     const { width, height } = req.body;
@@ -62,7 +61,7 @@ router.post("/resize", (req, res) => {
     state.activeMenuBar.window.setSize(width, height);
 });
 
-router.post("/create", (req, res) => {
+router.post('/create', (req, res) => {
     res.sendStatus(200);
 
     let shouldSendCreatedEvent = true;
@@ -90,13 +89,11 @@ router.post("/create", (req, res) => {
         tooltip,
         resizable,
         webPreferences,
-        event,
     } = req.body;
-
 
     if (onlyShowContextMenu) {
         // Create a tray icon
-        const tray = new Tray(icon || state.icon.replace("icon.png", "IconTemplate.png"));
+        const tray = new Tray(icon || state.icon.replace('icon.png', 'IconTemplate.png'));
 
         // Set the context menu
         tray.setContextMenu(buildMenu(contextMenu));
@@ -112,16 +109,15 @@ router.post("/create", (req, res) => {
         if (!showDockIcon) {
             app.dock.hide();
         }
-
     } else {
         state.activeMenuBar = menubar({
-            icon: icon || state.icon.replace("icon.png", "IconTemplate.png"),
+            icon: icon || state.icon.replace('icon.png', 'IconTemplate.png'),
             preloadWindow: true,
             tooltip,
             index: url,
             showDockIcon,
             showOnAllWorkspaces: showOnAllWorkspaces ?? false,
-            windowPosition: windowPosition ?? "trayCenter",
+            windowPosition: windowPosition ?? 'trayCenter',
             activateWithApp: false,
             browserWindow: {
                 width,
@@ -131,15 +127,15 @@ router.post("/create", (req, res) => {
                 vibrancy,
                 backgroundColor,
                 transparent: transparency,
-                webPreferences: mergePreferences(webPreferences)
-            }
+                webPreferences: mergePreferences(webPreferences),
+            },
         });
 
-        state.activeMenuBar.on("after-create-window", () => {
+        state.activeMenuBar.on('after-create-window', () => {
             enable(state.activeMenuBar.window.webContents);
         });
 
-        state.activeMenuBar.on("ready", () => {
+        state.activeMenuBar.on('ready', () => {
             // Set the event listeners
             eventsForTray(state.activeMenuBar.tray, onlyShowContextMenu, contextMenu, shouldSendCreatedEvent);
 
@@ -149,45 +145,38 @@ router.post("/create", (req, res) => {
             // Set the title
             state.tray.setTitle(label);
 
-            state.activeMenuBar.on("hide", () => {
-                notifyLaravel("events", {
-                    event: "\\Native\\Desktop\\Events\\MenuBar\\MenuBarHidden"
+            state.activeMenuBar.on('hide', () => {
+                notifyLaravel('events', {
+                    event: '\\Native\\Desktop\\Events\\MenuBar\\MenuBarHidden',
                 });
             });
 
-            state.activeMenuBar.on("show", () => {
-                notifyLaravel("events", {
-                    event: "\\Native\\Desktop\\Events\\MenuBar\\MenuBarShown"
+            state.activeMenuBar.on('show', () => {
+                notifyLaravel('events', {
+                    event: '\\Native\\Desktop\\Events\\MenuBar\\MenuBarShown',
                 });
             });
-
         });
     }
-
 });
 
-
-
 function eventsForTray(tray, onlyShowContextMenu, contextMenu, shouldSendCreatedEvent) {
-
     if (shouldSendCreatedEvent) {
-        notifyLaravel("events", {
-            event: "\\Native\\Desktop\\Events\\MenuBar\\MenuBarCreated"
+        notifyLaravel('events', {
+            event: '\\Native\\Desktop\\Events\\MenuBar\\MenuBarCreated',
         });
     }
 
-    tray.on("drop-files", (event, files) => {
-        notifyLaravel("events", {
-            event: "\\Native\\Desktop\\Events\\MenuBar\\MenuBarDroppedFiles",
-            payload: [
-                files
-            ]
+    tray.on('drop-files', (event, files) => {
+        notifyLaravel('events', {
+            event: '\\Native\\Desktop\\Events\\MenuBar\\MenuBarDroppedFiles',
+            payload: [files],
         });
     });
 
     tray.on('click', (combo, bounds, position) => {
         notifyLaravel('events', {
-            event: "\\Native\\Desktop\\Events\\MenuBar\\MenuBarClicked",
+            event: '\\Native\\Desktop\\Events\\MenuBar\\MenuBarClicked',
             payload: {
                 combo,
                 bounds,
@@ -196,13 +185,13 @@ function eventsForTray(tray, onlyShowContextMenu, contextMenu, shouldSendCreated
         });
     });
 
-    tray.on("right-click", (combo, bounds) => {
-        notifyLaravel("events", {
-            event: "\\Native\\Desktop\\Events\\MenuBar\\MenuBarRightClicked",
+    tray.on('right-click', (combo, bounds) => {
+        notifyLaravel('events', {
+            event: '\\Native\\Desktop\\Events\\MenuBar\\MenuBarRightClicked',
             payload: {
                 combo,
                 bounds,
-            }
+            },
         });
 
         if (!onlyShowContextMenu) {
@@ -213,7 +202,7 @@ function eventsForTray(tray, onlyShowContextMenu, contextMenu, shouldSendCreated
 
     tray.on('double-click', (combo, bounds) => {
         notifyLaravel('events', {
-            event: "\\Native\\Desktop\\Events\\MenuBar\\MenuBarDoubleClicked",
+            event: '\\Native\\Desktop\\Events\\MenuBar\\MenuBarDoubleClicked',
             payload: {
                 combo,
                 bounds,
@@ -223,7 +212,7 @@ function eventsForTray(tray, onlyShowContextMenu, contextMenu, shouldSendCreated
 }
 
 function buildMenu(contextMenu) {
-    let menu = Menu.buildFromTemplate([{ role: "quit" }]);
+    let menu = Menu.buildFromTemplate([{ role: 'quit' }]);
 
     if (contextMenu) {
         const menuEntries = contextMenu.map(compileMenu);

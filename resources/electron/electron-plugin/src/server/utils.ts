@@ -1,11 +1,11 @@
+import axios from 'axios';
 import { session } from 'electron';
 import state from './state.js';
-import axios from 'axios';
 
 export async function appendCookie() {
     const cookie = {
         url: `http://localhost:${state.phpPort}`,
-        name: "_php_native",
+        name: '_php_native',
         value: state.randomSecret,
     };
 
@@ -18,22 +18,18 @@ export async function notifyLaravel(endpoint: string, payload = {}) {
     }
 
     try {
-        await axios.post(
-            `http://127.0.0.1:${state.phpPort}/_native/api/${endpoint}`,
-            payload,
-            {
-                headers: {
-                    "X-NativePHP-Secret": state.randomSecret,
-                },
-            }
-        );
-    } catch (e) {
+        await axios.post(`http://127.0.0.1:${state.phpPort}/_native/api/${endpoint}`, payload, {
+            headers: {
+                'X-NativePHP-Secret': state.randomSecret,
+            },
+        });
+    } catch {
         //
     }
 }
 
 export function broadcastToWindows(event, payload) {
-    Object.values(state.windows).forEach(window => {
+    Object.values(state.windows).forEach((window) => {
         window.webContents.send(event, payload);
     });
 
@@ -45,8 +41,8 @@ export function broadcastToWindows(event, payload) {
 /**
  * Remove null and undefined values from an object
  */
-export function trimOptions(options: any): any {
-    Object.keys(options).forEach(key => options[key] == null && delete options[key]);
+export function trimOptions<T extends Record<string, unknown>>(options: T): T {
+    Object.keys(options).forEach((key) => options[key] == null && delete options[key]);
 
     return options;
 }

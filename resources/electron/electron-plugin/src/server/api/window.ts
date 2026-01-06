@@ -1,17 +1,16 @@
-import express from 'express';
 import { BrowserWindow } from 'electron';
-import state from '../state.js';
-import { fileURLToPath } from 'url'
-import { notifyLaravel, goToUrl, appendWindowIdToUrl } from '../utils.js';
 import windowStateKeeper from 'electron-window-state';
-import mergePreferences from '../webPreferences.js'
+import express from 'express';
+import state from '../state.js';
+import { appendWindowIdToUrl, goToUrl, notifyLaravel } from '../utils.js';
+import mergePreferences from '../webPreferences.js';
 
-import {enable} from "@electron/remote/main/index.js";
+import { enable } from '@electron/remote/main/index.js';
 
 const router = express.Router();
 
 router.post('/maximize', (req, res) => {
-    const {id} = req.body;
+    const { id } = req.body;
 
     state.windows[id]?.maximize();
 
@@ -19,7 +18,7 @@ router.post('/maximize', (req, res) => {
 });
 
 router.post('/minimize', (req, res) => {
-    const {id} = req.body;
+    const { id } = req.body;
 
     state.windows[id]?.minimize();
 
@@ -27,7 +26,7 @@ router.post('/minimize', (req, res) => {
 });
 
 router.post('/resize', (req, res) => {
-    const {id, width, height} = req.body;
+    const { id, width, height } = req.body;
 
     state.windows[id]?.setSize(parseInt(width), parseInt(height));
 
@@ -35,7 +34,7 @@ router.post('/resize', (req, res) => {
 });
 
 router.post('/title', (req, res) => {
-    const {id, title} = req.body;
+    const { id, title } = req.body;
 
     state.windows[id]?.setTitle(title);
 
@@ -43,7 +42,7 @@ router.post('/title', (req, res) => {
 });
 
 router.post('/url', (req, res) => {
-    const {id, url} = req.body;
+    const { id, url } = req.body;
 
     goToUrl(url, id);
 
@@ -51,7 +50,7 @@ router.post('/url', (req, res) => {
 });
 
 router.post('/closable', (req, res) => {
-    const {id, closable} = req.body;
+    const { id, closable } = req.body;
 
     state.windows[id]?.setClosable(closable);
 
@@ -59,7 +58,7 @@ router.post('/closable', (req, res) => {
 });
 
 router.post('/show-dev-tools', (req, res) => {
-    const {id} = req.body;
+    const { id } = req.body;
 
     state.windows[id]?.webContents.openDevTools();
 
@@ -67,7 +66,7 @@ router.post('/show-dev-tools', (req, res) => {
 });
 
 router.post('/hide-dev-tools', (req, res) => {
-    const {id} = req.body;
+    const { id } = req.body;
 
     state.windows[id]?.webContents.closeDevTools();
 
@@ -75,7 +74,7 @@ router.post('/hide-dev-tools', (req, res) => {
 });
 
 router.post('/set-zoom-factor', (req, res) => {
-    const {id, zoomFactor} = req.body;
+    const { id, zoomFactor } = req.body;
 
     state.windows[id]?.webContents.setZoomFactor(parseFloat(zoomFactor));
 
@@ -83,7 +82,7 @@ router.post('/set-zoom-factor', (req, res) => {
 });
 
 router.post('/position', (req, res) => {
-    const {id, x, y, animate} = req.body;
+    const { id, x, y, animate } = req.body;
 
     state.windows[id]?.setPosition(parseInt(x), parseInt(y), animate);
 
@@ -91,7 +90,7 @@ router.post('/position', (req, res) => {
 });
 
 router.post('/reload', (req, res) => {
-    const {id} = req.body;
+    const { id } = req.body;
 
     state.windows[id]?.reload();
 
@@ -99,7 +98,7 @@ router.post('/reload', (req, res) => {
 });
 
 router.post('/close', (req, res) => {
-    const {id} = req.body;
+    const { id } = req.body;
 
     if (state.windows[id]) {
         state.windows[id].close();
@@ -110,7 +109,7 @@ router.post('/close', (req, res) => {
 });
 
 router.post('/hide', (req, res) => {
-    const {id} = req.body;
+    const { id } = req.body;
 
     if (state.windows[id]) {
         state.windows[id].hide();
@@ -130,7 +129,7 @@ router.post('/show', (req, res) => {
 });
 
 router.post('/always-on-top', (req, res) => {
-    const {id, alwaysOnTop} = req.body;
+    const { id, alwaysOnTop } = req.body;
 
     state.windows[id]?.setAlwaysOnTop(alwaysOnTop);
 
@@ -139,22 +138,22 @@ router.post('/always-on-top', (req, res) => {
 
 router.get('/current', (req, res) => {
     // Find the current window object
-    const currentWindow = Object.values(state.windows).find(window => window.id === BrowserWindow.getFocusedWindow().id);
+    const currentWindow = Object.values(state.windows).find(
+        (window) => window.id === BrowserWindow.getFocusedWindow().id,
+    );
 
     // Get the developer-assigned id for that window
-    const id = Object.keys(state.windows).find(key => state.windows[key] === currentWindow);
+    const id = Object.keys(state.windows).find((key) => state.windows[key] === currentWindow);
 
     res.json(getWindowData(id));
 });
 
 router.get('/all', (req, res) => {
-    res.json(
-        Object.keys(state.windows).map(id => getWindowData(id))
-    );
+    res.json(Object.keys(state.windows).map((id) => getWindowData(id)));
 });
 
 router.get('/get/:id', (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
 
     if (state.windows[id] === undefined) {
         res.sendStatus(404);
@@ -200,7 +199,7 @@ function getWindowData(id) {
 }
 
 router.post('/open', (req, res) => {
-    let {
+    const {
         id,
         x,
         y,
@@ -215,7 +214,6 @@ router.post('/open', (req, res) => {
         skipTaskbar,
         hiddenInMissionControl,
         hasShadow,
-        url,
         resizable,
         movable,
         minimizable,
@@ -259,12 +257,8 @@ router.post('/open', (req, res) => {
     }
 
     const window = new BrowserWindow({
-        width: resizable
-            ? windowState?.width || parseInt(width)
-            : parseInt(width),
-        height: resizable
-            ? windowState?.height || parseInt(height)
-            : parseInt(height),
+        width: resizable ? windowState?.width || parseInt(width) : parseInt(width),
+        height: resizable ? windowState?.height || parseInt(height) : parseInt(height),
         frame: frame !== undefined ? frame : true,
         x: windowState?.x || x,
         y: windowState?.y || y,
@@ -290,7 +284,7 @@ router.post('/open', (req, res) => {
         skipTaskbar,
         hiddenInMissionControl,
         autoHideMenuBar,
-        ...(process.platform === 'linux' ? {icon: state.icon} : {}),
+        ...(process.platform === 'linux' ? { icon: state.icon } : {}),
         webPreferences: mergePreferences(webPreferences),
         fullscreen,
         fullscreenable,
@@ -309,49 +303,49 @@ router.post('/open', (req, res) => {
 
     if (suppressNewWindows) {
         window.webContents.setWindowOpenHandler(() => {
-            return { action: "deny" };
+            return { action: 'deny' };
         });
     }
 
     window.on('blur', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowBlurred',
-            payload: [id]
+            payload: [id],
         });
     });
 
     window.on('focus', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowFocused',
-            payload: [id]
+            payload: [id],
         });
     });
 
     window.on('minimize', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowMinimized',
-            payload: [id]
+            payload: [id],
         });
     });
 
     window.on('maximize', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowMaximized',
-            payload: [id]
+            payload: [id],
         });
     });
 
     window.on('show', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowShown',
-            payload: [id]
+            payload: [id],
         });
     });
 
     window.on('resized', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowResized',
-            payload: [id, window.getSize()[0], window.getSize()[1]]
+            payload: [id, window.getSize()[0], window.getSize()[1]],
         });
     });
 
@@ -359,26 +353,26 @@ router.post('/open', (req, res) => {
         evt.preventDefault();
     });
 
-    window.on('close', (evt) => {
+    window.on('close', () => {
         if (state.windows[id]) {
             delete state.windows[id];
         }
 
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowClosed',
-            payload: [id]
+            payload: [id],
         });
     });
 
     // @ts-ignore
-    window.on('hide', (evt) => {
+    window.on('hide', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowHidden',
-            payload: [id]
+            payload: [id],
         });
     });
 
-    url = appendWindowIdToUrl(url, id);
+    const url = appendWindowIdToUrl(req.body.url, id);
 
     window.loadURL(url);
 

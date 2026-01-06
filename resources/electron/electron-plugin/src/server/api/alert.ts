@@ -1,5 +1,5 @@
-import express from 'express'
-import { dialog } from 'electron'
+import { dialog } from 'electron';
+import express from 'express';
 const router = express.Router();
 
 router.post('/message', (req, res) => {
@@ -11,10 +11,10 @@ router.post('/message', (req, res) => {
         detail: detail ?? undefined,
         buttons: buttons ?? undefined,
         defaultId: defaultId ?? undefined,
-        cancelId: cancelId ?? undefined
+        cancelId: cancelId ?? undefined,
     });
     res.json({
-        result
+        result,
     });
 });
 
@@ -24,7 +24,7 @@ router.post('/error', (req, res) => {
     dialog.showErrorBox(title, message);
 
     res.json({
-        result: true
+        result: true,
     });
 });
 

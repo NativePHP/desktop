@@ -1,7 +1,7 @@
-import express from 'express';
 import { app, Menu } from 'electron';
-import { compileMenu } from './helper/index.js';
+import express from 'express';
 import state from '../state.js';
+import { compileMenu } from './helper/index.js';
 
 const router = express.Router();
 

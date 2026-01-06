@@ -7,18 +7,26 @@ export default async (context) => {
     // And the current build target is macOS
     if (context.packager.platform.name !== 'mac') return;
 
-    console.log('aftersign hook triggered, start to notarize app.')
+    console.log('aftersign hook triggered, start to notarize app.');
 
-    if (!('NATIVEPHP_APPLE_ID' in process.env && 'NATIVEPHP_APPLE_ID_PASS' in process.env && 'NATIVEPHP_APPLE_TEAM_ID' in process.env)) {
-        console.warn('skipping notarizing, NATIVEPHP_APPLE_ID, NATIVEPHP_APPLE_ID_PASS and NATIVEPHP_APPLE_TEAM_ID env variables must be set.')
-        return
+    if (
+        !(
+            'NATIVEPHP_APPLE_ID' in process.env &&
+            'NATIVEPHP_APPLE_ID_PASS' in process.env &&
+            'NATIVEPHP_APPLE_TEAM_ID' in process.env
+        )
+    ) {
+        console.warn(
+            'skipping notarizing, NATIVEPHP_APPLE_ID, NATIVEPHP_APPLE_ID_PASS and NATIVEPHP_APPLE_TEAM_ID env variables must be set.',
+        );
+        return;
     }
 
     const appId = process.env.NATIVEPHP_APP_ID;
 
-    const {appOutDir} = context
+    const { appOutDir } = context;
 
-    const appName = context.packager.appInfo.productFilename
+    const appName = context.packager.appInfo.productFilename;
 
     try {
         await notarize({
@@ -28,10 +36,10 @@ export default async (context) => {
             appleIdPassword: process.env.NATIVEPHP_APPLE_ID_PASS,
             teamId: process.env.NATIVEPHP_APPLE_TEAM_ID,
             tool: 'notarytool',
-        })
+        });
     } catch (error) {
-        console.error(error)
+        console.error(error);
     }
 
-    console.log(`done notarizing ${appId}.`)
-}
+    console.log(`done notarizing ${appId}.`);
+};
