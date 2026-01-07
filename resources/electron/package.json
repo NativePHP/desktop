@@ -50,6 +50,7 @@
         "electron-updater": "^6.3.9",
         "electron-window-state": "^5.0.3",
         "express": "^5.1.0",
+        "fix-path": "^5.0.0",
         "fs-extra": "^11.2.0",
         "get-port": "^7.1.0",
         "kill-sync": "^1.0.3",
