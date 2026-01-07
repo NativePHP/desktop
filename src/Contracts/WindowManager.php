@@ -20,4 +20,6 @@ interface WindowManager
     public function all(): array;
 
     public function get(string $id): Window;
+
+    public function reload($id = null): void;
 }
