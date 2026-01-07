@@ -8,8 +8,8 @@ class DispatchEventFromAppController
 {
     public function __invoke(Request $request)
     {
-        $event = $request->get('event');
-        $payload = $request->get('payload', []);
+        $event = $request->input('event');
+        $payload = $request->input('payload', []);
 
         if (class_exists($event)) {
             $event = new $event(...$payload);
