@@ -102,6 +102,7 @@ return [
         /**
          * The updater provider to use.
          * Supported: "github", "s3", "spaces"
+         * Note: The "s3" provider is compatible with S3-compatible services like Cloudflare R2.
          */
         'default' => env('NATIVEPHP_UPDATER_PROVIDER', 'spaces'),
 
@@ -125,6 +126,13 @@ return [
                 'bucket' => env('AWS_BUCKET'),
                 'endpoint' => env('AWS_ENDPOINT'),
                 'path' => env('NATIVEPHP_UPDATER_PATH', null),
+                /**
+                 * Optional public URL for serving updates (e.g., CDN or custom domain).
+                 * When set, updates will be downloaded from this URL instead of the S3 endpoint.
+                 * Useful for S3 with CloudFront or Cloudflare R2 with public access
+                 * Example: 'https://updates.yourdomain.com'
+                 */
+                'public_url' => env('AWS_PUBLIC_URL'),
             ],
 
             'spaces' => [
