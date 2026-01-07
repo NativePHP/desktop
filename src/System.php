@@ -78,7 +78,7 @@ class System
     public function printToPDF(string $html, ?array $settings = []): string
     {
         return $this->client->post('system/print-to-pdf', [
-            'html' => $html,
+            'html' => base64_encode($html),
             'settings' => $settings,
         ])->json('result');
     }
