@@ -17,7 +17,7 @@ class GitHubProvider implements Updater
 
     public function builderOptions(): array
     {
-        return [
+        $options = [
             'provider' => 'github',
             'repo' => $this->config['repo'],
             'owner' => $this->config['owner'],
@@ -25,7 +25,12 @@ class GitHubProvider implements Updater
             'private' => $this->config['private'],
             'channel' => $this->config['channel'],
             'releaseType' => $this->config['releaseType'],
-            'token' => $this->config['token'],
         ];
+
+        if ($this->config['private'] === true && ! empty($this->config['autoupdate_token'])) {
+            $options['token'] = $this->config['autoupdate_token'];
+        }
+
+        return $options;
     }
 }

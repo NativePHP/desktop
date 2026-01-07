@@ -17,6 +17,10 @@ class Notification
 
     protected string $event = '';
 
+    protected string $sound = '';
+
+    protected bool $silent = false;
+
     private bool $hasReply = false;
 
     private string $replyPlaceholder = '';
@@ -54,6 +58,20 @@ class Notification
         return $this;
     }
 
+    public function sound(string $sound): self
+    {
+        $this->sound = $sound;
+
+        return $this;
+    }
+
+    public function silent(bool $silent = true): self
+    {
+        $this->silent = $silent;
+
+        return $this;
+    }
+
     public function hasReply(string $placeholder = ''): self
     {
         $this->hasReply = true;
@@ -83,6 +101,8 @@ class Notification
             'title' => $this->title,
             'body' => $this->body,
             'event' => $this->event,
+            'sound' => $this->sound,
+            'silent' => $this->silent,
             'hasReply' => $this->hasReply,
             'replyPlaceholder' => $this->replyPlaceholder,
             'actions' => array_map(fn (string $label) => [

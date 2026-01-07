@@ -11,11 +11,12 @@ trait PrunesVendorDirectory
 
     public function pruneVendorDirectory()
     {
-        Process::path($this->buildPath())
+        Process::path($this->buildPath('app'))
             ->timeout(300)
             ->run('composer install --no-dev', function (string $type, string $output) {
                 echo $output;
-            });
+            })
+            ->throw();
 
         $filesystem = new Filesystem;
         $filesystem->remove([
@@ -25,9 +26,8 @@ trait PrunesVendorDirectory
 
         // Remove custom php binary package directory
         $binaryPackageDirectory = $this->binaryPackageDirectory();
-        if (! empty($binaryPackageDirectory) && $filesystem->exists($this->buildPath($binaryPackageDirectory))) {
-            $binariesInBuildPath = $this->buildPath("app/{$binaryPackageDirectory}");
-            $filesystem->remove($binariesInBuildPath);
+        if (! empty($binaryPackageDirectory) && $filesystem->exists($this->buildPath("app/{$binaryPackageDirectory}"))) {
+            $filesystem->remove($this->buildPath("app/{$binaryPackageDirectory}"));
         }
     }
 }
