@@ -1,6 +1,6 @@
-import { ChildProcessWithoutNullStreams } from "child_process";
+import { ChildProcessWithoutNullStreams } from 'child_process';
 
 export interface ProcessResult {
-  process: ChildProcessWithoutNullStreams;
-  port: number;
+    process: ChildProcessWithoutNullStreams;
+    port: number;
 }

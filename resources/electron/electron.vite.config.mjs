@@ -1,5 +1,5 @@
-import { join } from 'path';
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
+import { join } from 'path';
 
 export default defineConfig({
     main: {
@@ -9,12 +9,14 @@ export default defineConfig({
                     {
                         name: 'watch-external',
                         buildStart() {
-                            this.addWatchFile(join(process.env.APP_PATH, 'app', 'Providers', 'NativeAppServiceProvider.php'));
-                        }
-                    }
-                ]
+                            this.addWatchFile(
+                                join(process.env.APP_PATH, 'app', 'Providers', 'NativeAppServiceProvider.php'),
+                            );
+                        },
+                    },
+                ],
             },
         },
-        plugins: [externalizeDepsPlugin()]
-    }
+        plugins: [externalizeDepsPlugin()],
+    },
 });

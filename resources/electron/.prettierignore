@@ -1,0 +1,5 @@
+out
+electron-plugin/dist
+package-lock.json
+eslint.config.js
+.prettierrc.json

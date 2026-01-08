@@ -1,8 +1,9 @@
 // vitest-setup.ts
 
-import { vi } from 'vitest';
-import { mockForNodeRequire } from "vitest-mock-commonjs"
+// @ts-ignore
 import express from 'express';
+import { vi } from 'vitest';
+import { mockForNodeRequire } from 'vitest-mock-commonjs';
 
 // Mock electron
 mockForNodeRequire('electron', () => ({
@@ -65,13 +66,15 @@ mockForNodeRequire('electron', () => ({
             scaleFactor: 1,
             rotation: 0,
         }),
-        getAllDisplays: vi.fn().mockReturnValue([{
-            id: 1,
-            bounds: { x: 0, y: 0, width: 1920, height: 1080 },
-            workArea: { x: 0, y: 0, width: 1920, height: 1040 },
-            scaleFactor: 1,
-            rotation: 0,
-        }]),
+        getAllDisplays: vi.fn().mockReturnValue([
+            {
+                id: 1,
+                bounds: { x: 0, y: 0, width: 1920, height: 1080 },
+                workArea: { x: 0, y: 0, width: 1920, height: 1040 },
+                scaleFactor: 1,
+                rotation: 0,
+            },
+        ]),
     },
 
     dialog: {
@@ -173,7 +176,7 @@ vi.mock('electron-store', () => {
             has: vi.fn(),
             delete: vi.fn(),
             clear: vi.fn(),
-            onDidAnyChange: vi.fn().mockImplementation(callback => {
+            onDidAnyChange: vi.fn().mockImplementation(() => {
                 // Return an unsubscribe function
                 return () => {};
             }),

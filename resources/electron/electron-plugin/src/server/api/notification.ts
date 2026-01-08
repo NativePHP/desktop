@@ -1,9 +1,8 @@
-import express from 'express';
 import { Notification } from 'electron';
-import {notifyLaravel, broadcastToWindows} from "../utils.js";
-declare const require: any;
-import playSoundLib from 'play-sound';
+import express from 'express';
 import fs from 'fs';
+import playSoundLib from 'play-sound';
+import { broadcastToWindows, notifyLaravel } from '../utils.js';
 
 const isLocalFile = (sound: unknown) => {
     if (typeof sound !== 'string') return false;
@@ -34,7 +33,7 @@ router.post('/', (req, res) => {
 
     const eventName = customEvent ?? '\\Native\\Desktop\\Events\\Notifications\\NotificationClicked';
 
-    const notificationReference = reference ?? (Date.now() + '.' + Math.random().toString(36).slice(2, 9));
+    const notificationReference = reference ?? Date.now() + '.' + Math.random().toString(36).slice(2, 9);
 
     const usingLocalFile = isLocalFile(sound);
 
@@ -51,7 +50,7 @@ router.post('/', (req, res) => {
         urgency,
         actions,
         closeButtonText,
-        toastXml
+        toastXml,
     });
 
     if (usingLocalFile && !silent) {
@@ -60,7 +59,7 @@ router.post('/', (req, res) => {
                 broadcastToWindows('log', {
                     level: 'error',
                     message: `Sound file not found: ${sound}`,
-                    context: { sound }
+                    context: { sound },
                 });
                 return;
             }
@@ -69,7 +68,7 @@ router.post('/', (req, res) => {
         });
     }
 
-    notification.on("click", (event) => {
+    notification.on('click', (event) => {
         notifyLaravel('events', {
             event: eventName || '\\Native\\Desktop\\Events\\Notifications\\NotificationClicked',
             payload: {
@@ -79,7 +78,7 @@ router.post('/', (req, res) => {
         });
     });
 
-    notification.on("action", (event, index) => {
+    notification.on('action', (event, index) => {
         notifyLaravel('events', {
             event: '\\Native\\Desktop\\Events\\Notifications\\NotificationActionClicked',
             payload: {
@@ -90,7 +89,7 @@ router.post('/', (req, res) => {
         });
     });
 
-    notification.on("reply", (event, reply) => {
+    notification.on('reply', (event, reply) => {
         notifyLaravel('events', {
             event: '\\Native\\Desktop\\Events\\Notifications\\NotificationReply',
             payload: {
@@ -101,7 +100,7 @@ router.post('/', (req, res) => {
         });
     });
 
-    notification.on("close", (event) => {
+    notification.on('close', (event) => {
         notifyLaravel('events', {
             event: '\\Native\\Desktop\\Events\\Notifications\\NotificationClosed',
             payload: {
