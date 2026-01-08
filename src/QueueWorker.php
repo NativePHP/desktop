@@ -36,7 +36,7 @@ class QueueWorker implements QueueWorkerContract
                 "--memory={$config->memoryLimit}",
                 "--timeout={$config->timeout}",
                 "--sleep={$config->sleep}",
-                "--quiet",
+                '--quiet',
             ],
             'queue_'.$config->alias,
             persistent: true,
