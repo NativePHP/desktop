@@ -31,6 +31,11 @@ router.post("/context-menu", (req, res) => {
     const { contextMenu } = req.body;
     (_a = state.tray) === null || _a === void 0 ? void 0 : _a.setContextMenu(buildMenu(contextMenu));
 });
+router.post("/show-context-menu", (req, res) => {
+    var _a;
+    res.sendStatus(200);
+    (_a = state.tray) === null || _a === void 0 ? void 0 : _a.popUpContextMenu();
+});
 router.post("/show", (req, res) => {
     res.sendStatus(200);
     state.activeMenuBar.showWindow();

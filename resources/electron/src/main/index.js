@@ -2,6 +2,10 @@ import NativePHP from '#plugin';
 import { app } from 'electron';
 import path from 'path';
 
+// Inherit User's PATH in Process & ChildProcess
+import fixPath from 'fix-path';
+fixPath();
+
 const buildPath = path.resolve(import.meta.dirname, import.meta.env.MAIN_VITE_NATIVEPHP_BUILD_PATH);
 const defaultIcon = path.join(buildPath, 'icon.png');
 const certificate = path.join(buildPath, 'cacert.pem');

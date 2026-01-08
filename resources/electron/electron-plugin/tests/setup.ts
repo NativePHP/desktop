@@ -38,6 +38,7 @@ mockForNodeRequire('electron', () => ({
         on: vi.fn(),
         setMenu: vi.fn(),
         setMenuBarVisibility: vi.fn(),
+        setWindowButtonVisibility: vi.fn(),
         webContents: {
             on: vi.fn(),
             send: vi.fn(),

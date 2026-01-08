@@ -10,6 +10,7 @@
         "noImplicitAny": false,
         "preserveConstEnums": true,
         "removeComments": true,
+        "skipLibCheck": true,
         "typeRoots": ["../node_modules/@types"],
         "lib": ["es2019", "dom"],
         "types": ["node"]
