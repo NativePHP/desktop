@@ -26,14 +26,8 @@ class NativePHP {
     mainWindow = null;
     schedulerInterval = undefined;
 
-  public bootstrap(
-    app: CrossProcessExports.App,
-    icon: string,
-    phpBinary: string,
-    cert: string,
-    appPath: string
-  ) {
-    initialize();
+    public bootstrap(app: CrossProcessExports.App, icon: string, phpBinary: string, cert: string, appPath: string) {
+        initialize();
 
         state.icon = icon;
         state.php = phpBinary;
@@ -203,22 +197,22 @@ class NativePHP {
         }
     }
 
-  private startAutoUpdater(config) {
-    if (config?.updater?.enabled === true) {
-      // If a public URL is configured for the current provider, use it for updates
-      const defaultProvider = config?.updater?.default;
-      const publicUrl = config?.updater?.providers?.[defaultProvider]?.public_url;
+    private startAutoUpdater(config) {
+        if (config?.updater?.enabled === true) {
+            // If a public URL is configured for the current provider, use it for updates
+            const defaultProvider = config?.updater?.default;
+            const publicUrl = config?.updater?.providers?.[defaultProvider]?.public_url;
 
-      if (publicUrl) {
-        autoUpdater.setFeedURL({
-          provider: 'generic',
-          url: publicUrl
-        });
-      }
+            if (publicUrl) {
+                autoUpdater.setFeedURL({
+                    provider: 'generic',
+                    url: publicUrl,
+                });
+            }
 
-      autoUpdater.checkForUpdatesAndNotify();
+            autoUpdater.checkForUpdatesAndNotify();
+        }
     }
-  }
 
     private async startElectronApi() {
         // Start an Express server so that the Electron app can be controlled from PHP via API

@@ -58,7 +58,7 @@ router.post('/closable', (req, res) => {
 });
 
 router.post('/window-button-visibility', (req, res) => {
-    const {id, windowButtonVisibility} = req.body;
+    const { id, windowButtonVisibility } = req.body;
 
     state.windows[id]?.setWindowButtonVisibility(windowButtonVisibility);
 
