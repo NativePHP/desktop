@@ -87,4 +87,9 @@ trait HasPositioner
     {
         return $this->windowPosition('center');
     }
+
+    public function upperCenter(): self
+    {
+        return $this->windowPosition('upperCenter');
+    }
 }
