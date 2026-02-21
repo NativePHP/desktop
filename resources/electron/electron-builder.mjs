@@ -13,7 +13,6 @@ const deepLinkProtocol = process.env.NATIVEPHP_DEEPLINK_SCHEME;
 const updaterEnabled = process.env.NATIVEPHP_UPDATER_ENABLED === 'true';
 
 // Azure signing configuration
-const azurePublisherName = process.env.NATIVEPHP_AZURE_PUBLISHER_NAME;
 const azureEndpoint = process.env.NATIVEPHP_AZURE_ENDPOINT;
 const azureCertificateProfileName = process.env.NATIVEPHP_AZURE_CERTIFICATE_PROFILE_NAME;
 const azureCodeSigningAccountName = process.env.NATIVEPHP_AZURE_CODE_SIGNING_ACCOUNT_NAME;
@@ -83,9 +82,8 @@ export default {
     afterSign: 'build/notarize.js',
     win: {
         executableName: fileName,
-        ...(azurePublisherName && azureEndpoint && azureCertificateProfileName && azureCodeSigningAccountName ? {
+        ...(azureEndpoint && azureCertificateProfileName && azureCodeSigningAccountName ? {
             azureSignOptions: {
-                publisherName: azurePublisherName,
                 endpoint: azureEndpoint,
                 certificateProfileName: azureCertificateProfileName,
                 codeSigningAccountName: azureCodeSigningAccountName
