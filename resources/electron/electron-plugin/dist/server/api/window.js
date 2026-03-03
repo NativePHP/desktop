@@ -274,6 +274,9 @@ router.post('/open', (req, res) => {
         });
     }
     window.webContents.on('did-finish-load', () => {
+        if (state.noFocusOnRestart && window.isVisible()) {
+            return;
+        }
         window.show();
     });
     window.webContents.on('did-fail-load', (event) => {
