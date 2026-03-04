@@ -14,6 +14,7 @@ trait ExecuteCommand
         string $command,
         bool $skip_queue = false,
         string $type = 'install',
+        bool $no_focus = false,
         bool $withoutInteraction = false
     ): void {
 
@@ -32,6 +33,7 @@ trait ExecuteCommand
                 'NATIVEPHP_BUILDING' => false,
                 'NATIVEPHP_ELECTRON_PATH' => ElectronServiceProvider::electronPath(),
                 'NATIVEPHP_BUILD_PATH' => ElectronServiceProvider::buildPath(),
+                'NATIVEPHP_NO_FOCUS' => $no_focus,
             ],
         ];
 

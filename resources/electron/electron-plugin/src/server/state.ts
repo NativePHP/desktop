@@ -33,6 +33,7 @@ interface State {
   randomSecret: string;
   store: Store;
   findWindow: (id: string) => BrowserWindow | null;
+  noFocusOnRestart: boolean;
   dockBounce: number;
 }
 
@@ -63,6 +64,7 @@ export default {
   randomSecret: generateRandomString(32),
   processes: {},
   windows: {},
+  noFocusOnRestart: false,
   findWindow(id: string) {
     return this.windows[id] || null;
   },

@@ -95,6 +95,9 @@ class NativePHP {
                 details.requestHeaders['X-NativePHP-Secret'] = state.randomSecret;
                 callback({ requestHeaders: details.requestHeaders });
             });
+            if (process.env.NATIVEPHP_NO_FOCUS) {
+                state.noFocusOnRestart = true;
+            }
             yield notifyLaravel("booted");
         });
     }

@@ -131,6 +131,10 @@ class NativePHP {
         callback({ requestHeaders: details.requestHeaders });
     });
 
+    if (process.env.NATIVEPHP_NO_FOCUS) {
+      state.noFocusOnRestart = true;
+    }
+
     await notifyLaravel("booted");
   }
 
