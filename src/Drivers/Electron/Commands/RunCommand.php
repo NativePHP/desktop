@@ -25,7 +25,7 @@ class RunCommand extends Command
     use InstallsAppIcon;
     use PatchesPackagesJson;
 
-    protected $signature = 'native:run {--no-queue} {--D|no-dependencies} {--installer=npm}';
+    protected $signature = 'native:run {--no-queue} {--no-focus} {--D|no-dependencies} {--installer=npm}';
 
     public function __construct(
         protected Builder $builder
@@ -62,6 +62,7 @@ class RunCommand extends Command
         $this->runDeveloper(
             installer: $this->option('installer'),
             skip_queue: $this->option('no-queue'),
+            no_focus: $this->option('no-focus'),
             withoutInteraction: $this->option('no-interaction')
         );
     }
