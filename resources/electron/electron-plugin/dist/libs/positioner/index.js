@@ -74,6 +74,10 @@ class Positioner {
                 x: Math.floor(screenSize.x + (screenSize.width / 2 - windowSize[0] / 2)),
                 y: Math.floor((screenSize.height + screenSize.y) / 2 - windowSize[1] / 2),
             },
+            upperCenter: {
+                x: Math.floor(screenSize.x + (screenSize.width / 2 - windowSize[0] / 2)),
+                y: Math.floor(screenSize.y + (screenSize.height - windowSize[1]) / 3),
+            },
         };
         if (position.substr(0, 4) === "tray") {
             if (positions[position].x + windowSize[0] >
