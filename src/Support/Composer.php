@@ -54,6 +54,11 @@ class Composer
             'npx concurrently -k -c "#93c5fd,#c4b5fd" "php artisan native:run --no-interaction" "npm run dev" --names=app,vite',
         ];
 
+        $composerScripts->dev = [
+            'Composer\\Config::disableProcessTimeout',
+            'npx concurrently -c "#93c5fd,#c4b5fd,#fdba74,#86efac" "php artisan serve" "php artisan native:run --no-interaction" "php artisan queue:listen --tries=1" "npm run dev" --names=\'server,native,queue,vite\'',
+        ];
+
         data_set($composer, 'scripts', $composerScripts);
 
         file_put_contents(
