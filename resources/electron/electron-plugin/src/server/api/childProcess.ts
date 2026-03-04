@@ -200,7 +200,7 @@ function stopProcess(alias) {
         killSync(proc.pid, 'SIGTERM', true); // Kill tree
         proc.kill(); // Does not work but just in case. (do not put before killSync)
     } catch (e) {
-        // Process already exited — nothing to kill
+        console.log('Process [' + alias + '] already exited — nothing to kill.');
     }
 }
 
