@@ -230,6 +230,7 @@ class NativePHP {
         });
       }
 
+      autoUpdater.autoInstallOnAppQuit = false;
       autoUpdater.checkForUpdatesAndNotify();
     }
   }
