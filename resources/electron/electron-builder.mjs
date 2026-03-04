@@ -11,6 +11,7 @@ const appVersion = process.env.NATIVEPHP_APP_VERSION;
 const appCopyright = process.env.NATIVEPHP_APP_COPYRIGHT;
 const deepLinkProtocol = process.env.NATIVEPHP_DEEPLINK_SCHEME;
 const updaterEnabled = process.env.NATIVEPHP_UPDATER_ENABLED === 'true';
+const deleteAppDataOnUninstall = process.env.NATIVEPHP_NSIS_DELETE_APP_DATA === 'true';
 
 // Azure signing configuration
 const azureEndpoint = process.env.NATIVEPHP_AZURE_ENDPOINT;
@@ -95,6 +96,7 @@ export default {
         shortcutName: '${productName}',
         uninstallDisplayName: '${productName}',
         createDesktopShortcut: 'always',
+        deleteAppDataOnUninstall: deleteAppDataOnUninstall,
     },
     protocols: {
         name: deepLinkProtocol,
