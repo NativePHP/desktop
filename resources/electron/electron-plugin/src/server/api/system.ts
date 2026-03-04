@@ -117,7 +117,7 @@ router.post('/print-to-pdf', async (req, res) => {
         });
     });
 
-    await printWindow.loadURL(`data:text/html;charset=UTF-8,${html}`);
+    await printWindow.loadURL(`data:text/html;base64;charset=UTF-8,${html}`);
 });
 
 router.get('/theme', (req, res) => {

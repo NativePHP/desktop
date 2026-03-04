@@ -60,6 +60,8 @@ class Window
 
     protected array $trafficLightPosition = [];
 
+    protected bool $windowButtonVisibility = true;
+
     protected string $title = '';
 
     protected string $id = 'main';
@@ -146,6 +148,18 @@ class Window
     public function trafficLightPosition(int $x, int $y): self
     {
         $this->trafficLightPosition = ['x' => $x, 'y' => $y];
+
+        return $this;
+    }
+
+    public function trafficLightsHidden(): self
+    {
+        return $this->windowButtonVisibility(false);
+    }
+
+    public function windowButtonVisibility($visible = true): self
+    {
+        $this->windowButtonVisibility = $visible;
 
         return $this;
     }
@@ -392,6 +406,7 @@ class Window
             'frame' => $this->frame,
             'titleBarStyle' => $this->titleBarStyle,
             'trafficLightPosition' => $this->trafficLightPosition,
+            'windowButtonVisibility' => $this->windowButtonVisibility,
             'showDevTools' => $this->showDevTools,
             'vibrancy' => $this->vibrancy,
             'transparency' => $this->transparent,

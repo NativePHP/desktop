@@ -36,6 +36,7 @@ export default {
     randomSecret: generateRandomString(32),
     processes: {},
     windows: {},
+    noFocusOnRestart: false,
     findWindow(id) {
         return this.windows[id] || null;
     },

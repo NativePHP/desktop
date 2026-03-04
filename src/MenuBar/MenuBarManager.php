@@ -59,4 +59,9 @@ class MenuBarManager
             'contextMenu' => $contextMenu->toArray()['submenu'],
         ]);
     }
+
+    public function showContextMenu()
+    {
+        $this->client->post('menu-bar/show-context-menu');
+    }
 }

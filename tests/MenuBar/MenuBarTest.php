@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Http;
 use Native\Desktop\Facades\Menu;
 use Native\Desktop\Facades\MenuBar;
 
@@ -29,4 +30,16 @@ it('menubar with create', function () {
     $this->assertEquals('nativephp.png', $menuBarArray['icon']);
     $this->assertEquals('trayCenter', $menuBarArray['windowPosition']);
     $this->assertIsArray($menuBarArray['contextMenu']);
+});
+
+it('can show context menu programmatically', function () {
+    Http::fake([
+        '*/menu-bar/show-context-menu' => Http::response([], 200),
+    ]);
+
+    MenuBar::showContextMenu();
+
+    Http::assertSent(function ($request) {
+        return str_contains($request->url(), 'menu-bar/show-context-menu');
+    });
 });

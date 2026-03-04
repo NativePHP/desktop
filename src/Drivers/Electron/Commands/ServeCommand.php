@@ -12,7 +12,7 @@ use function Laravel\Prompts\warning;
 )]
 class ServeCommand extends RunCommand
 {
-    protected $signature = 'native:serve {--no-queue} {--D|no-dependencies} {--installer=npm}';
+    protected $signature = 'native:serve {--no-queue} {--no-focus} {--D|no-dependencies} {--installer=npm}';
 
     public function handle(): void
     {

@@ -29,7 +29,8 @@ it('test window', function () {
         ->closable()
         ->fullscreen()
         ->kiosk()
-        ->hideMenu();
+        ->hideMenu()
+        ->trafficLightsHidden();
 
     $windowArray = $window->toArray();
 
@@ -52,6 +53,7 @@ it('test window', function () {
     expect($windowArray['fullscreen'])->toBeTrue();
     expect($windowArray['kiosk'])->toBeTrue();
     expect($windowArray['autoHideMenuBar'])->toBeTrue();
+    expect($windowArray['windowButtonVisibility'])->toBeFalse();
 });
 
 it('test title bar for window', function () {
