@@ -1,6 +1,6 @@
 import { shell } from 'electron';
-import { notifyLaravel, goToUrl } from '../../utils.js';
 import state from '../../state.js';
+import { goToUrl, notifyLaravel } from '../../utils.js';
 
 function triggerMenuItemEvent(menuItem, combo) {
     notifyLaravel('events', {
@@ -16,7 +16,7 @@ function triggerMenuItemEvent(menuItem, combo) {
     });
 }
 
-export function compileMenu (item) {
+export function compileMenu(item) {
     if (item.submenu) {
         if (Array.isArray(item.submenu)) {
             item.submenu = item.submenu?.map(compileMenu);
@@ -36,16 +36,15 @@ export function compileMenu (item) {
                 return;
             }
 
-            if (! focusedWindow) {
+            if (!focusedWindow) {
                 // TODO: Bring a window to the front?
                 return;
             }
 
-            const id = Object.keys(state.windows)
-                .find(key => state.windows[key] === focusedWindow);
+            const id = Object.keys(state.windows).find((key) => state.windows[key] === focusedWindow);
 
             goToUrl(item.url, id);
-        }
+        };
 
         return item;
     }
@@ -60,8 +59,8 @@ export function compileMenu (item) {
     }
 
     if (item.type === 'role') {
-        let menuItem = {
-            role: item.role
+        const menuItem = {
+            role: item.role,
         };
 
         if (item.label) {
@@ -72,10 +71,10 @@ export function compileMenu (item) {
     }
 
     // Default click event
-    if (! item.click) {
+    if (!item.click) {
         item.click = (menuItem, focusedWindow, combo) => {
             triggerMenuItemEvent(item, combo);
-        }
+        };
     }
 
     return item;

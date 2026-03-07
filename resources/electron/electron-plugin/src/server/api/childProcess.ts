@@ -1,16 +1,16 @@
+import { utilityProcess, UtilityProcess } from 'electron';
 import express from 'express';
-import {utilityProcess, UtilityProcess} from 'electron';
+import killSync from 'kill-sync';
+import { join } from 'path';
+import { fileURLToPath } from 'url';
+import { getAppPath, getDefaultEnvironmentVariables, getDefaultPhpIniSettings, runningSecureBuild } from '../php.js';
 import state from '../state.js';
-import {notifyLaravel} from "../utils.js";
-import {getAppPath, getDefaultEnvironmentVariables, getDefaultPhpIniSettings, runningSecureBuild} from "../php.js";
-import killSync from "kill-sync";
-import {fileURLToPath} from "url";
-import {join} from "path";
+import { notifyLaravel } from '../utils.js';
 
 const router = express.Router();
 
 function startProcess(settings, useNodeRuntime = false) {
-    const {alias, cmd, cwd, env, persistent, spawnTimeout = 30000} = settings;
+    const { alias, cmd, cwd, env, spawnTimeout = 30000 } = settings;
 
     if (getProcess(alias) !== undefined) {
         return state.processes[alias];
@@ -27,9 +27,9 @@ function startProcess(settings, useNodeRuntime = false) {
                 env: {
                     ...process.env,
                     ...env,
-                    USE_NODE_RUNTIME: useNodeRuntime ? '1' : '0'
-                }
-            }
+                    USE_NODE_RUNTIME: useNodeRuntime ? '1' : '0',
+                },
+            },
         );
 
         // Set timeout to detect if process never spawns
@@ -40,7 +40,7 @@ function startProcess(settings, useNodeRuntime = false) {
                 // Attempt to clean up
                 try {
                     proc.kill();
-                } catch (e) {
+                } catch {
                     // Ignore kill errors
                 }
 
@@ -49,7 +49,7 @@ function startProcess(settings, useNodeRuntime = false) {
                     payload: {
                         alias,
                         error: 'Startup timeout exceeded',
-                    }
+                    },
                 });
             }
         }, spawnTimeout);
@@ -60,7 +60,7 @@ function startProcess(settings, useNodeRuntime = false) {
                 payload: {
                     alias,
                     data: data.toString(),
-                }
+                },
             });
         });
 
@@ -72,7 +72,7 @@ function startProcess(settings, useNodeRuntime = false) {
                 payload: {
                     alias,
                     data: data.toString(),
-                }
+                },
             });
         });
 
@@ -99,12 +99,12 @@ function startProcess(settings, useNodeRuntime = false) {
             state.processes[alias] = {
                 pid: proc.pid,
                 proc,
-                settings
+                settings,
             };
 
             notifyLaravel('events', {
                 event: 'Native\\Desktop\\Events\\ChildProcess\\ProcessSpawned',
-                payload: [alias, proc.pid]
+                payload: [alias, proc.pid],
             });
         });
 
@@ -117,10 +117,10 @@ function startProcess(settings, useNodeRuntime = false) {
                 payload: {
                     alias,
                     code,
-                }
+                },
             });
 
-            const settings = {...getSettings(alias)};
+            const settings = { ...getSettings(alias) };
             delete state.processes[alias];
 
             if (settings?.persistent) {
@@ -133,7 +133,7 @@ function startProcess(settings, useNodeRuntime = false) {
         return {
             pid: null,
             proc,
-            settings
+            settings,
         };
     } catch (error) {
         console.error(`Failed to create process [${alias}]: ${error.message}`);
@@ -143,30 +143,33 @@ function startProcess(settings, useNodeRuntime = false) {
             payload: {
                 alias,
                 error: error.toString(),
-            }
+            },
         });
 
         return {
             pid: null,
             proc: null,
             settings,
-            error: error.message
+            error: error.message,
         };
     }
 }
 
 function startPhpProcess(settings) {
-    const defaultEnv = getDefaultEnvironmentVariables(
-        state.randomSecret,
-        state.electronApiPort
-    );
+    const defaultEnv = getDefaultEnvironmentVariables(state.randomSecret, state.electronApiPort);
 
     // Construct command args from ini settings
     const customIniSettings = settings.iniSettings || {};
-    const iniSettings = {...getDefaultPhpIniSettings(), ...state.phpIni, ...customIniSettings};
-    const iniArgs = Object.keys(iniSettings).map(key => {
-        return ['-d', `${key}=${iniSettings[key]}`];
-    }).flat();
+    const iniSettings = {
+        ...getDefaultPhpIniSettings(),
+        ...state.phpIni,
+        ...customIniSettings,
+    };
+    const iniArgs = Object.keys(iniSettings)
+        .map((key) => {
+            return ['-d', `${key}=${iniSettings[key]}`];
+        })
+        .flat();
 
     if (settings.cmd[0] === 'artisan' && runningSecureBuild()) {
         settings.cmd.unshift(join(getAppPath(), 'build', '__nativephp_app_bundle'));
@@ -177,7 +180,7 @@ function startPhpProcess(settings) {
         // Prepend cmd with php executable path & ini settings
         cmd: [state.php, ...iniArgs, ...settings.cmd],
         // Mix in the internal NativePHP env
-        env: {...settings.env, ...defaultEnv}
+        env: { ...settings.env, ...defaultEnv },
     };
 
     return startProcess(settings);
@@ -224,7 +227,7 @@ router.post('/start-node', (req, res) => {
     const proc = startProcess(req.body, true);
 
     res.json(proc);
-})
+});
 
 router.post('/start-php', (req, res) => {
     const proc = startPhpProcess(req.body);
@@ -233,7 +236,7 @@ router.post('/start-php', (req, res) => {
 });
 
 router.post('/stop', (req, res) => {
-    const {alias} = req.body;
+    const { alias } = req.body;
 
     stopProcess(alias);
 
@@ -241,9 +244,9 @@ router.post('/stop', (req, res) => {
 });
 
 router.post('/restart', async (req, res) => {
-    const {alias} = req.body;
+    const { alias } = req.body;
 
-    const settings = {...getSettings(alias)};
+    const settings = { ...getSettings(alias) };
 
     stopProcess(alias);
 
@@ -259,7 +262,7 @@ router.post('/restart', async (req, res) => {
             if (Date.now() - start > timeout) {
                 return;
             }
-            await new Promise(resolve => setTimeout(resolve, retry));
+            await new Promise((resolve) => setTimeout(resolve, retry));
         }
     };
 
@@ -271,7 +274,7 @@ router.post('/restart', async (req, res) => {
 });
 
 router.get('/get/:alias', (req, res) => {
-    const {alias} = req.params;
+    const { alias } = req.params;
 
     const proc = state.processes[alias];
 
@@ -288,7 +291,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/message', (req, res) => {
-    const {alias, message} = req.body;
+    const { alias, message } = req.body;
 
     const proc = getProcess(alias);
 

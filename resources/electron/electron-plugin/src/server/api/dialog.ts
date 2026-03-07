@@ -1,11 +1,11 @@
-import express from 'express'
-import {dialog} from 'electron'
-import state from '../state.js'
-import {trimOptions} from '../utils.js'
+import { dialog } from 'electron';
+import express from 'express';
+import state from '../state.js';
+import { trimOptions } from '../utils.js';
 const router = express.Router();
 
 router.post('/open', (req, res) => {
-    const {title, buttonLabel, filters, properties, defaultPath, message, windowReference} = req.body
+    const { title, buttonLabel, filters, properties, defaultPath, message, windowReference } = req.body;
 
     let options = {
         title,
@@ -13,27 +13,27 @@ router.post('/open', (req, res) => {
         buttonLabel,
         filters,
         message,
-        properties
+        properties,
     };
 
     options = trimOptions(options);
 
     let result;
-    let browserWindow = state.findWindow(windowReference);
+    const browserWindow = state.findWindow(windowReference);
 
     if (browserWindow) {
-        result = dialog.showOpenDialogSync(browserWindow, options)
+        result = dialog.showOpenDialogSync(browserWindow, options);
     } else {
-        result = dialog.showOpenDialogSync(options)
+        result = dialog.showOpenDialogSync(options);
     }
 
     res.json({
-        result
-    })
+        result,
+    });
 });
 
 router.post('/save', (req, res) => {
-    const {title, buttonLabel, filters, properties, defaultPath, message, windowReference} = req.body
+    const { title, buttonLabel, filters, properties, defaultPath, message, windowReference } = req.body;
 
     let options = {
         title,
@@ -41,23 +41,23 @@ router.post('/save', (req, res) => {
         buttonLabel,
         filters,
         message,
-        properties
+        properties,
     };
 
     options = trimOptions(options);
 
     let result;
-    let browserWindow = state.findWindow(windowReference);
+    const browserWindow = state.findWindow(windowReference);
 
     if (browserWindow) {
-      result = dialog.showSaveDialogSync(browserWindow, options)
+        result = dialog.showSaveDialogSync(browserWindow, options);
     } else {
-      result = dialog.showSaveDialogSync(options)
+        result = dialog.showSaveDialogSync(options);
     }
 
     res.json({
-        result
-    })
+        result,
+    });
 });
 
 export default router;
