@@ -1,15 +1,16 @@
-"use strict";
+'use strict';
+import { screen } from 'electron';
 class Positioner {
     constructor(browserWindow) {
         this.browserWindow = browserWindow;
-        this.electronScreen = require("electron").screen;
+        this.electronScreen = screen;
     }
     _getCoords(position, trayPosition) {
-        let screenSize = this._getScreenSize(trayPosition);
-        let windowSize = this._getWindowSize();
+        const screenSize = this._getScreenSize(trayPosition);
+        const windowSize = this._getWindowSize();
         if (trayPosition === undefined)
             trayPosition = {};
-        let positions = {
+        const positions = {
             trayLeft: {
                 x: Math.floor(trayPosition.x),
                 y: screenSize.y,
@@ -60,15 +61,11 @@ class Positioner {
             },
             leftCenter: {
                 x: screenSize.x,
-                y: screenSize.y +
-                    Math.floor(screenSize.height / 2) -
-                    Math.floor(windowSize[1] / 2),
+                y: screenSize.y + Math.floor(screenSize.height / 2) - Math.floor(windowSize[1] / 2),
             },
             rightCenter: {
                 x: Math.floor(screenSize.x + (screenSize.width - windowSize[0])),
-                y: screenSize.y +
-                    Math.floor(screenSize.height / 2) -
-                    Math.floor(windowSize[1] / 2),
+                y: screenSize.y + Math.floor(screenSize.height / 2) - Math.floor(windowSize[1] / 2),
             },
             center: {
                 x: Math.floor(screenSize.x + (screenSize.width / 2 - windowSize[0] / 2)),
@@ -79,11 +76,10 @@ class Positioner {
                 y: Math.floor(screenSize.y + (screenSize.height - windowSize[1]) / 3),
             },
         };
-        if (position.substr(0, 4) === "tray") {
-            if (positions[position].x + windowSize[0] >
-                screenSize.width + screenSize.x) {
+        if (position.substr(0, 4) === 'tray') {
+            if (positions[position].x + windowSize[0] > screenSize.width + screenSize.x) {
                 return {
-                    x: positions["topRight"].x,
+                    x: positions['topRight'].x,
                     y: positions[position].y,
                 };
             }
@@ -95,19 +91,18 @@ class Positioner {
     }
     _getScreenSize(trayPosition) {
         if (trayPosition) {
-            return this.electronScreen.getDisplayMatching(trayPosition)
-                .workArea;
+            return this.electronScreen.getDisplayMatching(trayPosition).workArea;
         }
         else {
             return this.electronScreen.getDisplayNearestPoint(this.electronScreen.getCursorScreenPoint()).workArea;
         }
     }
     move(position, trayPos) {
-        var coords = this._getCoords(position, trayPos);
+        const coords = this._getCoords(position, trayPos);
         this.browserWindow.setPosition(coords.x, coords.y);
     }
     calculate(position, trayPos) {
-        var coords = this._getCoords(position, trayPos);
+        const coords = this._getCoords(position, trayPos);
         return {
             x: coords.x,
             y: coords.y,

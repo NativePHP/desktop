@@ -1,10 +1,10 @@
-import express from 'express';
 import { BrowserWindow } from 'electron';
-import state from '../state.js';
-import { notifyLaravel, goToUrl, appendWindowIdToUrl } from '../utils.js';
 import windowStateKeeper from 'electron-window-state';
+import express from 'express';
+import state from '../state.js';
+import { appendWindowIdToUrl, goToUrl, notifyLaravel } from '../utils.js';
 import mergePreferences from '../webPreferences.js';
-import { enable } from "@electron/remote/main/index.js";
+import { enable } from '@electron/remote/main/index.js';
 const router = express.Router();
 router.post('/maximize', (req, res) => {
     var _a;
@@ -106,12 +106,12 @@ router.post('/always-on-top', (req, res) => {
     res.sendStatus(200);
 });
 router.get('/current', (req, res) => {
-    const currentWindow = Object.values(state.windows).find(window => window.id === BrowserWindow.getFocusedWindow().id);
-    const id = Object.keys(state.windows).find(key => state.windows[key] === currentWindow);
+    const currentWindow = Object.values(state.windows).find((window) => window.id === BrowserWindow.getFocusedWindow().id);
+    const id = Object.keys(state.windows).find((key) => state.windows[key] === currentWindow);
     res.json(getWindowData(id));
 });
 router.get('/all', (req, res) => {
-    res.json(Object.keys(state.windows).map(id => getWindowData(id)));
+    res.json(Object.keys(state.windows).map((id) => getWindowData(id)));
 });
 router.get('/get/:id', (req, res) => {
     const { id } = req.params;
@@ -151,7 +151,7 @@ function getWindowData(id) {
     };
 }
 router.post('/open', (req, res) => {
-    let { id, x, y, frame, width, height, minWidth, minHeight, maxWidth, maxHeight, focusable, skipTaskbar, hiddenInMissionControl, hasShadow, url, resizable, movable, minimizable, maximizable, closable, title, alwaysOnTop, titleBarStyle, trafficLightPosition, windowButtonVisibility, vibrancy, backgroundColor, transparency, showDevTools, fullscreen, fullscreenable, kiosk, autoHideMenuBar, webPreferences, zoomFactor, preventLeaveDomain, preventLeavePage, suppressNewWindows, } = req.body;
+    const { id, x, y, frame, width, height, minWidth, minHeight, maxWidth, maxHeight, focusable, skipTaskbar, hiddenInMissionControl, hasShadow, resizable, movable, minimizable, maximizable, closable, title, alwaysOnTop, titleBarStyle, trafficLightPosition, windowButtonVisibility, vibrancy, backgroundColor, transparency, showDevTools, fullscreen, fullscreenable, kiosk, autoHideMenuBar, webPreferences, zoomFactor, preventLeaveDomain, preventLeavePage, suppressNewWindows, } = req.body;
     if (state.windows[id]) {
         state.windows[id].show();
         state.windows[id].focus();
@@ -166,11 +166,7 @@ router.post('/open', (req, res) => {
             defaultWidth: parseInt(width),
         });
     }
-    const window = new BrowserWindow(Object.assign(Object.assign({ width: resizable
-            ? (windowState === null || windowState === void 0 ? void 0 : windowState.width) || parseInt(width)
-            : parseInt(width), height: resizable
-            ? (windowState === null || windowState === void 0 ? void 0 : windowState.height) || parseInt(height)
-            : parseInt(height), frame: frame !== undefined ? frame : true, x: (windowState === null || windowState === void 0 ? void 0 : windowState.x) || x, y: (windowState === null || windowState === void 0 ? void 0 : windowState.y) || y, minWidth: minWidth, minHeight: minHeight, maxWidth: maxWidth, maxHeight: maxHeight, show: false, title,
+    const window = new BrowserWindow(Object.assign(Object.assign({ width: resizable ? (windowState === null || windowState === void 0 ? void 0 : windowState.width) || parseInt(width) : parseInt(width), height: resizable ? (windowState === null || windowState === void 0 ? void 0 : windowState.height) || parseInt(height) : parseInt(height), frame: frame !== undefined ? frame : true, x: (windowState === null || windowState === void 0 ? void 0 : windowState.x) || x, y: (windowState === null || windowState === void 0 ? void 0 : windowState.y) || y, minWidth: minWidth, minHeight: minHeight, maxWidth: maxWidth, maxHeight: maxHeight, show: false, title,
         backgroundColor, transparent: transparency, alwaysOnTop,
         resizable,
         movable,
@@ -196,7 +192,7 @@ router.post('/open', (req, res) => {
     }
     if (suppressNewWindows) {
         window.webContents.setWindowOpenHandler(() => {
-            return { action: "deny" };
+            return { action: 'deny' };
         });
     }
     if (process.platform === 'darwin') {
@@ -205,58 +201,58 @@ router.post('/open', (req, res) => {
     window.on('blur', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowBlurred',
-            payload: [id]
+            payload: [id],
         });
     });
     window.on('focus', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowFocused',
-            payload: [id]
+            payload: [id],
         });
     });
     window.on('minimize', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowMinimized',
-            payload: [id]
+            payload: [id],
         });
     });
     window.on('maximize', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowMaximized',
-            payload: [id]
+            payload: [id],
         });
     });
     window.on('show', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowShown',
-            payload: [id]
+            payload: [id],
         });
     });
     window.on('resized', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowResized',
-            payload: [id, window.getSize()[0], window.getSize()[1]]
+            payload: [id, window.getSize()[0], window.getSize()[1]],
         });
     });
     window.on('page-title-updated', (evt) => {
         evt.preventDefault();
     });
-    window.on('close', (evt) => {
+    window.on('close', () => {
         if (state.windows[id]) {
             delete state.windows[id];
         }
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowClosed',
-            payload: [id]
+            payload: [id],
         });
     });
-    window.on('hide', (evt) => {
+    window.on('hide', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowHidden',
-            payload: [id]
+            payload: [id],
         });
     });
-    url = appendWindowIdToUrl(url, id);
+    const url = appendWindowIdToUrl(req.body.url, id);
     window.loadURL(url);
     window.webContents.on('dom-ready', () => {
         window.webContents.setZoomFactor(parseFloat(zoomFactor));

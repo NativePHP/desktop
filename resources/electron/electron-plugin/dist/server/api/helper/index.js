@@ -1,6 +1,6 @@
 import { shell } from 'electron';
-import { notifyLaravel, goToUrl } from '../../utils.js';
 import state from '../../state.js';
+import { goToUrl, notifyLaravel } from '../../utils.js';
 function triggerMenuItemEvent(menuItem, combo) {
     notifyLaravel('events', {
         event: menuItem.event || '\\Native\\Desktop\\Events\\Menu\\MenuItemClicked',
@@ -35,8 +35,7 @@ export function compileMenu(item) {
             if (!focusedWindow) {
                 return;
             }
-            const id = Object.keys(state.windows)
-                .find(key => state.windows[key] === focusedWindow);
+            const id = Object.keys(state.windows).find((key) => state.windows[key] === focusedWindow);
             goToUrl(item.url, id);
         };
         return item;
@@ -49,8 +48,8 @@ export function compileMenu(item) {
         return item;
     }
     if (item.type === 'role') {
-        let menuItem = {
-            role: item.role
+        const menuItem = {
+            role: item.role,
         };
         if (item.label) {
             menuItem['label'] = item.label;

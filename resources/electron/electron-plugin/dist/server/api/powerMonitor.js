@@ -1,9 +1,9 @@
-import express from 'express';
 import { powerMonitor } from 'electron';
+import express from 'express';
 import { notifyLaravel } from '../utils.js';
 const router = express.Router();
 router.get('/get-system-idle-state', (req, res) => {
-    let threshold = Number(req.query.threshold) || 60;
+    const threshold = Number(req.query.threshold) || 60;
     res.json({
         result: powerMonitor.getSystemIdleState(threshold),
     });
@@ -24,23 +24,23 @@ router.get('/is-on-battery-power', (req, res) => {
     });
 });
 powerMonitor.addListener('on-ac', () => {
-    notifyLaravel("events", {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\PowerMonitor\\PowerStateChanged`,
         payload: {
-            state: 'on-ac'
-        }
+            state: 'on-ac',
+        },
     });
 });
 powerMonitor.addListener('on-battery', () => {
-    notifyLaravel("events", {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\PowerMonitor\\PowerStateChanged`,
         payload: {
-            state: 'on-battery'
-        }
+            state: 'on-battery',
+        },
     });
 });
 powerMonitor.addListener('thermal-state-change', (details) => {
-    notifyLaravel("events", {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\PowerMonitor\\ThermalStateChanged`,
         payload: {
             state: details.state,
@@ -48,7 +48,7 @@ powerMonitor.addListener('thermal-state-change', (details) => {
     });
 });
 powerMonitor.addListener('speed-limit-change', (details) => {
-    notifyLaravel("events", {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\PowerMonitor\\SpeedLimitChanged`,
         payload: {
             limit: details.limit,
@@ -56,27 +56,27 @@ powerMonitor.addListener('speed-limit-change', (details) => {
     });
 });
 powerMonitor.addListener('lock-screen', () => {
-    notifyLaravel("events", {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\PowerMonitor\\ScreenLocked`,
     });
 });
 powerMonitor.addListener('unlock-screen', () => {
-    notifyLaravel("events", {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\PowerMonitor\\ScreenUnlocked`,
     });
 });
 powerMonitor.addListener('shutdown', () => {
-    notifyLaravel("events", {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\PowerMonitor\\Shutdown`,
     });
 });
 powerMonitor.addListener('user-did-become-active', () => {
-    notifyLaravel("events", {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\PowerMonitor\\UserDidBecomeActive`,
     });
 });
 powerMonitor.addListener('user-did-resign-active', () => {
-    notifyLaravel("events", {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\PowerMonitor\\UserDidResignActive`,
     });
 });
