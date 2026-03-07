@@ -38,7 +38,7 @@
     },
     "require": {
         "php": "^8.3",
-        "illuminate/contracts": "^10.0|^11.0|^12.0",
+        "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
         "laravel/prompts": "^0.1.1|^0.2|^0.3",
         "nativephp/php-bin": "^1.0",
         "spatie/laravel-package-tools": "^1.16.4",
@@ -51,10 +51,10 @@
         "laravel/pint": "^1.0",
         "larastan/larastan": "^2.0|^3.1",
         "nunomaduro/collision": "^7.11|^8.1.1",
-        "orchestra/testbench": "^8.0|^9.0|^10.0",
-        "pestphp/pest": "^v2.30|^3.0",
-        "pestphp/pest-plugin-arch": "^2.0|^3.0",
-        "pestphp/pest-plugin-laravel": "^2.0|^3.1",
+        "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
+        "pestphp/pest": "^v2.30|^3.0|^4.4",
+        "pestphp/pest-plugin-arch": "^2.0|^3.0|^4.0",
+        "pestphp/pest-plugin-laravel": "^2.0|^3.1|^4.1",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan-deprecation-rules": "^1.0|^2.0",
         "phpstan/phpstan-phpunit": "^1.0|^2.0",
@@ -71,7 +71,7 @@
         }
     },
     "scripts": {
-        "qa" : [
+        "qa": [
             "@composer format",
             "@composer analyse",
             "@composer test"
@@ -92,7 +92,7 @@
     "extra": {
         "laravel": {
             "providers": [
-              "Native\\Desktop\\NativeServiceProvider"
+                "Native\\Desktop\\NativeServiceProvider"
             ],
             "aliases": {
                 "ChildProcess": "Native\\Desktop\\Facades\\ChildProcess",
