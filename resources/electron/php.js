@@ -1,9 +1,8 @@
-import fs from "fs";
+import fs from 'fs';
 import fs_extra from 'fs-extra';
-const { copySync, removeSync, ensureDirSync } = fs_extra;
-import { join } from "path";
-import unzip from "yauzl";
-
+import { join } from 'path';
+import unzip from 'yauzl';
+const { removeSync, ensureDirSync } = fs_extra;
 
 const isBuilding = Boolean(process.env.NATIVEPHP_BUILDING);
 const phpBinaryPath = process.env.NATIVEPHP_PHP_BINARY_PATH;
@@ -11,15 +10,15 @@ const phpVersion = process.env.NATIVEPHP_PHP_BINARY_VERSION;
 
 // Differentiates for Serving and Building
 const isArm64 = isBuilding ? process.argv.includes('--arm64') : process.arch.includes('arm64');
-const isWindows = isBuilding ?  process.argv.includes('--win') : process.platform.includes('win32');
-const isLinux = isBuilding ?  process.argv.includes('--linux') : process.platform.includes('linux');
-const isDarwin = isBuilding ?  process.argv.includes('--mac') : process.platform.includes('darwin');
+const isWindows = isBuilding ? process.argv.includes('--win') : process.platform.includes('win32');
+const isLinux = isBuilding ? process.argv.includes('--linux') : process.platform.includes('linux');
+const isDarwin = isBuilding ? process.argv.includes('--mac') : process.platform.includes('darwin');
 
 // false because string mapping is done in is{OS} checks
 const platform = {
     os: false,
     arch: false,
-    phpBinary: 'php'
+    phpBinary: 'php',
 };
 
 if (isWindows) {
@@ -65,10 +64,10 @@ if (platform.phpBinary) {
         ensureDirSync(binaryDestDir);
 
         // Unzip the files
-        unzip.open(binarySrcDir, {lazyEntries: true}, function (err, zipfile) {
+        unzip.open(binarySrcDir, { lazyEntries: true }, function (err, zipfile) {
             if (err) throw err;
             zipfile.readEntry();
-            zipfile.on("entry", function (entry) {
+            zipfile.on('entry', function (entry) {
                 zipfile.openReadStream(entry, function (err, readStream) {
                     if (err) throw err;
 
@@ -77,7 +76,7 @@ if (platform.phpBinary) {
 
                     readStream.pipe(writeStream);
 
-                    writeStream.on("close", function() {
+                    writeStream.on('close', function () {
                         console.log('Copied PHP binary to ', binaryPath);
 
                         // Add execute permissions

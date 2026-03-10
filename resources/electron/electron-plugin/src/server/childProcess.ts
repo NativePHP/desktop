@@ -1,4 +1,4 @@
-import {spawn, fork} from "child_process";
+import { fork, spawn } from 'child_process';
 
 const useNodeRuntime = process.env.USE_NODE_RUNTIME === '1';
 const [command, ...args] = process.argv.slice(2);
@@ -7,13 +7,13 @@ const [command, ...args] = process.argv.slice(2);
 // to use utilityProcess.fork. Otherwise, we can use utilityProcess.spawn
 const proc = useNodeRuntime
     ? fork(command, args, {
-        stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
-        execPath: process.execPath
-    })
+          stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+          execPath: process.execPath,
+      })
     : spawn(command, args);
 
 process.parentPort.on('message', (message) => {
-    proc.stdin.write(message.data)
+    proc.stdin.write(message.data);
 });
 
 // Handle normal output
@@ -28,5 +28,5 @@ proc.stderr.on('data', (data) => {
 
 // Handle process exit
 proc.on('close', (code) => {
-    process.exit(code)
+    process.exit(code);
 });
