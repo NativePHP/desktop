@@ -1,11 +1,11 @@
-import Store from "electron-store";
-import { notifyLaravel } from "./utils.js";
+import Store from 'electron-store';
+import { notifyLaravel } from './utils.js';
 const settingsStore = new Store();
 settingsStore.onDidAnyChange((newValue, oldValue) => {
     const changedKeys = Object.keys(newValue).filter((key) => newValue[key] !== oldValue[key]);
     changedKeys.forEach((key) => {
-        notifyLaravel("events", {
-            event: "Native\\Desktop\\Events\\Settings\\SettingChanged",
+        notifyLaravel('events', {
+            event: 'Native\\Desktop\\Events\\Settings\\SettingChanged',
             payload: {
                 key,
                 value: newValue[key] || null,
@@ -14,8 +14,8 @@ settingsStore.onDidAnyChange((newValue, oldValue) => {
     });
 });
 function generateRandomString(length) {
-    let result = "";
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
     for (let i = 0; i < length; i += 1) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
