@@ -1,5 +1,5 @@
-import express from 'express';
 import { dialog } from 'electron';
+import express from 'express';
 import state from '../state.js';
 import { trimOptions } from '../utils.js';
 const router = express.Router();
@@ -11,11 +11,11 @@ router.post('/open', (req, res) => {
         buttonLabel,
         filters,
         message,
-        properties
+        properties,
     };
     options = trimOptions(options);
     let result;
-    let browserWindow = state.findWindow(windowReference);
+    const browserWindow = state.findWindow(windowReference);
     if (browserWindow) {
         result = dialog.showOpenDialogSync(browserWindow, options);
     }
@@ -23,7 +23,7 @@ router.post('/open', (req, res) => {
         result = dialog.showOpenDialogSync(options);
     }
     res.json({
-        result
+        result,
     });
 });
 router.post('/save', (req, res) => {
@@ -34,11 +34,11 @@ router.post('/save', (req, res) => {
         buttonLabel,
         filters,
         message,
-        properties
+        properties,
     };
     options = trimOptions(options);
     let result;
-    let browserWindow = state.findWindow(windowReference);
+    const browserWindow = state.findWindow(windowReference);
     if (browserWindow) {
         result = dialog.showSaveDialogSync(browserWindow, options);
     }
@@ -46,7 +46,7 @@ router.post('/save', (req, res) => {
         result = dialog.showSaveDialogSync(options);
     }
     res.json({
-        result
+        result,
     });
 });
 export default router;

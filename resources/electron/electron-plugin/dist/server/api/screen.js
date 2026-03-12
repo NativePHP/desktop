@@ -1,14 +1,14 @@
-import express from 'express';
 import { screen } from 'electron';
+import express from 'express';
 const router = express.Router();
 router.get('/displays', (req, res) => {
     res.json({
-        displays: screen.getAllDisplays()
+        displays: screen.getAllDisplays(),
     });
 });
 router.get('/primary-display', (req, res) => {
     res.json({
-        primaryDisplay: screen.getPrimaryDisplay()
+        primaryDisplay: screen.getPrimaryDisplay(),
     });
 });
 router.get('/cursor-position', (req, res) => {
