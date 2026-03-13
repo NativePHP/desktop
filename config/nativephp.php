@@ -171,6 +171,15 @@ return [
     ],
 
     /**
+     * The NSIS installer configuration for Windows builds.
+     *
+     * @see https://www.electron.build/generated/nsisoptions
+     */
+    'nsis' => [
+        'delete_app_data_on_uninstall' => env('NATIVEPHP_NSIS_DELETE_APP_DATA', false),
+    ],
+
+    /**
      * Custom PHP binary path.
      */
     'binary_path' => env('NATIVEPHP_PHP_BINARY_PATH', null),
