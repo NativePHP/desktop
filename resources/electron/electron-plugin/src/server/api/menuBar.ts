@@ -4,7 +4,6 @@ import { compileMenu } from "./helper/index.js";
 import state from "../state.js";
 import { menubar } from "../../libs/menubar/index.js";
 import { notifyLaravel } from "../utils.js";
-import { fileURLToPath } from 'url'
 import { enable } from "@electron/remote/main/index.js";
 import mergePreferences from "../webPreferences.js";
 
@@ -81,6 +80,10 @@ router.post("/create", (req, res) => {
     const {
         width,
         height,
+        minWidth,
+        minHeight,
+        maxWidth,
+        maxHeight,
         url,
         label,
         alwaysOnTop,
@@ -132,6 +135,10 @@ router.post("/create", (req, res) => {
             browserWindow: {
                 width,
                 height,
+                minWidth,
+                minHeight,
+                maxWidth,
+                maxHeight,
                 resizable,
                 alwaysOnTop,
                 vibrancy,
