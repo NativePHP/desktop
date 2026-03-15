@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { mkdirSync, statSync, writeFileSync, existsSync } from 'fs';
+import { mkdirSync, statSync, writeFileSync, existsSync, readFileSync } from 'fs';
 import fs_extra from 'fs-extra';
 const { copySync, mkdirpSync } = fs_extra;
 import Store from 'electron-store';
@@ -39,6 +39,53 @@ function shouldMigrateDatabase(store) {
 }
 function shouldOptimize(store) {
     return process.env.NODE_ENV !== 'development';
+}
+function hasNightwatchInstalled(appPath) {
+    const candidateRoots = [
+        appPath,
+        join(appPath, "build", "__nativephp_app_bundle")
+    ];
+    for (const root of candidateRoots) {
+        if (existsSync(join(root, "vendor", "laravel", "nightwatch"))) {
+            return true;
+        }
+        const composerLock = join(root, "composer.lock");
+        if (!existsSync(composerLock)) {
+            continue;
+        }
+        try {
+            if (readFileSync(composerLock, "utf8").includes("\"name\": \"laravel/nightwatch\"")) {
+                return true;
+            }
+        }
+        catch (_a) {
+        }
+    }
+    return false;
+}
+function getNightwatchToken(appPath) {
+    if (process.env.NIGHTWATCH_TOKEN) {
+        return process.env.NIGHTWATCH_TOKEN;
+    }
+    const candidateRoots = [
+        appPath,
+        join(appPath, "build", "__nativephp_app_bundle")
+    ];
+    for (const root of candidateRoots) {
+        const envPath = join(root, ".env");
+        if (!existsSync(envPath)) {
+            continue;
+        }
+        try {
+            const content = readFileSync(envPath, "utf8");
+            const match = content.match(/^NIGHTWATCH_TOKEN=(.+)$/m);
+            if (match && match[1]) {
+                return match[1].replace(/^['"]|['"]$/g, "");
+            }
+        }
+        catch (_a) {
+        }
+    }
 }
 function getPhpPort() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -229,6 +276,16 @@ function serveApp(secret, apiPort, phpIniSettings) {
         ensureAppFoldersAreAvailable();
         console.log('Making sure app folders are available');
         const env = getDefaultEnvironmentVariables(secret, apiPort);
+        const nightwatchToken = getNightwatchToken(appPath);
+        let phpNightWatchPort;
+        if (nightwatchToken && hasNightwatchInstalled(appPath)) {
+            phpNightWatchPort = yield getPhpPort();
+            env.NIGHTWATCH_TOKEN = nightwatchToken;
+            env.NIGHTWATCH_INGEST_URI = `127.0.0.1:${phpNightWatchPort}`;
+        }
+        else if (nightwatchToken) {
+            console.log("Skipping Nightwatch: package not installed.");
+        }
         const phpOptions = {
             cwd: appPath,
             env
@@ -236,6 +293,11 @@ function serveApp(secret, apiPort, phpIniSettings) {
         const store = new Store({
             name: 'nativephp',
         });
+        if (env.NIGHTWATCH_INGEST_URI && phpNightWatchPort) {
+            console.log('Starting Nightwatch server...');
+            callPhp(['artisan', 'nightwatch:agent', `--listen-on=${env.NIGHTWATCH_INGEST_URI}`], phpOptions, phpIniSettings);
+            console.log('Nightwatch server started on port:', phpNightWatchPort);
+        }
         if (shouldOptimize(store)) {
             console.log('Caching view and routes...');
             let result = callPhpSync(['artisan', 'optimize'], phpOptions, phpIniSettings);

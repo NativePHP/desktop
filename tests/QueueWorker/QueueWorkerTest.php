@@ -21,6 +21,7 @@ it('hits the child process with relevant queue config to spin up a new queue wor
             '--memory=128',
             '--timeout=61',
             '--sleep=5',
+            '--quiet',
         ]);
 
         expect($iniSettings)->toBe([

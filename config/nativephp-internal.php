@@ -89,6 +89,7 @@ return [
         'storage/hot',
 
         // Only needed for local testing
+        'vendor/nativephp/desktop/.git',
         'vendor/nativephp/desktop/resources',
         'vendor/nativephp/desktop/vendor',
         'vendor/nativephp/php-bin',
