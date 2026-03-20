@@ -1,11 +1,11 @@
+import { clipboard, nativeImage } from 'electron';
 import * as express from 'express';
 const router = express.Router();
-import { clipboard, nativeImage } from 'electron';
 const DEFAULT_TYPE = 'clipboard';
 router.get('/text', (req, res) => {
     const { type } = req.query;
     res.json({
-        text: clipboard.readText(type || DEFAULT_TYPE)
+        text: clipboard.readText(type || DEFAULT_TYPE),
     });
 });
 router.post('/text', (req, res) => {
@@ -19,7 +19,7 @@ router.post('/text', (req, res) => {
 router.get('/html', (req, res) => {
     const { type } = req.query;
     res.json({
-        html: clipboard.readHTML(type || DEFAULT_TYPE)
+        html: clipboard.readHTML(type || DEFAULT_TYPE),
     });
 });
 router.post('/html', (req, res) => {
@@ -34,7 +34,7 @@ router.get('/image', (req, res) => {
     const { type } = req.query;
     const image = clipboard.readImage(type || DEFAULT_TYPE);
     res.json({
-        image: image.isEmpty() ? null : image.toDataURL()
+        image: image.isEmpty() ? null : image.toDataURL(),
     });
 });
 router.post('/image', (req, res) => {

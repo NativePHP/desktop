@@ -1,27 +1,27 @@
-import express from "express";
 import electronUpdater from 'electron-updater';
+import express from 'express';
+import { notifyLaravel } from '../utils.js';
 const { autoUpdater } = electronUpdater;
-import { notifyLaravel } from "../utils.js";
 const router = express.Router();
-router.post("/check-for-updates", (req, res) => {
+router.post('/check-for-updates', (req, res) => {
     autoUpdater.checkForUpdates();
     res.sendStatus(200);
 });
-router.post("/download-update", (req, res) => {
+router.post('/download-update', (req, res) => {
     autoUpdater.downloadUpdate();
     res.sendStatus(200);
 });
-router.post("/quit-and-install", (req, res) => {
+router.post('/quit-and-install', (req, res) => {
     autoUpdater.quitAndInstall();
     res.sendStatus(200);
 });
-autoUpdater.addListener("checking-for-update", () => {
-    notifyLaravel("events", {
+autoUpdater.addListener('checking-for-update', () => {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\AutoUpdater\\CheckingForUpdate`,
     });
 });
-autoUpdater.addListener("update-available", (event) => {
-    notifyLaravel("events", {
+autoUpdater.addListener('update-available', (event) => {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\AutoUpdater\\UpdateAvailable`,
         payload: {
             version: event.version,
@@ -34,8 +34,8 @@ autoUpdater.addListener("update-available", (event) => {
         },
     });
 });
-autoUpdater.addListener("update-not-available", (event) => {
-    notifyLaravel("events", {
+autoUpdater.addListener('update-not-available', (event) => {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\AutoUpdater\\UpdateNotAvailable`,
         payload: {
             version: event.version,
@@ -48,8 +48,8 @@ autoUpdater.addListener("update-not-available", (event) => {
         },
     });
 });
-autoUpdater.addListener("error", (error) => {
-    notifyLaravel("events", {
+autoUpdater.addListener('error', (error) => {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\AutoUpdater\\Error`,
         payload: {
             name: error.name,
@@ -58,8 +58,8 @@ autoUpdater.addListener("error", (error) => {
         },
     });
 });
-autoUpdater.addListener("download-progress", (progressInfo) => {
-    notifyLaravel("events", {
+autoUpdater.addListener('download-progress', (progressInfo) => {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\AutoUpdater\\DownloadProgress`,
         payload: {
             total: progressInfo.total,
@@ -70,8 +70,8 @@ autoUpdater.addListener("download-progress", (progressInfo) => {
         },
     });
 });
-autoUpdater.addListener("update-downloaded", (event) => {
-    notifyLaravel("events", {
+autoUpdater.addListener('update-downloaded', (event) => {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\AutoUpdater\\UpdateDownloaded`,
         payload: {
             downloadedFile: event.downloadedFile,
@@ -85,8 +85,8 @@ autoUpdater.addListener("update-downloaded", (event) => {
         },
     });
 });
-autoUpdater.addListener("update-cancelled", (event) => {
-    notifyLaravel("events", {
+autoUpdater.addListener('update-cancelled', (event) => {
+    notifyLaravel('events', {
         event: `\\Native\\Desktop\\Events\\AutoUpdater\\UpdateCancelled`,
         payload: {
             version: event.version,

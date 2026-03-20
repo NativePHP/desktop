@@ -7,17 +7,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { mkdirSync, statSync, writeFileSync, existsSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import fs_extra from 'fs-extra';
 const { copySync, mkdirpSync } = fs_extra;
-import Store from 'electron-store';
-import { promisify } from 'util';
-import { join } from 'path';
-import { app } from 'electron';
 import { execFile, spawn, spawnSync } from 'child_process';
-import { createServer } from 'net';
-import state from "./state.js";
+import { app } from 'electron';
+import Store from 'electron-store';
 import getPort, { portNumbers } from 'get-port';
+import { createServer } from 'net';
+import { join } from 'path';
+import { promisify } from 'util';
+import state from './state.js';
 const storagePath = join(app.getPath('userData'), 'storage');
 const databasePath = join(app.getPath('userData'), 'database');
 const databaseFile = join(databasePath, 'database.sqlite');
@@ -30,14 +30,12 @@ mkdirpSync(join(storagePath, 'framework', 'sessions'));
 mkdirpSync(join(storagePath, 'framework', 'views'));
 mkdirpSync(join(storagePath, 'framework', 'testing'));
 function runningSecureBuild() {
-    return existsSync(join(getAppPath(), 'build', '__nativephp_app_bundle'))
-        && process.env.NODE_ENV !== 'development';
+    return existsSync(join(getAppPath(), 'build', '__nativephp_app_bundle')) && process.env.NODE_ENV !== 'development';
 }
 function shouldMigrateDatabase(store) {
-    return store.get('migrated_version') !== app.getVersion()
-        && process.env.NODE_ENV !== 'development';
+    return store.get('migrated_version') !== app.getVersion() && process.env.NODE_ENV !== 'development';
 }
-function shouldOptimize(store) {
+function shouldOptimize() {
     return process.env.NODE_ENV !== 'development';
 }
 function hasNightwatchInstalled(appPath) {
@@ -91,7 +89,7 @@ function getPhpPort() {
     return __awaiter(this, void 0, void 0, function* () {
         const suggestedPort = yield getPort({
             host: '127.0.0.1',
-            port: portNumbers(8100, 9000)
+            port: portNumbers(8100, 9000),
         });
         if (yield canBindToPort(suggestedPort)) {
             return suggestedPort;
@@ -118,13 +116,13 @@ function canBindToPort(port) {
 }
 function retrievePhpIniSettings() {
     return __awaiter(this, void 0, void 0, function* () {
-        const env = getDefaultEnvironmentVariables();
+        const env = Object.assign(Object.assign({}, process.env), getDefaultEnvironmentVariables());
         const appPath = getAppPath();
         const phpOptions = {
             cwd: appPath,
-            env
+            env,
         };
-        let command = ['artisan', 'native:php-ini'];
+        const command = ['artisan', 'native:php-ini'];
         if (runningSecureBuild()) {
             command.unshift(join(appPath, 'build', '__nativephp_app_bundle'));
         }
@@ -133,13 +131,13 @@ function retrievePhpIniSettings() {
 }
 function retrieveNativePHPConfig() {
     return __awaiter(this, void 0, void 0, function* () {
-        const env = getDefaultEnvironmentVariables();
+        const env = Object.assign(Object.assign({}, process.env), getDefaultEnvironmentVariables());
         const appPath = getAppPath();
         const phpOptions = {
             cwd: appPath,
-            env
+            env,
         };
-        let command = ['artisan', 'native:config'];
+        const command = ['artisan', 'native:config'];
         if (runningSecureBuild()) {
             command.unshift(join(appPath, 'build', '__nativephp_app_bundle'));
         }
@@ -150,8 +148,8 @@ function callPhp(args, options, phpIniSettings = {}) {
     if (args[0] === 'artisan' && runningSecureBuild()) {
         args.unshift(join(getAppPath(), 'build', '__nativephp_app_bundle'));
     }
-    let iniSettings = Object.assign(getDefaultPhpIniSettings(), phpIniSettings);
-    Object.keys(iniSettings).forEach(key => {
+    const iniSettings = Object.assign(getDefaultPhpIniSettings(), phpIniSettings);
+    Object.keys(iniSettings).forEach((key) => {
         args.unshift('-d', `${key}=${iniSettings[key]}`);
     });
     if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
@@ -166,8 +164,8 @@ function callPhpSync(args, options, phpIniSettings = {}) {
     if (args[0] === 'artisan' && runningSecureBuild()) {
         args.unshift(join(getAppPath(), 'build', '__nativephp_app_bundle'));
     }
-    let iniSettings = Object.assign(getDefaultPhpIniSettings(), phpIniSettings);
-    Object.keys(iniSettings).forEach(key => {
+    const iniSettings = Object.assign(getDefaultPhpIniSettings(), phpIniSettings);
+    Object.keys(iniSettings).forEach((key) => {
         args.unshift('-d', `${key}=${iniSettings[key]}`);
     });
     if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
@@ -175,13 +173,13 @@ function callPhpSync(args, options, phpIniSettings = {}) {
     }
     return spawnSync(state.php, args, {
         cwd: options.cwd,
-        env: Object.assign(Object.assign({}, process.env), options.env)
+        env: Object.assign(Object.assign({}, process.env), options.env),
     });
 }
 function getArgumentEnv() {
-    const envArgs = process.argv.filter(arg => arg.startsWith('--env.'));
+    const envArgs = process.argv.filter((arg) => arg.startsWith('--env.'));
     const env = {};
-    envArgs.forEach(arg => {
+    envArgs.forEach((arg) => {
         const [key, value] = arg.slice(6).split('=');
         env[key] = value;
     });
@@ -199,14 +197,14 @@ function ensureAppFoldersAreAvailable() {
     console.log('Storage path:', storagePath);
     if (!existsSync(storagePath) || process.env.NODE_ENV === 'development') {
         const appPath = getAppPath();
-        console.log("App path:", appPath);
+        console.log('App path:', appPath);
         copySync(join(appPath, 'storage'), storagePath);
     }
     mkdirSync(databasePath, { recursive: true });
     try {
         statSync(databaseFile);
     }
-    catch (error) {
+    catch (_a) {
         writeFileSync(databaseFile, '');
     }
 }
@@ -215,7 +213,7 @@ function startScheduler(secret, apiPort, phpIniSettings = {}) {
     const appPath = getAppPath();
     const phpOptions = {
         cwd: appPath,
-        env
+        env,
     };
     return callPhp(['artisan', 'schedule:run'], phpOptions, phpIniSettings);
 }
@@ -223,12 +221,12 @@ function getPath(name) {
     try {
         return app.getPath(name);
     }
-    catch (error) {
+    catch (_a) {
         return '';
     }
 }
 function getDefaultEnvironmentVariables(secret, apiPort) {
-    let variables = {
+    const variables = {
         APP_ENV: process.env.NODE_ENV === 'development' ? 'local' : 'production',
         APP_DEBUG: process.env.NODE_ENV === 'development' ? 'true' : 'false',
         LARAVEL_STORAGE_PATH: storagePath,
@@ -264,13 +262,13 @@ function getDefaultEnvironmentVariables(secret, apiPort) {
 }
 function getDefaultPhpIniSettings() {
     return {
-        'memory_limit': '512M',
+        memory_limit: '512M',
         'curl.cainfo': state.caCert,
-        'openssl.cafile': state.caCert
+        'openssl.cafile': state.caCert,
     };
 }
 function serveApp(secret, apiPort, phpIniSettings) {
-    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+    return __awaiter(this, void 0, void 0, function* () {
         const appPath = getAppPath();
         console.log('Starting PHP server...', `${state.php} artisan serve`, appPath, phpIniSettings);
         ensureAppFoldersAreAvailable();
@@ -298,9 +296,9 @@ function serveApp(secret, apiPort, phpIniSettings) {
             callPhp(['artisan', 'nightwatch:agent', `--listen-on=${env.NIGHTWATCH_INGEST_URI}`], phpOptions, phpIniSettings);
             console.log('Nightwatch server started on port:', phpNightWatchPort);
         }
-        if (shouldOptimize(store)) {
+        if (shouldOptimize()) {
             console.log('Caching view and routes...');
-            let result = callPhpSync(['artisan', 'optimize'], phpOptions, phpIniSettings);
+            const result = callPhpSync(['artisan', 'optimize'], phpOptions, phpIniSettings);
             if (result.status !== 0) {
                 console.error('Failed to cache view and routes:', result.stderr.toString());
             }
@@ -313,7 +311,7 @@ function serveApp(secret, apiPort, phpIniSettings) {
             if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
                 console.log('Database path:', databaseFile);
             }
-            let result = callPhpSync(['artisan', 'migrate', '--force'], phpOptions, phpIniSettings);
+            const result = callPhpSync(['artisan', 'migrate', '--force'], phpOptions, phpIniSettings);
             if (result.status !== 0) {
                 console.error('Failed to migrate database:', result.stderr.toString());
             }
@@ -339,28 +337,28 @@ function serveApp(secret, apiPort, phpIniSettings) {
         const phpPort = yield getPhpPort();
         const phpServer = callPhp(['-S', `127.0.0.1:${phpPort}`, serverPath], {
             cwd: cwd,
-            env
+            env,
         }, phpIniSettings);
         const portRegex = /Development Server \(.*:([0-9]+)\) started/gm;
-        phpServer.stdout.on('data', (data) => {
-            if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
-                console.log(data.toString().trim());
-            }
-        });
-        phpServer.stderr.on('data', (data) => {
-            const error = data.toString();
-            const match = portRegex.exec(data.toString());
-            if (match) {
-                const port = parseInt(match[1]);
-                console.log("PHP Server started on port: ", port);
-                resolve({
-                    port,
-                    process: phpServer,
-                });
-            }
-            else {
-                if (error.includes('[NATIVE_EXCEPTION]:')) {
-                    let logFile = join(storagePath, 'logs');
+        return new Promise((resolve, reject) => {
+            phpServer.stdout.on('data', (data) => {
+                if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
+                    console.log(data.toString().trim());
+                }
+            });
+            phpServer.stderr.on('data', (data) => {
+                const error = data.toString();
+                const match = portRegex.exec(data.toString());
+                if (match) {
+                    const port = parseInt(match[1]);
+                    console.log('PHP Server started on port: ', port);
+                    resolve({
+                        port,
+                        process: phpServer,
+                    });
+                }
+                else if (error.includes('[NATIVE_EXCEPTION]:')) {
+                    const logFile = join(storagePath, 'logs');
                     console.log();
                     console.error('Error in PHP:');
                     console.error('  ' + error.split('[NATIVE_EXCEPTION]:')[1].trim());
@@ -368,14 +366,14 @@ function serveApp(secret, apiPort, phpIniSettings) {
                     console.log('  ' + logFile);
                     console.log();
                 }
-            }
+            });
+            phpServer.on('error', (error) => {
+                reject(error);
+            });
+            phpServer.on('close', (code) => {
+                console.log(`PHP server exited with code ${code}`);
+            });
         });
-        phpServer.on('error', (error) => {
-            reject(error);
-        });
-        phpServer.on('close', (code) => {
-            console.log(`PHP server exited with code ${code}`);
-        });
-    }));
+    });
 }
-export { startScheduler, serveApp, getAppPath, retrieveNativePHPConfig, retrievePhpIniSettings, getDefaultEnvironmentVariables, getDefaultPhpIniSettings, runningSecureBuild };
+export { getAppPath, getDefaultEnvironmentVariables, getDefaultPhpIniSettings, retrieveNativePHPConfig, retrievePhpIniSettings, runningSecureBuild, serveApp, startScheduler, };
