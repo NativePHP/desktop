@@ -1,6 +1,6 @@
+import { app } from 'electron';
 import path from 'path';
 import url from 'url';
-import { app } from 'electron';
 const DEFAULT_WINDOW_HEIGHT = 400;
 const DEFAULT_WINDOW_WIDTH = 400;
 export function cleanOptions(opts) {
@@ -27,12 +27,8 @@ export function cleanOptions(opts) {
         options.browserWindow = {};
     }
     options.browserWindow.width =
-        options.browserWindow.width !== undefined
-            ? options.browserWindow.width
-            : DEFAULT_WINDOW_WIDTH;
+        options.browserWindow.width !== undefined ? options.browserWindow.width : DEFAULT_WINDOW_WIDTH;
     options.browserWindow.height =
-        options.browserWindow.height !== undefined
-            ? options.browserWindow.height
-            : DEFAULT_WINDOW_HEIGHT;
+        options.browserWindow.height !== undefined ? options.browserWindow.height : DEFAULT_WINDOW_HEIGHT;
     return options;
 }

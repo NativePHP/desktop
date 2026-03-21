@@ -7,14 +7,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import axios from 'axios';
 import { session } from 'electron';
 import state from './state.js';
-import axios from 'axios';
 export function appendCookie() {
     return __awaiter(this, void 0, void 0, function* () {
         const cookie = {
             url: `http://localhost:${state.phpPort}`,
-            name: "_php_native",
+            name: '_php_native',
             value: state.randomSecret,
         };
         yield session.defaultSession.cookies.set(cookie);
@@ -28,17 +28,17 @@ export function notifyLaravel(endpoint_1) {
         try {
             yield axios.post(`http://127.0.0.1:${state.phpPort}/_native/api/${endpoint}`, payload, {
                 headers: {
-                    "X-NativePHP-Secret": state.randomSecret,
+                    'X-NativePHP-Secret': state.randomSecret,
                 },
             });
         }
-        catch (e) {
+        catch (_a) {
         }
     });
 }
 export function broadcastToWindows(event, payload) {
     var _a;
-    Object.values(state.windows).forEach(window => {
+    Object.values(state.windows).forEach((window) => {
         window.webContents.send(event, payload);
     });
     if ((_a = state.activeMenuBar) === null || _a === void 0 ? void 0 : _a.window) {
@@ -46,7 +46,7 @@ export function broadcastToWindows(event, payload) {
     }
 }
 export function trimOptions(options) {
-    Object.keys(options).forEach(key => options[key] == null && delete options[key]);
+    Object.keys(options).forEach((key) => options[key] == null && delete options[key]);
     return options;
 }
 export function appendWindowIdToUrl(url, id) {
