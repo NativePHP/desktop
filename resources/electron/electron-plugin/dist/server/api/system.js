@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { BrowserWindow, nativeTheme, safeStorage, systemPreferences } from 'electron';
 import express from 'express';
-import { BrowserWindow, systemPreferences, safeStorage, nativeTheme } from 'electron';
 const router = express.Router();
 router.get('/can-prompt-touch-id', (req, res) => {
     res.json({
@@ -91,16 +91,19 @@ router.post('/print', (req, res) => __awaiter(void 0, void 0, void 0, function* 
 }));
 router.post('/print-to-pdf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { html, settings } = req.body;
-    let printWindow = new BrowserWindow({
+    const printWindow = new BrowserWindow({
         show: false,
     });
     printWindow.webContents.on('did-finish-load', () => {
-        printWindow.webContents.printToPDF(settings !== null && settings !== void 0 ? settings : {}).then(data => {
+        printWindow.webContents
+            .printToPDF(settings !== null && settings !== void 0 ? settings : {})
+            .then((data) => {
             printWindow.close();
             res.json({
                 result: data.toString('base64'),
             });
-        }).catch(e => {
+        })
+            .catch((e) => {
             printWindow.close();
             res.status(400).json({
                 error: e.message,

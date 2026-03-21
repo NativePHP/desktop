@@ -7,10 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { BrowserWindow, Tray } from 'electron';
 import { EventEmitter } from 'events';
 import fs from 'fs';
 import path from 'path';
-import { BrowserWindow, Tray } from 'electron';
 import Positioner from '../positioner/index.js';
 import { cleanOptions } from './util/cleanOptions.js';
 import { getWindowPosition } from './util/getWindowPosition.js';
@@ -95,16 +95,11 @@ export class Menubar extends EventEmitter {
             if ((trayPos === undefined || trayPos.x === 0) &&
                 this._options.windowPosition &&
                 this._options.windowPosition.startsWith('tray')) {
-                noBoundsPosition =
-                    process.platform === 'win32' ? 'bottomRight' : 'topRight';
+                noBoundsPosition = process.platform === 'win32' ? 'bottomRight' : 'topRight';
             }
             const position = this.positioner.calculate(this._options.windowPosition || noBoundsPosition, trayPos);
-            const x = this._options.browserWindow.x !== undefined
-                ? this._options.browserWindow.x
-                : position.x;
-            const y = this._options.browserWindow.y !== undefined
-                ? this._options.browserWindow.y
-                : position.y;
+            const x = this._options.browserWindow.x !== undefined ? this._options.browserWindow.x : position.x;
+            const y = this._options.browserWindow.y !== undefined ? this._options.browserWindow.y : position.y;
             this._browserWindow.setPosition(Math.round(x), Math.round(y));
             this._browserWindow.show();
             this._isVisible = true;
@@ -128,9 +123,7 @@ export class Menubar extends EventEmitter {
             if (typeof trayImage === 'string' && !fs.existsSync(trayImage)) {
                 trayImage = path.join(__dirname, '..', 'assets', 'IconTemplate.png');
             }
-            const defaultClickEvent = this._options.showOnRightClick
-                ? 'right-click'
-                : 'click';
+            const defaultClickEvent = this._options.showOnRightClick ? 'right-click' : 'click';
             this._tray = this._options.tray || new Tray(trayImage);
             if (!this.tray) {
                 throw new Error('Tray has been initialized above');
@@ -175,11 +168,14 @@ export class Menubar extends EventEmitter {
                 if (!this._browserWindow) {
                     return;
                 }
-                this._browserWindow.isAlwaysOnTop()
-                    ? this.emit('focus-lost')
-                    : (this._blurTimeout = setTimeout(() => {
+                if (this._browserWindow.isAlwaysOnTop()) {
+                    this.emit('focus-lost');
+                }
+                else {
+                    this._blurTimeout = setTimeout(() => {
                         this.hideWindow();
-                    }, 100));
+                    }, 100);
+                }
             });
             if (this._options.showOnAllWorkspaces !== false) {
                 this._browserWindow.setVisibleOnAllWorkspaces(true, {

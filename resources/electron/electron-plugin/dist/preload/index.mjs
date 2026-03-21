@@ -1,5 +1,5 @@
-import remote from "@electron/remote";
-import { ipcRenderer, contextBridge } from "electron";
+import remote from '@electron/remote';
+import { contextBridge, ipcRenderer } from 'electron';
 const Native = {
     on: (event, callback) => {
         ipcRenderer.on('native-event', (_, data) => {
@@ -11,9 +11,9 @@ const Native = {
         });
     },
     contextMenu: (template) => {
-        let menu = remote.Menu.buildFromTemplate(template);
+        const menu = remote.Menu.buildFromTemplate(template);
         menu.popup({ window: remote.getCurrentWindow() });
-    }
+    },
 };
 contextBridge.exposeInMainWorld('Native', Native);
 ipcRenderer.on('log', (event, { level, message, context }) => {
@@ -32,7 +32,7 @@ ipcRenderer.on('native-event', (event, data) => {
     window.postMessage({
         type: 'native-event',
         event: data.event,
-        payload: data.payload
+        payload: data.payload,
     }, '*');
 });
 contextBridge.exposeInMainWorld('native:initialized', (function () {

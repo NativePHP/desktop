@@ -1,11 +1,11 @@
-import express from 'express';
 import { app } from 'electron';
+import express from 'express';
 const router = express.Router();
 router.post('/quit', (req, res) => {
     app.quit();
     res.sendStatus(200);
 });
-router.post('/relaunch', (req, res) => {
+router.post('/relaunch', () => {
     app.relaunch();
     app.quit();
 });

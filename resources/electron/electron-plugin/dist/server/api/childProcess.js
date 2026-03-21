@@ -7,17 +7,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import express from 'express';
 import { utilityProcess } from 'electron';
+import express from 'express';
+import killSync from 'kill-sync';
+import { join } from 'path';
+import { fileURLToPath } from 'url';
+import { getAppPath, getDefaultEnvironmentVariables, getDefaultPhpIniSettings, runningSecureBuild } from '../php.js';
 import state from '../state.js';
-import { notifyLaravel } from "../utils.js";
-import { getAppPath, getDefaultEnvironmentVariables, getDefaultPhpIniSettings, runningSecureBuild } from "../php.js";
-import killSync from "kill-sync";
-import { fileURLToPath } from "url";
-import { join } from "path";
+import { notifyLaravel } from '../utils.js';
 const router = express.Router();
 function startProcess(settings, useNodeRuntime = false) {
-    const { alias, cmd, cwd, env, persistent, spawnTimeout = 30000 } = settings;
+    const { alias, cmd, cwd, env, spawnTimeout = 30000 } = settings;
     if (getProcess(alias) !== undefined) {
         return state.processes[alias];
     }
@@ -26,7 +26,7 @@ function startProcess(settings, useNodeRuntime = false) {
             cwd,
             stdio: 'pipe',
             serviceName: alias,
-            env: Object.assign(Object.assign(Object.assign({}, process.env), env), { USE_NODE_RUNTIME: useNodeRuntime ? '1' : '0' })
+            env: Object.assign(Object.assign(Object.assign({}, process.env), env), { USE_NODE_RUNTIME: useNodeRuntime ? '1' : '0' }),
         });
         const startTimeout = setTimeout(() => {
             if (!state.processes[alias] || !state.processes[alias].pid) {
@@ -34,14 +34,14 @@ function startProcess(settings, useNodeRuntime = false) {
                 try {
                     proc.kill();
                 }
-                catch (e) {
+                catch (_a) {
                 }
                 notifyLaravel('events', {
                     event: 'Native\\Desktop\\Events\\ChildProcess\\StartupError',
                     payload: {
                         alias,
                         error: 'Startup timeout exceeded',
-                    }
+                    },
                 });
             }
         }, spawnTimeout);
@@ -51,7 +51,7 @@ function startProcess(settings, useNodeRuntime = false) {
                 payload: {
                     alias,
                     data: data.toString(),
-                }
+                },
             });
         });
         proc.stderr.on('data', (data) => {
@@ -61,7 +61,7 @@ function startProcess(settings, useNodeRuntime = false) {
                 payload: {
                     alias,
                     data: data.toString(),
-                }
+                },
             });
         });
         proc.on('spawn', () => {
@@ -70,11 +70,11 @@ function startProcess(settings, useNodeRuntime = false) {
             state.processes[alias] = {
                 pid: proc.pid,
                 proc,
-                settings
+                settings,
             };
             notifyLaravel('events', {
                 event: 'Native\\Desktop\\Events\\ChildProcess\\ProcessSpawned',
-                payload: [alias, proc.pid]
+                payload: [alias, proc.pid],
             });
         });
         proc.on('exit', (code) => {
@@ -85,7 +85,7 @@ function startProcess(settings, useNodeRuntime = false) {
                 payload: {
                     alias,
                     code,
-                }
+                },
             });
             const settings = Object.assign({}, getSettings(alias));
             delete state.processes[alias];
@@ -97,7 +97,7 @@ function startProcess(settings, useNodeRuntime = false) {
         return {
             pid: null,
             proc,
-            settings
+            settings,
         };
     }
     catch (error) {
@@ -107,13 +107,13 @@ function startProcess(settings, useNodeRuntime = false) {
             payload: {
                 alias,
                 error: error.toString(),
-            }
+            },
         });
         return {
             pid: null,
             proc: null,
             settings,
-            error: error.message
+            error: error.message,
         };
     }
 }
@@ -121,9 +121,11 @@ function startPhpProcess(settings) {
     const defaultEnv = getDefaultEnvironmentVariables(state.randomSecret, state.electronApiPort);
     const customIniSettings = settings.iniSettings || {};
     const iniSettings = Object.assign(Object.assign(Object.assign({}, getDefaultPhpIniSettings()), state.phpIni), customIniSettings);
-    const iniArgs = Object.keys(iniSettings).map(key => {
+    const iniArgs = Object.keys(iniSettings)
+        .map((key) => {
         return ['-d', `${key}=${iniSettings[key]}`];
-    }).flat();
+    })
+        .flat();
     if (settings.cmd[0] === 'artisan' && runningSecureBuild()) {
         settings.cmd.unshift(join(getAppPath(), 'build', '__nativephp_app_bundle'));
     }
@@ -184,7 +186,7 @@ router.post('/restart', (req, res) => __awaiter(void 0, void 0, void 0, function
             if (Date.now() - start > timeout) {
                 return;
             }
-            yield new Promise(resolve => setTimeout(resolve, retry));
+            yield new Promise((resolve) => setTimeout(resolve, retry));
         }
     });
     yield waitForProcessDeletion(5000, 100);
