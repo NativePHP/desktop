@@ -20,9 +20,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.sha }}
+          fetch-depth: 0
 
       - name: Check PHP code style issues
         if: github.event_name == 'push'

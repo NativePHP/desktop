@@ -7,16 +7,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { app, session, powerMonitor } from "electron";
-import { initialize } from "@electron/remote/main/index.js";
-import state from "./server/state.js";
-import { electronApp, optimizer } from "@electron-toolkit/utils";
-import { retrieveNativePHPConfig, retrievePhpIniSettings, runScheduler, killScheduler, startAPI, startPhpApp, } from "./server/index.js";
-import { notifyLaravel } from "./server/utils.js";
-import { resolve } from "path";
-import { stopAllProcesses } from "./server/api/childProcess.js";
-import ps from "ps-node";
-import killSync from "kill-sync";
+import { electronApp, optimizer } from '@electron-toolkit/utils';
+import { initialize } from '@electron/remote/main/index.js';
+import { app, powerMonitor, session } from 'electron';
+import killSync from 'kill-sync';
+import { resolve } from 'path';
+import ps from 'ps-node';
+import { stopAllProcesses } from './server/api/childProcess.js';
+import { killScheduler, retrieveNativePHPConfig, retrievePhpIniSettings, runScheduler, startAPI, startPhpApp, } from './server/index.js';
+import state from './server/state.js';
+import { notifyLaravel } from './server/utils.js';
 import electronUpdater from 'electron-updater';
 const { autoUpdater } = electronUpdater;
 class NativePHP {
@@ -35,36 +35,36 @@ class NativePHP {
         this.addEventListeners(app);
     }
     addEventListeners(app) {
-        app.on("open-url", (event, url) => {
-            notifyLaravel("events", {
-                event: "\\Native\\Desktop\\Events\\App\\OpenedFromURL",
+        app.on('open-url', (event, url) => {
+            notifyLaravel('events', {
+                event: '\\Native\\Desktop\\Events\\App\\OpenedFromURL',
                 payload: [url],
             });
         });
-        app.on("open-file", (event, path) => {
-            notifyLaravel("events", {
-                event: "\\Native\\Desktop\\Events\\App\\OpenFile",
+        app.on('open-file', (event, path) => {
+            notifyLaravel('events', {
+                event: '\\Native\\Desktop\\Events\\App\\OpenFile',
                 payload: [path],
             });
         });
-        app.on("window-all-closed", () => {
-            if (process.platform !== "darwin") {
+        app.on('window-all-closed', () => {
+            if (process.platform !== 'darwin') {
                 app.quit();
             }
         });
-        app.on("before-quit", () => {
+        app.on('before-quit', () => {
             if (this.schedulerInterval) {
                 clearInterval(this.schedulerInterval);
             }
             stopAllProcesses();
             this.killChildProcesses();
         });
-        app.on("browser-window-created", (_, window) => {
+        app.on('browser-window-created', (_, window) => {
             optimizer.watchWindowShortcuts(window);
         });
-        app.on("activate", function (event, hasVisibleWindows) {
+        app.on('activate', function (event, hasVisibleWindows) {
             if (!hasVisibleWindows) {
-                notifyLaravel("booted");
+                notifyLaravel('booted');
             }
             event.preventDefault();
         });
@@ -81,21 +81,24 @@ class NativePHP {
             state.phpIni = yield this.loadPhpIni();
             yield this.startPhpApp();
             this.startScheduler();
-            powerMonitor.on("suspend", () => {
+            powerMonitor.on('suspend', () => {
                 this.stopScheduler();
             });
-            powerMonitor.on("resume", () => {
+            powerMonitor.on('resume', () => {
                 this.stopScheduler();
                 this.startScheduler();
             });
             const filter = {
-                urls: [`http://127.0.0.1:${state.phpPort}/*`]
+                urls: [`http://127.0.0.1:${state.phpPort}/*`],
             };
             session.defaultSession.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
                 details.requestHeaders['X-NativePHP-Secret'] = state.randomSecret;
                 callback({ requestHeaders: details.requestHeaders });
             });
-            yield notifyLaravel("booted");
+            if (process.env.NATIVEPHP_NO_FOCUS) {
+                state.noFocusOnRestart = true;
+            }
+            yield notifyLaravel('booted');
         });
     }
     loadConfig() {
@@ -112,8 +115,7 @@ class NativePHP {
         });
     }
     setDockIcon() {
-        if (process.platform === "darwin" &&
-            process.env.NODE_ENV === "development") {
+        if (process.platform === 'darwin' && process.env.NODE_ENV === 'development') {
             app.dock.setIcon(state.icon);
         }
     }
@@ -125,29 +127,27 @@ class NativePHP {
         if (deepLinkProtocol) {
             if (process.defaultApp) {
                 if (process.argv.length >= 2) {
-                    app.setAsDefaultProtocolClient(deepLinkProtocol, process.execPath, [
-                        resolve(process.argv[1]),
-                    ]);
+                    app.setAsDefaultProtocolClient(deepLinkProtocol, process.execPath, [resolve(process.argv[1])]);
                 }
             }
             else {
                 app.setAsDefaultProtocolClient(deepLinkProtocol);
             }
-            if (process.platform !== "darwin") {
+            if (process.platform !== 'darwin') {
                 const gotTheLock = app.requestSingleInstanceLock();
                 if (!gotTheLock) {
                     app.quit();
                     return;
                 }
                 else {
-                    app.on("second-instance", (event, commandLine, workingDirectory) => {
+                    app.on('second-instance', (event, commandLine) => {
                         if (this.mainWindow) {
                             if (this.mainWindow.isMinimized())
                                 this.mainWindow.restore();
                             this.mainWindow.focus();
                         }
-                        notifyLaravel("events", {
-                            event: "\\Native\\Desktop\\Events\\App\\OpenedFromURL",
+                        notifyLaravel('events', {
+                            event: '\\Native\\Desktop\\Events\\App\\OpenedFromURL',
                             payload: {
                                 url: commandLine[commandLine.length - 1],
                             },
@@ -165,7 +165,7 @@ class NativePHP {
             if (publicUrl) {
                 autoUpdater.setFeedURL({
                     provider: 'generic',
-                    url: publicUrl
+                    url: publicUrl,
                 });
             }
             autoUpdater.checkForUpdatesAndNotify();
@@ -175,7 +175,7 @@ class NativePHP {
         return __awaiter(this, void 0, void 0, function* () {
             const electronApi = yield startAPI();
             state.electronApiPort = electronApi.port;
-            console.log("Electron API server started on port", electronApi.port);
+            console.log('Electron API server started on port', electronApi.port);
         });
     }
     loadPhpIni() {
@@ -207,10 +207,10 @@ class NativePHP {
         const now = new Date();
         const delay = (60 - now.getSeconds()) * 1000 + (1000 - now.getMilliseconds());
         setTimeout(() => {
-            console.log("Running scheduler...");
+            console.log('Running scheduler...');
             runScheduler();
             this.schedulerInterval = setInterval(() => {
-                console.log("Running scheduler...");
+                console.log('Running scheduler...');
                 runScheduler();
             }, 60 * 1000);
         }, delay);

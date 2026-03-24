@@ -5,7 +5,7 @@ router.get('/', (req, res) => {
         pid: process.pid,
         platform: process.platform,
         arch: process.arch,
-        uptime: process.uptime()
+        uptime: process.uptime(),
     });
 });
 export default router;

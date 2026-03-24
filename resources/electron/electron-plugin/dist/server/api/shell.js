@@ -7,22 +7,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import express from "express";
-import { shell } from "electron";
+import { shell } from 'electron';
+import express from 'express';
 const router = express.Router();
-router.post("/show-item-in-folder", (req, res) => {
+router.post('/show-item-in-folder', (req, res) => {
     const { path } = req.body;
     shell.showItemInFolder(path);
     res.sendStatus(200);
 });
-router.post("/open-item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/open-item', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { path } = req.body;
-    let result = yield shell.openPath(path);
+    const result = yield shell.openPath(path);
     res.json({
-        result
+        result,
     });
 }));
-router.post("/open-external", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/open-external', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { url } = req.body;
     try {
         yield shell.openExternal(url);
@@ -30,17 +30,17 @@ router.post("/open-external", (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
     catch (e) {
         res.status(500).json({
-            error: e
+            error: e,
         });
     }
 }));
-router.delete("/trash-item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/trash-item', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { path } = req.body;
     try {
         yield shell.trashItem(path);
         res.sendStatus(200);
     }
-    catch (e) {
+    catch (_a) {
         res.status(400).json();
     }
 }));

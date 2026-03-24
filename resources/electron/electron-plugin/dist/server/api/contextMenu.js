@@ -1,6 +1,6 @@
+import contextMenu from 'electron-context-menu';
 import express from 'express';
-import { compileMenu } from "./helper/index.js";
-import contextMenu from "electron-context-menu";
+import { compileMenu } from './helper/index.js';
 const router = express.Router();
 let contextMenuDisposable = null;
 router.delete('/', (req, res) => {
@@ -20,7 +20,7 @@ router.post('/', (req, res) => {
         showLookUpSelection: false,
         showSearchWithGoogle: false,
         showInspectElement: false,
-        prepend: (defaultActions, parameters, browserWindow) => {
+        prepend: () => {
             return req.body.entries.map(compileMenu);
         },
     });

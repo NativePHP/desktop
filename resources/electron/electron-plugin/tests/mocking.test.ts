@@ -1,9 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
-import {mockForNodeRequire} from "vitest-mock-commonjs";
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('electron');
 
-import electron, { app, powerMonitor } from 'electron'; // Import the module you want to test
+import { app, powerMonitor } from 'electron'; // Import the module you want to test
 
 describe('My Electron Module Tests', () => {
     // it('should return an object for electron', () => {
@@ -16,7 +15,7 @@ describe('My Electron Module Tests', () => {
     });
 
     it('should check if the app is packed', async () => {
-        const isPackaged =  app.isPackaged; // Call the mocked method
+        const isPackaged = app.isPackaged; // Call the mocked method
         expect(isPackaged).toBe(false); // Assert the return value
     });
 
