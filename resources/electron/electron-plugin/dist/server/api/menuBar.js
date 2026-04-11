@@ -86,6 +86,7 @@ router.post('/create', (req, res) => {
                 vibrancy,
                 backgroundColor,
                 transparent: transparency,
+                visualEffectState: vibrancy ? 'active' : undefined,
                 webPreferences: mergePreferences(webPreferences),
             },
         });
