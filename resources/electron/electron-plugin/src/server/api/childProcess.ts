@@ -198,9 +198,13 @@ function stopProcess(alias) {
 
     console.log('Process [' + alias + '] stopping with PID [' + proc.pid + '].');
 
-    // @ts-ignore
-    killSync(proc.pid, 'SIGTERM', true); // Kill tree
-    proc.kill(); // Does not work but just in case. (do not put before killSync)
+    try {
+        // @ts-ignore
+        killSync(proc.pid, 'SIGTERM', true); // Kill tree
+        proc.kill(); // Does not work but just in case. (do not put before killSync)
+    } catch (e) {
+        console.log('Process [' + alias + '] already exited — nothing to kill.');
+    }
 }
 
 export function stopAllProcesses() {
