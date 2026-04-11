@@ -80,6 +80,10 @@ router.post('/create', (req, res) => {
     const {
         width,
         height,
+        minWidth,
+        minHeight,
+        maxWidth,
+        maxHeight,
         url,
         label,
         alwaysOnTop,
@@ -128,6 +132,10 @@ router.post('/create', (req, res) => {
             browserWindow: {
                 width,
                 height,
+                minWidth,
+                minHeight,
+                maxWidth,
+                maxHeight,
                 resizable,
                 alwaysOnTop,
                 vibrancy,
