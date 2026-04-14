@@ -11,7 +11,7 @@ class GitHubProvider implements Updater
     public function environmentVariables(): array
     {
         return [
-            'GH_TOKEN' => $this->config['token'],
+            'GITHUB_RELEASE_TOKEN' => $this->config['token'],
         ];
     }
 
