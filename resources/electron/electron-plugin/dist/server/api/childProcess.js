@@ -139,8 +139,13 @@ function stopProcess(alias) {
     }
     state.processes[alias].settings.persistent = false;
     console.log('Process [' + alias + '] stopping with PID [' + proc.pid + '].');
-    killSync(proc.pid, 'SIGTERM', true);
-    proc.kill();
+    try {
+        killSync(proc.pid, 'SIGTERM', true);
+        proc.kill();
+    }
+    catch (e) {
+        console.log('Process [' + alias + '] already exited — nothing to kill.');
+    }
 }
 export function stopAllProcesses() {
     for (const alias in state.processes) {
