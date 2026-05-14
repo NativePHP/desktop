@@ -1,9 +1,13 @@
 import path from 'path';
 import fs from 'fs';
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, app } from 'electron';
 
-function getProjectRoot(startPath) {
-    let currentPath = startPath;
+function getLaravelBaseDir(appPath, importMetaDirname) {
+    if (app.isPackaged) {
+        return appPath;
+    }
+
+    let currentPath = importMetaDirname;
     for (let i = 0; i < 10; i++) {
         if (fs.existsSync(path.join(currentPath, '.env'))) {
             return currentPath;
@@ -12,45 +16,39 @@ function getProjectRoot(startPath) {
         if (parentPath === currentPath) break;
         currentPath = parentPath;
     }
-    return null;
+    return process.cwd();
 }
 
-export function getEnvConfig(projectRoot, key, defaultValue = null) {
-    if (!projectRoot) return defaultValue;
-    const envPath = path.join(projectRoot, '.env');
+export function getEnvConfig(baseDir, key, defaultValue = null) {
+    if (!baseDir) return defaultValue;
+    const envPath = path.join(baseDir, '.env');
 
     try {
-        const content = fs.readFileSync(envPath, 'utf8');
-        const lines = content.split('\n');
-        for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith('#')) continue;
-            const [lineKey, ...valueParts] = trimmed.split('=');
-            if (lineKey.trim() === key) {
-                return valueParts.join('=').trim().replace(/^["']|["']$/g, '');
+        if (fs.existsSync(envPath)) {
+            const content = fs.readFileSync(envPath, 'utf8');
+            const lines = content.split('\n');
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed.startsWith('#')) continue;
+                const [lineKey, ...valueParts] = trimmed.split('=');
+                if (lineKey.trim() === key) {
+                    return valueParts.join('=').trim().replace(/^["']|["']$/g, '');
+                }
             }
         }
-    } catch (e) { }
+    } catch (e) { /* ignore */ }
     return defaultValue;
 }
 
-export function createSplash(importMetaDirname) {
-    const projectRoot = getProjectRoot(importMetaDirname);
+export function createSplash(appPath, importMetaDirname) {
+    const baseDir = getLaravelBaseDir(appPath, importMetaDirname);
 
-    if (!projectRoot) return null;
-
-    const enabled = getEnvConfig(projectRoot, 'NATIVEPHP_SPLASH_ENABLED', 'false') === 'true';
+    const enabled = getEnvConfig(baseDir, 'NATIVEPHP_SPLASH_ENABLED', 'false') === 'true';
     if (!enabled) return null;
 
-    const width = parseInt(getEnvConfig(projectRoot, 'NATIVEPHP_SPLASH_WIDTH', '400'));
-    const height = parseInt(getEnvConfig(projectRoot, 'NATIVEPHP_SPLASH_HEIGHT', '300'));
-    const splashRelativePath = getEnvConfig(projectRoot, 'NATIVEPHP_SPLASH_HTML', 'public/splash.html');
-
-    const finalHtmlPath = path.join(projectRoot, splashRelativePath);
-
-    if (!fs.existsSync(finalHtmlPath)) {
-        return null;
-    }
+    const width = parseInt(getEnvConfig(baseDir, 'NATIVEPHP_SPLASH_WIDTH', '400'));
+    const height = parseInt(getEnvConfig(baseDir, 'NATIVEPHP_SPLASH_HEIGHT', '300'));
+    const splashRelativePath = getEnvConfig(baseDir, 'NATIVEPHP_SPLASH_HTML', 'public/splash.html');
 
     const splash = new BrowserWindow({
         width,
@@ -61,6 +59,13 @@ export function createSplash(importMetaDirname) {
         webPreferences: { nodeIntegration: false }
     });
 
-    splash.loadFile(finalHtmlPath);
+    const finalHtmlPath = path.join(baseDir, splashRelativePath);
+
+    if (fs.existsSync(finalHtmlPath)) {
+        splash.loadURL('file:///' + finalHtmlPath.replace(/\\/g, '/'));
+    } else {
+        console.error(`[NativePHP Splash] HTML Not Found. Path: ${finalHtmlPath}`);
+    }
+
     return splash;
 }
