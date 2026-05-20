@@ -412,7 +412,7 @@ router.post('/open', (req, res) => {
         if (state.noFocusOnRestart && window.isVisible()) {
             return;
         }
-        
+
         window.show();
     });
 

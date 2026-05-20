@@ -47,24 +47,21 @@ function shouldOptimize() {
 }
 
 function hasNightwatchInstalled(appPath: string) {
-    const candidateRoots = [
-        appPath,
-        join(appPath, "build", "__nativephp_app_bundle")
-    ];
+    const candidateRoots = [appPath, join(appPath, 'build', '__nativephp_app_bundle')];
 
     for (const root of candidateRoots) {
-        if (existsSync(join(root, "vendor", "laravel", "nightwatch"))) {
+        if (existsSync(join(root, 'vendor', 'laravel', 'nightwatch'))) {
             return true;
         }
 
-        const composerLock = join(root, "composer.lock");
+        const composerLock = join(root, 'composer.lock');
 
         if (!existsSync(composerLock)) {
             continue;
         }
 
         try {
-            if (readFileSync(composerLock, "utf8").includes("\"name\": \"laravel/nightwatch\"")) {
+            if (readFileSync(composerLock, 'utf8').includes('"name": "laravel/nightwatch"')) {
                 return true;
             }
         } catch {
@@ -80,24 +77,21 @@ function getNightwatchToken(appPath: string) {
         return process.env.NIGHTWATCH_TOKEN;
     }
 
-    const candidateRoots = [
-        appPath,
-        join(appPath, "build", "__nativephp_app_bundle")
-    ];
+    const candidateRoots = [appPath, join(appPath, 'build', '__nativephp_app_bundle')];
 
     for (const root of candidateRoots) {
-        const envPath = join(root, ".env");
+        const envPath = join(root, '.env');
 
         if (!existsSync(envPath)) {
             continue;
         }
 
         try {
-            const content = readFileSync(envPath, "utf8");
+            const content = readFileSync(envPath, 'utf8');
             const match = content.match(/^NIGHTWATCH_TOKEN=(.+)$/m);
 
             if (match && match[1]) {
-                return match[1].replace(/^['"]|['"]$/g, "");
+                return match[1].replace(/^['"]|['"]$/g, '');
             }
         } catch {
             // ignore and keep looking
@@ -359,7 +353,7 @@ function getDefaultEnvironmentVariables(secret?: string, apiPort?: number): Envi
 
     // Only if the server has already started
     if (secret && apiPort) {
-        variables.NATIVEPHP_API_URL = `http://localhost:${apiPort}/api/`;
+        variables.NATIVEPHP_API_URL = `http://127.0.0.1:${apiPort}/api/`;
         variables.NATIVEPHP_SECRET = secret;
     }
 
@@ -402,12 +396,12 @@ async function serveApp(secret, apiPort, phpIniSettings): Promise<ProcessResult>
         env.NIGHTWATCH_TOKEN = nightwatchToken;
         env.NIGHTWATCH_INGEST_URI = `127.0.0.1:${phpNightWatchPort}`;
     } else if (nightwatchToken) {
-        console.log("Skipping Nightwatch: package not installed.");
+        console.log('Skipping Nightwatch: package not installed.');
     }
 
     const phpOptions = {
         cwd: appPath,
-        env
+        env,
     };
 
     const store = new Store({
