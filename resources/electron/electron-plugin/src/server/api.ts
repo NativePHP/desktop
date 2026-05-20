@@ -32,8 +32,11 @@ export interface APIProcess {
     port: number;
 }
 
+const API_HOST = '127.0.0.1';
+
 async function startAPIServer(randomSecret: string): Promise<APIProcess> {
     const port = await getPort({
+        host: API_HOST,
         port: portNumbers(4000, 5000),
     });
 
@@ -67,7 +70,7 @@ async function startAPIServer(randomSecret: string): Promise<APIProcess> {
             httpServer.use('/api/debug', debugRoutes);
         }
 
-        const server = httpServer.listen(port, () => {
+        const server = httpServer.listen(port, API_HOST, () => {
             resolve({
                 server,
                 port,
