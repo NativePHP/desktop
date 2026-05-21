@@ -33,9 +33,11 @@ import settingsRoutes from './api/settings.js';
 import shellRoutes from './api/shell.js';
 import systemRoutes from './api/system.js';
 import windowRoutes from './api/window.js';
+const API_HOST = '127.0.0.1';
 function startAPIServer(randomSecret) {
     return __awaiter(this, void 0, void 0, function* () {
         const port = yield getPort({
+            host: API_HOST,
             port: portNumbers(4000, 5000),
         });
         return new Promise((resolve) => {
@@ -66,7 +68,7 @@ function startAPIServer(randomSecret) {
             if (process.env.NODE_ENV === 'development') {
                 httpServer.use('/api/debug', debugRoutes);
             }
-            const server = httpServer.listen(port, () => {
+            const server = httpServer.listen(port, API_HOST, () => {
                 resolve({
                     server,
                     port,
