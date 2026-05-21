@@ -143,7 +143,7 @@ function stopProcess(alias) {
         killSync(proc.pid, 'SIGTERM', true);
         proc.kill();
     }
-    catch (e) {
+    catch (_a) {
         console.log('Process [' + alias + '] already exited — nothing to kill.');
     }
 }

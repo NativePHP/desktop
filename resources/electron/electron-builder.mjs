@@ -85,12 +85,12 @@ export default {
         executableName: fileName,
         ...(azureEndpoint && azureCertificateProfileName && azureCodeSigningAccountName
             ? {
-                azureSignOptions: {
-                    endpoint: azureEndpoint,
-                    certificateProfileName: azureCertificateProfileName,
-                    codeSigningAccountName: azureCodeSigningAccountName
-                },
-            }
+                  azureSignOptions: {
+                      endpoint: azureEndpoint,
+                      certificateProfileName: azureCertificateProfileName,
+                      codeSigningAccountName: azureCodeSigningAccountName,
+                  },
+              }
             : {}),
     },
     nsis: {

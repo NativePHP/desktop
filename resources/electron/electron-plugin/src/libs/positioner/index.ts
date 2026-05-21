@@ -80,12 +80,8 @@ class Positioner {
                 y: Math.floor((screenSize.height + screenSize.y) / 2 - windowSize[1] / 2),
             },
             upperCenter: {
-                x: Math.floor(
-                    screenSize.x + (screenSize.width / 2 - windowSize[0] / 2),
-                ),
-                y: Math.floor(
-                    screenSize.y + (screenSize.height - windowSize[1]) / 3,
-                ),
+                x: Math.floor(screenSize.x + (screenSize.width / 2 - windowSize[0] / 2)),
+                y: Math.floor(screenSize.y + (screenSize.height - windowSize[1]) / 3),
             },
         };
 
