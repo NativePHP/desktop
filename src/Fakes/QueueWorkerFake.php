@@ -19,7 +19,7 @@ class QueueWorkerFake implements QueueWorkerContract
      */
     public array $downs = [];
 
-    public function up(QueueConfig $config): void
+    public function up(string|QueueConfig $config): void
     {
         $this->ups[] = $config;
     }
