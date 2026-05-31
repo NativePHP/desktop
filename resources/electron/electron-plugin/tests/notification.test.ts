@@ -38,12 +38,13 @@ let server: Server;
 
 const latestNotification = () => vi.mocked(Notification).mock.results.at(-1)!.value;
 
+const mockFsAccess = (error: Error | null = null) =>
+    vi.spyOn(fs, 'access').mockImplementation(((_path: any, _mode: any, callback: any) => callback(error)) as any);
+
 describe('notification', () => {
     beforeEach(async () => {
         vi.clearAllMocks();
-        for (const reference of Object.keys(state.notifications)) {
-            delete state.notifications[reference];
-        }
+        state.notifications = {};
 
         const app = express();
         app.use(express.json());
@@ -174,7 +175,7 @@ describe('notification', () => {
     });
 
     it('plays a local sound file itself and mutes electron for it', async () => {
-        vi.spyOn(fs, 'access').mockImplementation(((_path: any, _mode: any, callback: any) => callback(null)) as any);
+        mockFsAccess();
 
         await axios.post('/api/notification', {
             title: 'Build finished',
@@ -187,8 +188,7 @@ describe('notification', () => {
     });
 
     it('logs an error and does not play when the local sound file is missing', async () => {
-        vi.spyOn(fs, 'access').mockImplementation(((_path: any, _mode: any, callback: any) =>
-            callback(new Error('missing'))) as any);
+        mockFsAccess(new Error('missing'));
 
         await axios.post('/api/notification', {
             title: 'Build finished',
