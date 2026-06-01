@@ -2,6 +2,7 @@ import { Notification } from 'electron';
 import express from 'express';
 import fs from 'fs';
 import playSoundLib from 'play-sound';
+import state from '../state.js';
 import { broadcastToWindows, notifyLaravel } from '../utils.js';
 
 const isLocalFile = (sound: unknown) => {
@@ -69,6 +70,7 @@ router.post('/', (req, res) => {
     }
 
     notification.on('click', (event) => {
+        delete state.notifications[notificationReference];
         notifyLaravel('events', {
             event: eventName || '\\Native\\Desktop\\Events\\Notifications\\NotificationClicked',
             payload: {
@@ -101,6 +103,7 @@ router.post('/', (req, res) => {
     });
 
     notification.on('close', (event) => {
+        delete state.notifications[notificationReference];
         notifyLaravel('events', {
             event: '\\Native\\Desktop\\Events\\Notifications\\NotificationClosed',
             payload: {
@@ -109,6 +112,14 @@ router.post('/', (req, res) => {
             },
         });
     });
+
+    // Electron only retains a weak reference to main-process Notification
+    // objects. Without a strong JS reference the wrapper can be garbage
+    // collected before the user interacts with it, after which the click /
+    // action / reply / close handlers silently never fire (most visible on
+    // macOS when the app is idle or backgrounded). Keep it reachable until it
+    // is dismissed. See https://github.com/electron/electron/issues/16922
+    state.notifications[notificationReference] = notification;
 
     notification.show();
 
