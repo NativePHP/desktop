@@ -2,6 +2,7 @@ import { Notification } from 'electron';
 import express from 'express';
 import fs from 'fs';
 import playSoundLib from 'play-sound';
+import state from '../state.js';
 import { broadcastToWindows, notifyLaravel } from '../utils.js';
 const isLocalFile = (sound) => {
     if (typeof sound !== 'string')
@@ -45,6 +46,7 @@ router.post('/', (req, res) => {
         });
     }
     notification.on('click', (event) => {
+        delete state.notifications[notificationReference];
         notifyLaravel('events', {
             event: eventName || '\\Native\\Desktop\\Events\\Notifications\\NotificationClicked',
             payload: {
@@ -74,6 +76,7 @@ router.post('/', (req, res) => {
         });
     });
     notification.on('close', (event) => {
+        delete state.notifications[notificationReference];
         notifyLaravel('events', {
             event: '\\Native\\Desktop\\Events\\Notifications\\NotificationClosed',
             payload: {
@@ -82,6 +85,7 @@ router.post('/', (req, res) => {
             },
         });
     });
+    state.notifications[notificationReference] = notification;
     notification.show();
     res.status(200).json({
         reference: notificationReference,

@@ -1,4 +1,4 @@
-import { BrowserWindow, Tray, UtilityProcess } from 'electron';
+import { BrowserWindow, Notification, Tray, UtilityProcess } from 'electron';
 import Store from 'electron-store';
 import type { Menubar } from '../libs/menubar/index.js';
 import { notifyLaravel } from './utils.js';
@@ -31,6 +31,7 @@ interface State {
     icon: string | null;
     processes: Record<string, { pid: number | null; proc: UtilityProcess | null; settings: Record<string, unknown> }>;
     windows: Record<string, BrowserWindow>;
+    notifications: Record<string, Notification>;
     randomSecret: string;
     store: Store;
     findWindow: (id: string) => BrowserWindow | null;
@@ -64,6 +65,7 @@ export default {
     randomSecret: generateRandomString(32),
     processes: {},
     windows: {},
+    notifications: {},
     noFocusOnRestart: false,
     findWindow(id: string) {
         return this.windows[id] || null;
