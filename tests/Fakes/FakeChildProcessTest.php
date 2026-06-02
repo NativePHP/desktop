@@ -76,12 +76,12 @@ it('asserts started using callable', function () {
     $this->fail('Expected assertion to fail');
 });
 
-it('asserts gracefulStop on a started process when it was set', function () {
+it('asserts handlesOwnShutdown on a started process when it was set', function () {
     swap(ChildProcessContract::class, $fake = app(ChildProcessFake::class));
 
-    $fake->start('cmd', 'alias', gracefulStop: true);
+    $fake->start('cmd', 'alias', handlesOwnShutdown: true);
 
-    $fake->assertStarted(fn ($cmd, $alias, $cwd, $env, $persistent, $gracefulStop) => $gracefulStop === true);
+    $fake->assertStarted(fn ($cmd, $alias, $cwd, $env, $persistent, $handlesOwnShutdown) => $handlesOwnShutdown === true);
 });
 
 it('asserts php using callable', function () {

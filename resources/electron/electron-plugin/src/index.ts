@@ -74,7 +74,7 @@ class NativePHP {
             // app and spawn fresh child processes that we'd never clean up here.
             this.killChildProcesses();
 
-            // Now the app's child processes. The ones started with `gracefulStop`
+            // Now the app's child processes. The ones started with `handlesOwnShutdown`
             // get a plain SIGTERM rather than a tree-kill, so they can bring down
             // their own children themselves before they exit.
             stopAllProcesses();

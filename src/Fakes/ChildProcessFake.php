@@ -69,15 +69,15 @@ class ChildProcessFake implements ChildProcessContract
         ?string $cwd = null,
         ?array $env = null,
         bool $persistent = false,
-        ?bool $gracefulStop = null
+        ?bool $handlesOwnShutdown = null
     ): self {
-        $this->starts[] = $this->withGracefulStop([
+        $this->starts[] = $this->withHandlesOwnShutdown([
             'cmd' => $cmd,
             'alias' => $alias,
             'cwd' => $cwd,
             'env' => $env,
             'persistent' => $persistent,
-        ], $gracefulStop);
+        ], $handlesOwnShutdown);
 
         return $this;
     }
@@ -88,15 +88,15 @@ class ChildProcessFake implements ChildProcessContract
         ?array $env = null,
         ?bool $persistent = false,
         ?array $iniSettings = null,
-        ?bool $gracefulStop = null
+        ?bool $handlesOwnShutdown = null
     ): self {
-        $this->phps[] = $this->withGracefulStop([
+        $this->phps[] = $this->withHandlesOwnShutdown([
             'cmd' => $cmd,
             'alias' => $alias,
             'env' => $env,
             'persistent' => $persistent,
             'iniSettings' => $iniSettings,
-        ], $gracefulStop);
+        ], $handlesOwnShutdown);
 
         return $this;
     }
@@ -107,15 +107,15 @@ class ChildProcessFake implements ChildProcessContract
         ?array $env = null,
         ?bool $persistent = false,
         ?array $iniSettings = null,
-        ?bool $gracefulStop = null
+        ?bool $handlesOwnShutdown = null
     ): self {
-        $this->artisans[] = $this->withGracefulStop([
+        $this->artisans[] = $this->withHandlesOwnShutdown([
             'cmd' => $cmd,
             'alias' => $alias,
             'env' => $env,
             'persistent' => $persistent,
             'iniSettings' => $iniSettings,
-        ], $gracefulStop);
+        ], $handlesOwnShutdown);
 
         return $this;
     }
@@ -125,37 +125,37 @@ class ChildProcessFake implements ChildProcessContract
         string $alias,
         ?array $env = null,
         ?bool $persistent = false,
-        ?bool $gracefulStop = null
+        ?bool $handlesOwnShutdown = null
     ): self {
-        $this->nodes[] = $this->withGracefulStop([
+        $this->nodes[] = $this->withHandlesOwnShutdown([
             'cmd' => $cmd,
             'alias' => $alias,
             'env' => $env,
             'persistent' => $persistent,
-        ], $gracefulStop);
+        ], $handlesOwnShutdown);
 
         return $this;
     }
 
     /**
-     * Add the gracefulStop flag to a recorded call, but only when it was
+     * Add the handlesOwnShutdown flag to a recorded call, but only when it was
      * actually passed. The assert*() helpers spread each recorded call into
      * the callback as named arguments, so always including the key would hand
-     * a `gracefulStop:` argument to every existing callback and break the ones
+     * a `handlesOwnShutdown:` argument to every existing callback and break the ones
      * that don't accept it. Leaving it out when unset keeps those working,
      * while callers who set it can still assert against it.
      *
      * This only exists for backwards compatibility. Once we're free to break
-     * that in a major release, drop the helper and record gracefulStop inline
+     * that in a major release, drop the helper and record handlesOwnShutdown inline
      * alongside the other keys.
      *
      * @param  array<string, mixed>  $call
      * @return array<string, mixed>
      */
-    private function withGracefulStop(array $call, ?bool $gracefulStop): array
+    private function withHandlesOwnShutdown(array $call, ?bool $handlesOwnShutdown): array
     {
-        if ($gracefulStop !== null) {
-            $call['gracefulStop'] = $gracefulStop;
+        if ($handlesOwnShutdown !== null) {
+            $call['handlesOwnShutdown'] = $handlesOwnShutdown;
         }
 
         return $call;

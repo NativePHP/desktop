@@ -200,7 +200,7 @@ function stopProcess(alias) {
     console.log('Process [' + alias + '] stopping with PID [' + proc.pid + '].');
 
     try {
-        if (settings.gracefulStop && process.platform !== 'win32') {
+        if (settings.handlesOwnShutdown && process.platform !== 'win32') {
             // Signal this process alone, leaving its children untouched. A
             // process that manages its own long-running children can then shut
             // them down on its own terms before it exits, rather than having
