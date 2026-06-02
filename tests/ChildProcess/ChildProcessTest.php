@@ -144,3 +144,28 @@ it('marks the process as non-persistent by default', function () {
     ChildProcess::start('foo bar', 'some-alias');
     Http::assertSent(fn (Request $request) => $request['persistent'] === false);
 });
+
+it('can mark a process for graceful stop', function () {
+    ChildProcess::start('foo bar', 'some-alias', gracefulStop: true);
+    Http::assertSent(fn (Request $request) => $request['gracefulStop'] === true);
+});
+
+it('can mark a php command for graceful stop', function () {
+    ChildProcess::php("-r 'sleep(5);'", 'some-alias', gracefulStop: true);
+    Http::assertSent(fn (Request $request) => $request['gracefulStop'] === true);
+});
+
+it('can mark an artisan command for graceful stop', function () {
+    ChildProcess::artisan('foo:bar', 'some-alias', gracefulStop: true);
+    Http::assertSent(fn (Request $request) => $request['gracefulStop'] === true);
+});
+
+it('can mark a node process for graceful stop', function () {
+    ChildProcess::node('path/to/file.js', 'some-alias', gracefulStop: true);
+    Http::assertSent(fn (Request $request) => $request['gracefulStop'] === true);
+});
+
+it('disables graceful stop by default', function () {
+    ChildProcess::start('foo bar', 'some-alias');
+    Http::assertSent(fn (Request $request) => $request['gracefulStop'] === false);
+});
