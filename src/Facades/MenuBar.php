@@ -4,6 +4,7 @@ namespace Native\Desktop\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Native\Desktop\Menu\Menu;
+use Native\Desktop\MenuBar\MenuBarManager;
 
 /**
  * @method static \Native\Desktop\MenuBar\PendingCreateMenuBar create()
@@ -21,6 +22,6 @@ class MenuBar extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \Native\Desktop\MenuBar\MenuBarManager::class;
+        return MenuBarManager::class;
     }
 }

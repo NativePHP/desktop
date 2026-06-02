@@ -2,14 +2,16 @@
 
 namespace Native\Desktop\Drivers\Electron\Updater;
 
+use Illuminate\Contracts\Foundation\Application;
 use InvalidArgumentException;
+use Native\Desktop\Drivers\Electron\Updater\Contracts\Updater;
 
 class UpdaterManager
 {
     /**
      * The application instance.
      *
-     * @var \Illuminate\Contracts\Foundation\Application
+     * @var Application
      */
     protected $app;
 
@@ -23,7 +25,7 @@ class UpdaterManager
     /**
      * Create a new Updater manager instance.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @param  Application  $app
      * @return void
      */
     public function __construct($app)
@@ -35,7 +37,7 @@ class UpdaterManager
      * Get a updater provider instance by name, wrapped in a repository.
      *
      * @param  string|null  $name
-     * @return \Native\Desktop\Drivers\Electron\Updater\Contracts\Updater
+     * @return Updater
      */
     public function provider($name = null)
     {
@@ -48,7 +50,7 @@ class UpdaterManager
      * Get a updater provider instance.
      *
      * @param  string|null  $driver
-     * @return \Native\Desktop\Drivers\Electron\Updater\Contracts\Updater
+     * @return Updater
      */
     public function driver($driver = null)
     {
@@ -59,9 +61,9 @@ class UpdaterManager
      * Resolve the given store.
      *
      * @param  string  $name
-     * @return \Native\Desktop\Drivers\Electron\Updater\Contracts\Updater
+     * @return Updater
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function resolve($name)
     {
@@ -119,7 +121,7 @@ class UpdaterManager
     /**
      * Set the application instance used by the manager.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @param  Application  $app
      * @return $this
      */
     public function setApplication($app)
@@ -132,7 +134,7 @@ class UpdaterManager
     /**
      * Create an instance of the spaces updater driver.
      *
-     * @return \Native\Desktop\Drivers\Electron\Updater\Contracts\Updater
+     * @return Updater
      */
     protected function createSpacesDriver(array $config)
     {
@@ -142,7 +144,7 @@ class UpdaterManager
     /**
      * Create an instance of the spaces updater driver.
      *
-     * @return \Native\Desktop\Drivers\Electron\Updater\Contracts\Updater
+     * @return Updater
      */
     protected function createS3Driver(array $config)
     {
@@ -152,7 +154,7 @@ class UpdaterManager
     /**
      * Create an instance of the GitHub updater driver.
      *
-     * @return \Native\Desktop\Drivers\Electron\Updater\Contracts\Updater
+     * @return Updater
      */
     protected function createGitHubDriver(array $config)
     {
