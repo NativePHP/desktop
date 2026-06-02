@@ -22,6 +22,8 @@ class ChildProcess implements ChildProcessContract
 
     public readonly bool $persistent;
 
+    public readonly bool $gracefulStop;
+
     public readonly ?array $iniSettings;
 
     final public function __construct(protected Client $client) {}
@@ -66,7 +68,8 @@ class ChildProcess implements ChildProcessContract
         string $alias,
         ?string $cwd = null,
         ?array $env = null,
-        bool $persistent = false
+        bool $persistent = false,
+        bool $gracefulStop = false
     ): self {
         $cmd = $this->parseCommand($cmd);
 
@@ -76,6 +79,7 @@ class ChildProcess implements ChildProcessContract
             'cwd' => $cwd ?? base_path(),
             'env' => $env,
             'persistent' => $persistent,
+            'gracefulStop' => $gracefulStop,
         ])->json();
 
         return $this->fromRuntimeProcess($process);
@@ -85,7 +89,7 @@ class ChildProcess implements ChildProcessContract
      * @param  string|string[]  $cmd
      * @return $this
      */
-    public function php(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null): self
+    public function php(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null, bool $gracefulStop = false): self
     {
         $cmd = $this->parseCommand($cmd);
 
@@ -96,12 +100,13 @@ class ChildProcess implements ChildProcessContract
             'env' => $env,
             'persistent' => $persistent,
             'iniSettings' => $iniSettings,
+            'gracefulStop' => $gracefulStop,
         ])->json();
 
         return $this->fromRuntimeProcess($process);
     }
 
-    public function node(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false): self
+    public function node(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, bool $gracefulStop = false): self
     {
         $cmd = $this->parseCommand($cmd);
 
@@ -111,6 +116,7 @@ class ChildProcess implements ChildProcessContract
             'cwd' => base_path(),
             'env' => $env,
             'persistent' => $persistent,
+            'gracefulStop' => $gracefulStop,
         ])->json();
 
         return $this->fromRuntimeProcess($process);
@@ -120,13 +126,13 @@ class ChildProcess implements ChildProcessContract
      * @param  string|string[]  $cmd
      * @return $this
      */
-    public function artisan(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null): self
+    public function artisan(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null, bool $gracefulStop = false): self
     {
         $cmd = $this->parseCommand($cmd);
 
         $cmd = ['artisan', ...$cmd];
 
-        return $this->php($cmd, $alias, env: $env, persistent: $persistent, iniSettings: $iniSettings);
+        return $this->php($cmd, $alias, env: $env, persistent: $persistent, iniSettings: $iniSettings, gracefulStop: $gracefulStop);
     }
 
     public function stop(?string $alias = null): void

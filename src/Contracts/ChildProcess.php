@@ -13,14 +13,15 @@ interface ChildProcess
         string $alias,
         ?string $cwd = null,
         ?array $env = null,
-        bool $persistent = false
+        bool $persistent = false,
+        bool $gracefulStop = false
     ): self;
 
-    public function php(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null): self;
+    public function php(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null, bool $gracefulStop = false): self;
 
-    public function artisan(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null): self;
+    public function artisan(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null, bool $gracefulStop = false): self;
 
-    public function node(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false): self;
+    public function node(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, bool $gracefulStop = false): self;
 
     public function stop(?string $alias = null): void;
 

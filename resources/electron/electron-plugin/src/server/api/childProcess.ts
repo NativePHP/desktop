@@ -194,14 +194,25 @@ function stopProcess(alias) {
     }
 
     // Set persistent to false and prevent the process from restarting.
-    state.processes[alias].settings.persistent = false;
+    const settings = state.processes[alias].settings;
+    settings.persistent = false;
 
     console.log('Process [' + alias + '] stopping with PID [' + proc.pid + '].');
 
     try {
-        // @ts-ignore
-        killSync(proc.pid, 'SIGTERM', true); // Kill tree
-        proc.kill(); // Does not work but just in case. (do not put before killSync)
+        if (settings.gracefulStop && process.platform !== 'win32') {
+            // Signal this process alone, leaving its children untouched. A
+            // process that manages its own long-running children can then shut
+            // them down on its own terms before it exits, rather than having
+            // them killed underneath it by a tree-kill. Windows has no real
+            // signals (a kill there is always immediate), so we fall back to
+            // the tree-kill below instead of leaving the children orphaned.
+            process.kill(proc.pid, 'SIGTERM');
+        } else {
+            // @ts-ignore
+            killSync(proc.pid, 'SIGTERM', true); // Kill tree
+            proc.kill(); // Does not work but just in case. (do not put before killSync)
+        }
     } catch {
         console.log('Process [' + alias + '] already exited — nothing to kill.');
     }
