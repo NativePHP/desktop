@@ -25,6 +25,7 @@ class NativePHP {
     processes: ChildProcessWithoutNullStreams[] = [];
     mainWindow = null;
     schedulerInterval = undefined;
+    quitting = false;
 
     public bootstrap(app: CrossProcessExports.App, icon: string, phpBinary: string, cert: string, appPath: string) {
         initialize();
@@ -59,15 +60,34 @@ class NativePHP {
             }
         });
 
-        app.on('before-quit', () => {
-            if (this.schedulerInterval) {
-                clearInterval(this.schedulerInterval);
+        app.on('before-quit', async (event) => {
+            // We call app.quit() again at the end, which fires this handler a
+            // second time. Let that pass straight through so the quit happens.
+            if (this.quitting) {
+                return;
             }
+            this.quitting = true;
+            event.preventDefault();
 
-            // close all child processes from the app
+            // Stop the framework's own processes first (the PHP server and the
+            // like). While they're still up, an incoming request could boot the
+            // app and spawn fresh child processes that we'd never clean up here.
+            this.killChildProcesses();
+
+            // Now the app's child processes. The ones started with `gracefulStop`
+            // get a plain SIGTERM rather than a tree-kill, so they can bring down
+            // their own children themselves before they exit.
             stopAllProcesses();
 
-            this.killChildProcesses();
+            // Give them a moment to act on that SIGTERM (flush, persist, whatever
+            // they need) before we pull the plug. Each one drops out of state as
+            // it exits; the deadline stops a stuck process from blocking the quit.
+            const deadline = Date.now() + 12_000;
+            while (Object.keys(state.processes).length > 0 && Date.now() < deadline) {
+                await new Promise((resolve) => setTimeout(resolve, 200));
+            }
+
+            app.quit();
         });
 
         // Default open or close DevTools by F12 in development
