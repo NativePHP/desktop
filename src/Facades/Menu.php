@@ -10,6 +10,7 @@ use Native\Desktop\Menu\Items\Link;
 use Native\Desktop\Menu\Items\Radio;
 use Native\Desktop\Menu\Items\Role;
 use Native\Desktop\Menu\Items\Separator;
+use Native\Desktop\Menu\MenuBuilder;
 
 /**
  * @method static \Native\Desktop\Menu\Menu make(MenuItem ...$items)
@@ -48,6 +49,6 @@ class Menu extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \Native\Desktop\Menu\MenuBuilder::class;
+        return MenuBuilder::class;
     }
 }
