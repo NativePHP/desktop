@@ -15,7 +15,9 @@ const { playMock } = vi.hoisted(() => ({ playMock: vi.fn() }));
 // that records its event handlers and lets the test fire them, mimicking the
 // OS raising a click/close on the notification.
 vi.mock('electron', () => ({
-    Notification: vi.fn().mockImplementation(() => {
+    // Vitest 4 constructs mock implementations with `new`, so the factory must
+    // be a regular function. An arrow function throws "is not a constructor"
+    Notification: vi.fn().mockImplementation(function () {
         const handlers: Record<string, (...args: any[]) => void> = {};
         return {
             show: vi.fn(),
