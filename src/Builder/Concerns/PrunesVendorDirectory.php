@@ -24,10 +24,14 @@ trait PrunesVendorDirectory
             $this->buildPath('app/vendor/nativephp/php-bin'),
         ]);
 
-        // Remove custom php binary package directory
-        $binaryPackageDirectory = trim($this->binaryPackageDirectory(), "./\\ \t\n\r\0\x0B");
-        if ($binaryPackageDirectory !== '' && $filesystem->exists($this->buildPath("app/{$binaryPackageDirectory}"))) {
-            $filesystem->remove($this->buildPath("app/{$binaryPackageDirectory}"));
-        }
+        // Remove the bundled PHP binaries for a custom binary path.
+        // They get duplicated into the app's build resources, so
+        // the copies left in the source tree are dead weight.
+        //
+        // We remove only the archives we manage, never the
+        // parent directory, so the user's files are kept,
+        // and a root path never wipes the app (#115).
+        $binaryDirectory = $this->buildPath('app/'.$this->binaryPackageDirectory().'bin');
+        $filesystem->remove(glob("{$binaryDirectory}/*/*/php-*.zip"));
     }
 }

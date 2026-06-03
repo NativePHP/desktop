@@ -20,6 +20,8 @@ beforeEach(function () use ($buildPath) {
 });
 
 afterEach(function () use ($buildPath) {
+    putenv('NATIVEPHP_PHP_BINARY_PATH');
+
     $filesystem = new Filesystem;
     $filesystem->remove($buildPath);
 });
@@ -54,30 +56,46 @@ $command = new class($buildPath)
 | Tests
 |--------------------------------------------------------------------------
 */
-it('removes the custom php binary package directory', function () use ($buildPath, $command) {
+it('prunes the bundled php binary archives from a custom binary directory', function () use ($buildPath, $command) {
     putenv('NATIVEPHP_PHP_BINARY_PATH=php-bin/');
 
     createFiles([
         "$buildPath/app/index.php",
-        "$buildPath/app/php-bin/bin/php",
+        "$buildPath/app/php-bin/bin/win/x64/php-8.4.zip",
+        "$buildPath/app/php-bin/bin/mac/arm64/php-8.4.zip",
     ]);
 
     $command->pruneVendorDirectory();
 
-    expect("$buildPath/app/php-bin")->not->toBeDirectory();
-    expect("$buildPath/app/index.php")->toBeFile();
-})->after(fn () => putenv('NATIVEPHP_PHP_BINARY_PATH'));
+    // The redundant archives are stripped...
+    expect("$buildPath/app/php-bin/bin/win/x64/php-8.4.zip")->not->toBeFile();
+    expect("$buildPath/app/php-bin/bin/mac/arm64/php-8.4.zip")->not->toBeFile();
 
-it('does not delete the app when the binary path normalizes to the app root', function () use ($buildPath, $command) {
+    // ...while the rest of the app is left intact.
+    expect("$buildPath/app/index.php")->toBeFile();
+});
+
+it('does not delete the app when the binary path is the project root', function () use ($buildPath, $command) {
+    // Regression test for #115: a binary path that normalises to the app root
+    // (e.g. binaries kept directly in the project's bin/ directory) must not
+    // take the whole app down with the prune.
     putenv('NATIVEPHP_PHP_BINARY_PATH=./');
 
     createFiles([
         "$buildPath/app/index.php",
-        "$buildPath/app/bin/win/x64/php.exe",
+        "$buildPath/app/bin/win/x64/php-8.4.zip",
+        "$buildPath/app/bin/mac/arm64/php-8.4.zip",
+        // Unrelated tooling a user happens to keep in bin/ must survive.
+        "$buildPath/app/bin/deploy.sh",
     ]);
 
     $command->pruneVendorDirectory();
 
+    // The app and any non-NativePHP files in bin/ are preserved...
     expect("$buildPath/app/index.php")->toBeFile();
-    expect("$buildPath/app/bin/win/x64/php.exe")->toBeFile();
-})->after(fn () => putenv('NATIVEPHP_PHP_BINARY_PATH'));
+    expect("$buildPath/app/bin/deploy.sh")->toBeFile();
+
+    // ...but the bundled php archives are still pruned.
+    expect("$buildPath/app/bin/win/x64/php-8.4.zip")->not->toBeFile();
+    expect("$buildPath/app/bin/mac/arm64/php-8.4.zip")->not->toBeFile();
+});
