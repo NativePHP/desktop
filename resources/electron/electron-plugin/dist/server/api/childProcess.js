@@ -137,11 +137,17 @@ function stopProcess(alias) {
     if (proc === undefined) {
         return;
     }
-    state.processes[alias].settings.persistent = false;
+    const settings = state.processes[alias].settings;
+    settings.persistent = false;
     console.log('Process [' + alias + '] stopping with PID [' + proc.pid + '].');
     try {
-        killSync(proc.pid, 'SIGTERM', true);
-        proc.kill();
+        if (settings.handlesOwnShutdown && process.platform !== 'win32') {
+            process.kill(proc.pid, 'SIGTERM');
+        }
+        else {
+            killSync(proc.pid, 'SIGTERM', true);
+            proc.kill();
+        }
     }
     catch (_a) {
         console.log('Process [' + alias + '] already exited — nothing to kill.');

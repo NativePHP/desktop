@@ -24,6 +24,7 @@ class NativePHP {
         this.processes = [];
         this.mainWindow = null;
         this.schedulerInterval = undefined;
+        this.quitting = false;
     }
     bootstrap(app, icon, phpBinary, cert, appPath) {
         initialize();
@@ -52,13 +53,20 @@ class NativePHP {
                 app.quit();
             }
         });
-        app.on('before-quit', () => {
-            if (this.schedulerInterval) {
-                clearInterval(this.schedulerInterval);
+        app.on('before-quit', (event) => __awaiter(this, void 0, void 0, function* () {
+            if (this.quitting) {
+                return;
             }
-            stopAllProcesses();
+            this.quitting = true;
+            event.preventDefault();
             this.killChildProcesses();
-        });
+            stopAllProcesses();
+            const deadline = Date.now() + 12000;
+            while (Object.keys(state.processes).length > 0 && Date.now() < deadline) {
+                yield new Promise((resolve) => setTimeout(resolve, 200));
+            }
+            app.quit();
+        }));
         app.on('browser-window-created', (_, window) => {
             optimizer.watchWindowShortcuts(window);
         });

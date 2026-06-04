@@ -144,3 +144,28 @@ it('marks the process as non-persistent by default', function () {
     ChildProcess::start('foo bar', 'some-alias');
     Http::assertSent(fn (Request $request) => $request['persistent'] === false);
 });
+
+it('can mark a process as handling its own shutdown', function () {
+    ChildProcess::start('foo bar', 'some-alias', handlesOwnShutdown: true);
+    Http::assertSent(fn (Request $request) => $request['handlesOwnShutdown'] === true);
+});
+
+it('can mark a php command as handling its own shutdown', function () {
+    ChildProcess::php("-r 'sleep(5);'", 'some-alias', handlesOwnShutdown: true);
+    Http::assertSent(fn (Request $request) => $request['handlesOwnShutdown'] === true);
+});
+
+it('can mark an artisan command as handling its own shutdown', function () {
+    ChildProcess::artisan('foo:bar', 'some-alias', handlesOwnShutdown: true);
+    Http::assertSent(fn (Request $request) => $request['handlesOwnShutdown'] === true);
+});
+
+it('can mark a node process as handling its own shutdown', function () {
+    ChildProcess::node('path/to/file.js', 'some-alias', handlesOwnShutdown: true);
+    Http::assertSent(fn (Request $request) => $request['handlesOwnShutdown'] === true);
+});
+
+it('does not handle its own shutdown by default', function () {
+    ChildProcess::start('foo bar', 'some-alias');
+    Http::assertSent(fn (Request $request) => $request['handlesOwnShutdown'] === false);
+});

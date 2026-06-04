@@ -44,7 +44,7 @@ class System
     }
 
     /**
-     * @return array<\Native\Desktop\DataObjects\Printer>
+     * @return array<Printer>
      */
     public function printers(): array
     {
