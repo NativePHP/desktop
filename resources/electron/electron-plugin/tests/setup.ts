@@ -32,7 +32,7 @@ mockForNodeRequire('electron', () => ({
         writeImage: vi.fn(),
         readImage: vi.fn(),
     },
-    BrowserWindow: vi.fn().mockImplementation(() => ({
+    BrowserWindow: vi.fn().mockImplementation(function () { return ({
         loadURL: vi.fn(),
         loadFile: vi.fn(),
         on: vi.fn(),
@@ -52,7 +52,7 @@ mockForNodeRequire('electron', () => ({
         isMaximized: vi.fn(),
         isMinimized: vi.fn(),
         setProgressBar: vi.fn(),
-    })),
+    }); }),
     ipcMain: {
         on: vi.fn(),
         handle: vi.fn(),
@@ -89,10 +89,10 @@ mockForNodeRequire('electron', () => ({
         isRegistered: vi.fn(),
         unregisterAll: vi.fn(),
     },
-    Notification: vi.fn().mockImplementation(() => ({
+    Notification: vi.fn().mockImplementation(function () { return ({
         show: vi.fn(),
         on: vi.fn(),
-    })),
+    }); }),
     Menu: {
         buildFromTemplate: vi.fn().mockReturnValue({
             popup: vi.fn(),
@@ -104,13 +104,13 @@ mockForNodeRequire('electron', () => ({
         setApplicationMenu: vi.fn(),
         getApplicationMenu: vi.fn(),
     },
-    Tray: vi.fn().mockImplementation(() => ({
+    Tray: vi.fn().mockImplementation(function () { return ({
         setContextMenu: vi.fn(),
         on: vi.fn(),
         setImage: vi.fn(),
         setToolTip: vi.fn(),
         destroy: vi.fn(),
-    })),
+    }); }),
     MenuItem: vi.fn(),
     shell: {
         openExternal: vi.fn().mockResolvedValue(true),
@@ -167,23 +167,24 @@ vi.mock('@electron/remote', () => ({
     },
 }));
 
-// Mock electron-store with onDidAnyChange method
+// Mock electron-store with onDidAnyChange method.
+// Vitest 4 resolves a `vi.fn()` default export to its raw implementation when
+// constructed with `new`, so an arrow factory throws "is not a constructor".
+// A real class is unambiguously constructable across the ESM interop.
 vi.mock('electron-store', () => {
-    return {
-        default: vi.fn().mockImplementation(() => ({
-            get: vi.fn(),
-            set: vi.fn(),
-            has: vi.fn(),
-            delete: vi.fn(),
-            clear: vi.fn(),
-            onDidAnyChange: vi.fn().mockImplementation(() => {
-                // Return an unsubscribe function
-                return () => {};
-            }),
-            store: {},
-            path: '/fake/path/to/store.json',
-        })),
-    };
+    class Store {
+        get = vi.fn();
+        set = vi.fn();
+        has = vi.fn();
+        delete = vi.fn();
+        clear = vi.fn();
+        // Return an unsubscribe function
+        onDidAnyChange = vi.fn(() => () => {});
+        store = {};
+        path = '/fake/path/to/store.json';
+    }
+
+    return { default: Store };
 });
 
 // Create empty router mocks for all API routes
