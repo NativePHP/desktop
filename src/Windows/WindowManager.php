@@ -104,6 +104,13 @@ class WindowManager implements WindowManagerContract
         ]);
     }
 
+    public function unmaximize($id = null): void
+    {
+        $this->client->post('window/unmaximize', [
+            'id' => $id ?? $this->detectId(),
+        ]);
+    }
+
     public function minimize($id = null): void
     {
         $this->client->post('window/minimize', [

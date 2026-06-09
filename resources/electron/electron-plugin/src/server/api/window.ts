@@ -17,6 +17,14 @@ router.post('/maximize', (req, res) => {
     res.sendStatus(200);
 });
 
+router.post('/unmaximize', (req, res) => {
+    const { id } = req.body;
+
+    state.windows[id]?.unmaximize();
+
+    res.sendStatus(200);
+});
+
 router.post('/minimize', (req, res) => {
     const { id } = req.body;
 
@@ -344,6 +352,13 @@ router.post('/open', (req, res) => {
     window.on('maximize', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowMaximized',
+            payload: [id],
+        });
+    });
+
+    window.on('unmaximize', () => {
+        notifyLaravel('events', {
+            event: 'Native\\Desktop\\Events\\Windows\\WindowUnmaximized',
             payload: [id],
         });
     });
