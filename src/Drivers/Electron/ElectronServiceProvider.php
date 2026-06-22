@@ -4,6 +4,7 @@ namespace Native\Desktop\Drivers\Electron;
 
 use Illuminate\Foundation\Application;
 use Native\Desktop\Builder\Builder;
+use Native\Desktop\Builder\PhpBinaryDownloader;
 use Native\Desktop\Drivers\Electron\Commands\BuildCommand;
 use Native\Desktop\Drivers\Electron\Commands\InstallCommand;
 use Native\Desktop\Drivers\Electron\Commands\PublishCommand;
@@ -57,6 +58,10 @@ class ElectronServiceProvider extends PackageServiceProvider
             return Builder::make(
                 buildPath: self::buildPath()
             );
+        });
+
+        $this->app->singleton(PhpBinaryDownloader::class, function () {
+            return new PhpBinaryDownloader;
         });
     }
 
