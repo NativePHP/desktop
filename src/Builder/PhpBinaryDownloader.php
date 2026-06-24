@@ -11,7 +11,7 @@ use function Laravel\Prompts\task;
 
 /**
  * Resolves NativePHP desktop PHP binaries from Cloudflare R2 (via the
- * https://bin.nativephp.com/{branch}/versions.json manifest) into a
+ * https://bin.nativephp.com/{branch}/desktop/versions.json manifest) into a
  * per-user cache, local-first.
  *
  * Mirrors the blessed local-first → download → validate flow used by
@@ -329,7 +329,7 @@ class PhpBinaryDownloader
 
     protected function manifestUrl(): string
     {
-        return "https://bin.nativephp.com/{$this->branch()}/versions.json";
+        return "https://bin.nativephp.com/{$this->branch()}/desktop/versions.json";
     }
 
     protected function branch(): string

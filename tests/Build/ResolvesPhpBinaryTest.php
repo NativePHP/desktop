@@ -91,7 +91,7 @@ it('fetches the manifest and selects the correct {os}-{arch}/version entry, then
     $wrongUrl = 'https://r2.example.com/mac/arm64/php-8.3.zip';
 
     Http::fake([
-        'bin.nativephp.com/main/versions.json' => Http::response([
+        'bin.nativephp.com/main/desktop/versions.json' => Http::response([
             'versions' => [
                 '8.3' => [
                     'mac-arm64' => [['url' => $wrongUrl, 'sha256' => 'deadbeef']],
@@ -132,7 +132,7 @@ it('validates a bare-url entry (no sha256) as a real zip via ZipArchive', functi
     $zipUrl = 'https://r2.example.com/mac/x64/php-8.3.zip';
 
     Http::fake([
-        'bin.nativephp.com/main/versions.json' => Http::response([
+        'bin.nativephp.com/main/desktop/versions.json' => Http::response([
             'versions' => [
                 // entry is a plain URL string, not an object
                 '8.3' => ['mac-x64' => [$zipUrl]],
@@ -159,7 +159,7 @@ it('rejects a sha256 mismatch and writes nothing to the cache', function () use 
     $zipUrl = 'https://r2.example.com/mac/arm64/php-8.3.zip';
 
     Http::fake([
-        'bin.nativephp.com/main/versions.json' => Http::response([
+        'bin.nativephp.com/main/desktop/versions.json' => Http::response([
             'versions' => [
                 '8.3' => [
                     // sha256 here is deliberately wrong
@@ -232,7 +232,7 @@ it('routes Builder::phpBinaryPath() through the R2 resolver when NATIVEPHP_BIN_S
     $zipUrl = "https://r2.example.com/{$os}/{$arch}/php-{$version}.zip";
 
     Http::fake([
-        'bin.nativephp.com/main/versions.json' => Http::response([
+        'bin.nativephp.com/main/desktop/versions.json' => Http::response([
             'versions' => [
                 $version => [
                     "{$os}-{$arch}" => [['url' => $zipUrl, 'sha256' => $sha]],
