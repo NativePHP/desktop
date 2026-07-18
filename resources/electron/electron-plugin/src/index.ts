@@ -29,7 +29,7 @@ class NativePHP {
     quitting = false;
 
     public bootstrap(app: CrossProcessExports.App, icon: string, phpBinary: string, cert: string, appPath: string) {
-        configureLinuxDevelopmentDesktop(app, icon);
+        configureLinuxDevelopmentDesktop(icon);
         initialize();
 
         state.icon = icon;

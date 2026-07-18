@@ -5,6 +5,7 @@ namespace Native\Desktop\Drivers\Electron\Traits;
 use Illuminate\Support\Facades\Process;
 use Native\Desktop\Builder\Builder;
 use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
+use Native\Desktop\Support\LinuxDevelopmentDesktop;
 
 use function Laravel\Prompts\error;
 
@@ -20,6 +21,10 @@ trait ExecuteCommand
 
         $builder = resolve(Builder::class);
 
+        $linuxDevelopmentDesktopName = $type === 'serve'
+            ? LinuxDevelopmentDesktop::name((string) config('nativephp.app_id'), base_path())
+            : null;
+
         $envs = [
             'install' => [
                 'NATIVEPHP_PHP_BINARY_VERSION' => PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
@@ -29,6 +34,7 @@ trait ExecuteCommand
                 'APP_PATH' => base_path(),
                 'NATIVEPHP_APP_ID' => config('nativephp.app_id'),
                 'NATIVEPHP_APP_NAME' => config('app.name'),
+                'NATIVEPHP_DESKTOP_NAME' => $linuxDevelopmentDesktopName,
                 'NATIVEPHP_PHP_BINARY_VERSION' => PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
                 'NATIVEPHP_PHP_BINARY_PATH' => $builder->phpBinaryPath(),
                 'NATIVE_PHP_SKIP_QUEUE' => $skip_queue,

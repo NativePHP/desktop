@@ -28,7 +28,7 @@ class NativePHP {
         this.quitting = false;
     }
     bootstrap(app, icon, phpBinary, cert, appPath) {
-        configureLinuxDevelopmentDesktop(app, icon);
+        configureLinuxDevelopmentDesktop(icon);
         initialize();
         state.icon = icon;
         state.php = phpBinary;
