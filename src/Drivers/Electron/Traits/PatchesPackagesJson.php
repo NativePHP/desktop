@@ -3,7 +3,7 @@
 namespace Native\Desktop\Drivers\Electron\Traits;
 
 use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
-use Native\Desktop\Support\LinuxDevelopmentDesktop;
+use Native\Desktop\Support\LinuxDevelopmentIdentity;
 
 trait PatchesPackagesJson
 {
@@ -29,7 +29,7 @@ trait PatchesPackagesJson
         $packageJson['author'] = config('nativephp.author');
         $packageJson['homepage'] = config('nativephp.website');
 
-        if ($developmentMode && $desktopName = LinuxDevelopmentDesktop::name((string) config('nativephp.app_id'), base_path())) {
+        if ($developmentMode && $desktopName = LinuxDevelopmentIdentity::name((string) config('nativephp.app_id'), base_path())) {
             $packageJson['desktopName'] = $desktopName;
         } else {
             unset($packageJson['desktopName']);

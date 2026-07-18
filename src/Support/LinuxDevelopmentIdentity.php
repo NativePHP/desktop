@@ -2,7 +2,7 @@
 
 namespace Native\Desktop\Support;
 
-final class LinuxDevelopmentDesktop
+final class LinuxDevelopmentIdentity
 {
     public static function name(string $appId, string $appPath, string $operatingSystem = PHP_OS_FAMILY): ?string
     {

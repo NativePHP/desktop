@@ -19,7 +19,6 @@ describe('Linux development desktop identity', () => {
             '/project/build/icon.png',
             {
                 NODE_ENV: 'development',
-                NATIVEPHP_APP_ID: 'com.example.product',
                 NATIVEPHP_APP_NAME: 'Example',
                 NATIVEPHP_DESKTOP_NAME: 'com.example.product.nativephp-dev-0123456789ab',
                 XDG_DATA_HOME: dataHome,
@@ -44,7 +43,6 @@ describe('Linux development desktop identity', () => {
             '/project/icon.png',
             {
                 NODE_ENV: 'development',
-                NATIVEPHP_APP_ID: '7.example/My App',
                 NATIVEPHP_APP_NAME: 'Example\nInjected=true',
                 NATIVEPHP_DESKTOP_NAME: '_7.example-My-App.nativephp-dev-0123456789ab',
                 XDG_DATA_HOME: dataHome,
@@ -83,7 +81,6 @@ describe('Linux development desktop identity', () => {
                 '/icon.png',
                 {
                     NODE_ENV: 'development',
-                    NATIVEPHP_APP_ID: 'com.example.product',
                     NATIVEPHP_DESKTOP_NAME: 'com.example.product.nativephp-dev-0123456789ab',
                     XDG_DATA_HOME: '/dev/null',
                 },

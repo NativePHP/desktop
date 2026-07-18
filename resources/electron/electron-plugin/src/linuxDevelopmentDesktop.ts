@@ -17,17 +17,16 @@ export function configureLinuxDevelopmentDesktop(
         return null;
     }
 
-    const appId = environment.NATIVEPHP_APP_ID;
     const desktopName = environment.NATIVEPHP_DESKTOP_NAME;
 
-    if (!appId || !desktopName) {
+    if (!desktopName) {
         return null;
     }
     const dataHome = environment.XDG_DATA_HOME || join(homedir(), '.local', 'share');
     const applicationsDirectory = join(dataHome, 'applications');
     const desktopFile = join(applicationsDirectory, `${desktopName}.desktop`);
     const temporaryDesktopFile = `${desktopFile}.tmp-${process.pid}`;
-    const displayName = environment.NATIVEPHP_APP_NAME || appId;
+    const displayName = environment.NATIVEPHP_APP_NAME || desktopName;
 
     try {
         // Keep this hidden identity entry between runs so desktop shells can
