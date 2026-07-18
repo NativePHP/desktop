@@ -13,6 +13,7 @@ import { app, powerMonitor, session } from 'electron';
 import killSync from 'kill-sync';
 import { resolve } from 'path';
 import ps from 'ps-node';
+import { configureLinuxDevelopmentDesktop } from './linuxDevelopmentDesktop.js';
 import { stopAllProcesses } from './server/api/childProcess.js';
 import { killScheduler, retrieveNativePHPConfig, retrievePhpIniSettings, runScheduler, startAPI, startPhpApp, } from './server/index.js';
 import state from './server/state.js';
@@ -27,6 +28,7 @@ class NativePHP {
         this.quitting = false;
     }
     bootstrap(app, icon, phpBinary, cert, appPath) {
+        configureLinuxDevelopmentDesktop(app, icon);
         initialize();
         state.icon = icon;
         state.php = phpBinary;

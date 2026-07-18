@@ -5,6 +5,7 @@ import CrossProcessExports, { app, powerMonitor, session } from 'electron';
 import killSync from 'kill-sync';
 import { resolve } from 'path';
 import ps from 'ps-node';
+import { configureLinuxDevelopmentDesktop } from './linuxDevelopmentDesktop.js';
 import { stopAllProcesses } from './server/api/childProcess.js';
 import {
     killScheduler,
@@ -28,6 +29,7 @@ class NativePHP {
     quitting = false;
 
     public bootstrap(app: CrossProcessExports.App, icon: string, phpBinary: string, cert: string, appPath: string) {
+        configureLinuxDevelopmentDesktop(app, icon);
         initialize();
 
         state.icon = icon;
