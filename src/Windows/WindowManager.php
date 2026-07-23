@@ -97,6 +97,14 @@ class WindowManager implements WindowManagerContract
         ]);
     }
 
+    public function fullscreen($fullscreen = true, $id = null): void
+    {
+        $this->client->post('window/fullscreen', [
+            'id' => $id ?? $this->detectId(),
+            'fullscreen' => $fullscreen,
+        ]);
+    }
+
     public function maximize($id = null): void
     {
         $this->client->post('window/maximize', [
