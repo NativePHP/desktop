@@ -405,7 +405,9 @@ router.post('/open', (req, res) => {
     window.loadURL(url);
 
     window.webContents.on('dom-ready', () => {
-        window.webContents.setZoomFactor(parseFloat(zoomFactor));
+        const zoom = parseFloat(zoomFactor);
+
+        window.webContents.setZoomFactor(Number.isFinite(zoom) && zoom > 0 ? zoom : 1);
     });
 
     if (preventLeaveDomain || preventLeavePage) {
