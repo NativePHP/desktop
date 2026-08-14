@@ -42,8 +42,10 @@ router.delete('/trash-item', async (req, res) => {
         await shell.trashItem(path);
 
         res.sendStatus(200);
-    } catch {
-        res.status(400).json();
+    } catch (e) {
+        res.status(400).json({
+            error: e instanceof Error ? e.message : String(e),
+        });
     }
 });
 
