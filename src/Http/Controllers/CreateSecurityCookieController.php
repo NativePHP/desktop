@@ -8,11 +8,11 @@ class CreateSecurityCookieController
 {
     public function __invoke(Request $request)
     {
-        abort_if($request->input('secret') !== config('native-php.secret'), 403);
+        abort_if($request->input('secret') !== config('nativephp-internal.secret'), 403);
 
         return redirect('/')->cookie(cookie(
             name: '_php_native',
-            value: config('native-php.secret'),
+            value: config('nativephp-internal.secret'),
             domain: 'localhost',
             httpOnly: true,
         ));
