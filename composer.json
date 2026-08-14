@@ -7,7 +7,7 @@
         "desktop",
         "nativephp-laravel"
     ],
-    "homepage": "https://github.com/nativephp/laravel",
+    "homepage": "https://github.com/NativePHP/desktop",
     "license": "MIT",
     "funding": [
         {
@@ -110,7 +110,7 @@
                 "Shell": "Native\\Desktop\\Facades\\Shell",
                 "System": "Native\\Desktop\\Facades\\System",
                 "Window": "Native\\Desktop\\Facades\\Window",
-                "Updater": "Native\\Electron\\Facades\\Updater"
+                "Updater": "Native\\Desktop\\Drivers\\Electron\\Facades\\Updater"
             }
         }
     },
