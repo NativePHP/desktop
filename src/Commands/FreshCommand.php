@@ -6,10 +6,7 @@ use Illuminate\Database\Console\Migrations\FreshCommand as BaseFreshCommand;
 use Native\Desktop\NativeServiceProvider;
 use Symfony\Component\Console\Attribute\AsCommand;
 
-#[AsCommand(
-    name: 'native:migrate:fresh',
-    description: 'Drop all tables and re-run all migrations in the NativePHP development environment',
-)]
+#[AsCommand(name: 'native:migrate:fresh')]
 class FreshCommand extends BaseFreshCommand
 {
     // The parent declares its own signature, which wins over $name.

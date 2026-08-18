@@ -4,7 +4,9 @@ namespace Native\Desktop\Commands;
 
 use Illuminate\Database\Console\WipeCommand as BaseWipeCommand;
 use Native\Desktop\NativeServiceProvider;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'native:db:wipe')]
 class WipeDatabaseCommand extends BaseWipeCommand
 {
     // The parent declares its own signature, which wins over $name.
