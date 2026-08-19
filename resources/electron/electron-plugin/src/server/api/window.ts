@@ -9,6 +9,14 @@ import { enable } from '@electron/remote/main/index.js';
 
 const router = express.Router();
 
+const DEFAULT_ZOOM_FACTOR = 1;
+
+function parseZoomFactor(zoomFactor) {
+    const zoom = parseFloat(zoomFactor);
+
+    return Number.isFinite(zoom) && zoom > 0 ? zoom : DEFAULT_ZOOM_FACTOR;
+}
+
 router.post('/maximize', (req, res) => {
     const { id } = req.body;
 
@@ -92,7 +100,7 @@ router.post('/hide-dev-tools', (req, res) => {
 router.post('/set-zoom-factor', (req, res) => {
     const { id, zoomFactor } = req.body;
 
-    state.windows[id]?.webContents.setZoomFactor(parseFloat(zoomFactor));
+    state.windows[id]?.webContents.setZoomFactor(parseZoomFactor(zoomFactor));
 
     res.sendStatus(200);
 });
@@ -405,9 +413,7 @@ router.post('/open', (req, res) => {
     window.loadURL(url);
 
     window.webContents.on('dom-ready', () => {
-        const zoom = parseFloat(zoomFactor);
-
-        window.webContents.setZoomFactor(Number.isFinite(zoom) && zoom > 0 ? zoom : 1);
+        window.webContents.setZoomFactor(parseZoomFactor(zoomFactor));
     });
 
     if (preventLeaveDomain || preventLeavePage) {
