@@ -1,6 +1,6 @@
 # Check and fix PHP code style issues
-# Pull request: automatically fix PHP code style issues
-# Main branch: only check PHP code style issues since we don't have write permission
+# Pull request from a branch in this repository: automatically fix PHP code style issues
+# Pull request from a fork, or a push: only check, since we cannot push to the fork or to main
 name: Check and fix PHP code style issues
 
 on:
@@ -23,21 +23,22 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ github.head_ref || github.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           fetch-depth: 0
 
       - name: Check PHP code style issues
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
         uses: aglipanci/laravel-pint-action@2.6
         with:
           verboseMode: true
           testMode: true
 
       - name: Fix PHP code style issues
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         uses: aglipanci/laravel-pint-action@2.6
 
       - name: Commit changes
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Fix styling
