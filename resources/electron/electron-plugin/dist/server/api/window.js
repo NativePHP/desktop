@@ -6,6 +6,11 @@ import { appendWindowIdToUrl, goToUrl, notifyLaravel } from '../utils.js';
 import mergePreferences from '../webPreferences.js';
 import { enable } from '@electron/remote/main/index.js';
 const router = express.Router();
+const DEFAULT_ZOOM_FACTOR = 1;
+function parseZoomFactor(zoomFactor) {
+    const zoom = parseFloat(zoomFactor);
+    return Number.isFinite(zoom) && zoom > 0 ? zoom : DEFAULT_ZOOM_FACTOR;
+}
 router.post('/maximize', (req, res) => {
     var _a;
     const { id } = req.body;
@@ -68,7 +73,7 @@ router.post('/hide-dev-tools', (req, res) => {
 router.post('/set-zoom-factor', (req, res) => {
     var _a;
     const { id, zoomFactor } = req.body;
-    (_a = state.windows[id]) === null || _a === void 0 ? void 0 : _a.webContents.setZoomFactor(parseFloat(zoomFactor));
+    (_a = state.windows[id]) === null || _a === void 0 ? void 0 : _a.webContents.setZoomFactor(parseZoomFactor(zoomFactor));
     res.sendStatus(200);
 });
 router.post('/position', (req, res) => {
@@ -267,7 +272,7 @@ router.post('/open', (req, res) => {
     const url = appendWindowIdToUrl(req.body.url, id);
     window.loadURL(url);
     window.webContents.on('dom-ready', () => {
-        window.webContents.setZoomFactor(parseFloat(zoomFactor));
+        window.webContents.setZoomFactor(parseZoomFactor(zoomFactor));
     });
     if (preventLeaveDomain || preventLeavePage) {
         window.webContents.on('will-navigate', (event, target) => {
