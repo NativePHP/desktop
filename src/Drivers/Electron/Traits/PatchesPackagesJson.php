@@ -28,6 +28,13 @@ trait PatchesPackagesJson
         $packageJson['description'] = config('nativephp.description');
         $packageJson['author'] = config('nativephp.author');
         $packageJson['homepage'] = config('nativephp.website');
+        $deepLinkScheme = trim((string) config('nativephp.deeplink_scheme'));
+
+        if ($deepLinkScheme !== '') {
+            $packageJson['nativephpDeepLinkScheme'] = $deepLinkScheme;
+        } else {
+            unset($packageJson['nativephpDeepLinkScheme']);
+        }
 
         if ($developmentMode && $desktopName = LinuxDevelopmentIdentity::name((string) config('nativephp.app_id'), base_path())) {
             $packageJson['desktopName'] = $desktopName;

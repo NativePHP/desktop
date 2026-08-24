@@ -15,16 +15,15 @@ describe('Linux development desktop identity', () => {
         const dataHome = mkdtempSync(join(tmpdir(), 'nativephp-desktop-'));
         temporaryDirectories.push(dataHome);
 
-        const desktopFile = configureLinuxDevelopmentDesktop(
-            '/project/build/icon.png',
-            {
+        const desktopFile = configureLinuxDevelopmentDesktop('/project/build/icon.png', {
+            environment: {
                 NODE_ENV: 'development',
                 NATIVEPHP_APP_NAME: 'Example',
                 NATIVEPHP_DESKTOP_NAME: 'com.example.product.nativephp-dev-0123456789ab',
                 XDG_DATA_HOME: dataHome,
             },
-            'linux',
-        );
+            platform: 'linux',
+        });
 
         expect(desktopFile).not.toBeNull();
         expect(existsSync(desktopFile!)).toBe(true);
@@ -39,37 +38,31 @@ describe('Linux development desktop identity', () => {
         const dataHome = mkdtempSync(join(tmpdir(), 'nativephp-desktop-'));
         temporaryDirectories.push(dataHome);
 
-        const desktopFile = configureLinuxDevelopmentDesktop(
-            '/project/icon.png',
-            {
+        const desktopFile = configureLinuxDevelopmentDesktop('/project/icon.png', {
+            environment: {
                 NODE_ENV: 'development',
                 NATIVEPHP_APP_NAME: 'Example\nInjected=true',
                 NATIVEPHP_DESKTOP_NAME: '_7.example-My-App.nativephp-dev-0123456789ab',
                 XDG_DATA_HOME: dataHome,
             },
-            'linux',
-        );
+            platform: 'linux',
+        });
 
         expect(readFileSync(desktopFile!, 'utf8')).toContain('Name=Example\\nInjected=true (Development)');
     });
 
     it.each(['darwin', 'win32'] as const)('does nothing on %s', (platform) => {
         expect(
-            configureLinuxDevelopmentDesktop(
-                '/icon.png',
-                { NODE_ENV: 'development' },
-                platform,
-            ),
+            configureLinuxDevelopmentDesktop('/icon.png', { environment: { NODE_ENV: 'development' }, platform }),
         ).toBeNull();
     });
 
     it('does nothing in a production build', () => {
         expect(
-            configureLinuxDevelopmentDesktop(
-                '/icon.png',
-                { NODE_ENV: 'production' },
-                'linux',
-            ),
+            configureLinuxDevelopmentDesktop('/icon.png', {
+                environment: { NODE_ENV: 'production' },
+                platform: 'linux',
+            }),
         ).toBeNull();
     });
 
@@ -77,16 +70,44 @@ describe('Linux development desktop identity', () => {
         const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         expect(
-            configureLinuxDevelopmentDesktop(
-                '/icon.png',
-                {
+            configureLinuxDevelopmentDesktop('/icon.png', {
+                environment: {
                     NODE_ENV: 'development',
                     NATIVEPHP_DESKTOP_NAME: 'com.example.product.nativephp-dev-0123456789ab',
                     XDG_DATA_HOME: '/dev/null',
                 },
-                'linux',
-            ),
+                platform: 'linux',
+            }),
         ).toBeNull();
         expect(warning).toHaveBeenCalledOnce();
+    });
+
+    it('registers a launchable protocol handler through xdg-mime', () => {
+        const dataHome = mkdtempSync(join(tmpdir(), 'nativephp-desktop-'));
+        const registerMimeHandler = vi.fn().mockReturnValue(true);
+        temporaryDirectories.push(dataHome);
+
+        const desktopFile = configureLinuxDevelopmentDesktop('/project/icon.png', {
+            environment: {
+                NODE_ENV: 'development',
+                NATIVEPHP_APP_NAME: 'Example',
+                NATIVEPHP_DESKTOP_NAME: 'com.example.product.nativephp-dev-0123456789ab',
+                XDG_DATA_HOME: dataHome,
+            },
+            platform: 'linux',
+            executable: '/project with spaces/electron',
+            entryScript: '/project with spaces/electron app',
+            scheme: 'devkeepr',
+            registerMimeHandler,
+        });
+        const contents = readFileSync(desktopFile!, 'utf8');
+
+        expect(contents).toContain('Exec="/project with spaces/electron" "/project with spaces/electron app" %u');
+        expect(contents).toContain('MimeType=x-scheme-handler/devkeepr;');
+        expect(contents).toContain('Terminal=false');
+        expect(registerMimeHandler).toHaveBeenCalledWith(
+            'com.example.product.nativephp-dev-0123456789ab.desktop',
+            'x-scheme-handler/devkeepr',
+        );
     });
 });

@@ -13,6 +13,7 @@ import { app, powerMonitor, session } from 'electron';
 import killSync from 'kill-sync';
 import { resolve } from 'path';
 import ps from 'ps-node';
+import { DeepLinkQueue } from './deepLinks.js';
 import { configureLinuxDevelopmentDesktop } from './linuxDevelopmentDesktop.js';
 import { stopAllProcesses } from './server/api/childProcess.js';
 import { killScheduler, retrieveNativePHPConfig, retrievePhpIniSettings, runScheduler, startAPI, startPhpApp, } from './server/index.js';
@@ -23,26 +24,36 @@ const { autoUpdater } = electronUpdater;
 class NativePHP {
     constructor() {
         this.processes = [];
-        this.mainWindow = null;
         this.schedulerInterval = undefined;
         this.quitting = false;
+        this.singleInstanceConfigured = false;
+        this.deepLinks = new DeepLinkQueue((url) => notifyLaravel('events', {
+            event: '\\Native\\Desktop\\Events\\App\\OpenedFromURL',
+            payload: { url },
+        }));
     }
-    bootstrap(app, icon, phpBinary, cert, appPath) {
-        configureLinuxDevelopmentDesktop(icon);
+    bootstrap(app, icon, phpBinary, cert, appPath, deepLinkProtocol) {
+        configureLinuxDevelopmentDesktop(icon, {
+            executable: process.execPath,
+            entryScript: process.argv[1] ? resolve(process.argv[1]) : undefined,
+            scheme: deepLinkProtocol,
+        });
         initialize();
         state.icon = icon;
         state.php = phpBinary;
         state.caCert = cert;
         state.appPath = appPath;
-        this.bootstrapApp(app);
+        this.deepLinks.configure(deepLinkProtocol, process.argv);
+        if (!this.configureSingleInstance(app, deepLinkProtocol)) {
+            return;
+        }
         this.addEventListeners(app);
+        this.bootstrapApp(app);
     }
     addEventListeners(app) {
         app.on('open-url', (event, url) => {
-            notifyLaravel('events', {
-                event: '\\Native\\Desktop\\Events\\App\\OpenedFromURL',
-                payload: [url],
-            });
+            event.preventDefault();
+            this.deepLinks.captureUrl(url);
         });
         app.on('open-file', (event, path) => {
             notifyLaravel('events', {
@@ -72,9 +83,9 @@ class NativePHP {
         app.on('browser-window-created', (_, window) => {
             optimizer.watchWindowShortcuts(window);
         });
-        app.on('activate', function (event, hasVisibleWindows) {
+        app.on('activate', (event, hasVisibleWindows) => {
             if (!hasVisibleWindows) {
-                notifyLaravel('booted');
+                void this.notifyBootedAndFlushDeepLinks();
             }
             event.preventDefault();
         });
@@ -85,7 +96,9 @@ class NativePHP {
             const config = yield this.loadConfig();
             this.setDockIcon();
             this.setAppUserModelId(config);
-            this.setDeepLinkHandler(config);
+            if (!this.setDeepLinkHandler(app, config)) {
+                return;
+            }
             this.startAutoUpdater(config);
             yield this.startElectronApi();
             state.phpIni = yield this.loadPhpIni();
@@ -108,7 +121,7 @@ class NativePHP {
             if (process.env.NATIVEPHP_NO_FOCUS) {
                 state.noFocusOnRestart = true;
             }
-            yield notifyLaravel('booted');
+            yield this.notifyBootedAndFlushDeepLinks();
         });
     }
     loadConfig() {
@@ -132,9 +145,13 @@ class NativePHP {
     setAppUserModelId(config) {
         electronApp.setAppUserModelId(config === null || config === void 0 ? void 0 : config.app_id);
     }
-    setDeepLinkHandler(config) {
+    setDeepLinkHandler(app, config) {
         const deepLinkProtocol = config === null || config === void 0 ? void 0 : config.deeplink_scheme;
         if (deepLinkProtocol) {
+            this.deepLinks.configure(deepLinkProtocol, process.argv);
+            if (!this.configureSingleInstance(app, deepLinkProtocol)) {
+                return false;
+            }
             if (process.defaultApp) {
                 if (process.argv.length >= 2) {
                     app.setAsDefaultProtocolClient(deepLinkProtocol, process.execPath, [resolve(process.argv[1])]);
@@ -143,29 +160,36 @@ class NativePHP {
             else {
                 app.setAsDefaultProtocolClient(deepLinkProtocol);
             }
-            if (process.platform !== 'darwin') {
-                const gotTheLock = app.requestSingleInstanceLock();
-                if (!gotTheLock) {
-                    app.quit();
-                    return;
-                }
-                else {
-                    app.on('second-instance', (event, commandLine) => {
-                        if (this.mainWindow) {
-                            if (this.mainWindow.isMinimized())
-                                this.mainWindow.restore();
-                            this.mainWindow.focus();
-                        }
-                        notifyLaravel('events', {
-                            event: '\\Native\\Desktop\\Events\\App\\OpenedFromURL',
-                            payload: {
-                                url: commandLine[commandLine.length - 1],
-                            },
-                        });
-                    });
-                }
-            }
         }
+        return true;
+    }
+    configureSingleInstance(app, deepLinkProtocol) {
+        if (!deepLinkProtocol || process.platform === 'darwin' || this.singleInstanceConfigured) {
+            return true;
+        }
+        if (!app.requestSingleInstanceLock()) {
+            app.quit();
+            return false;
+        }
+        this.singleInstanceConfigured = true;
+        app.on('second-instance', (_event, commandLine) => {
+            Object.values(state.windows).forEach((window) => {
+                if (window.isMinimized()) {
+                    window.restore();
+                }
+                window.show();
+                window.focus();
+            });
+            this.deepLinks.captureArguments(commandLine);
+        });
+        return true;
+    }
+    notifyBootedAndFlushDeepLinks() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (yield notifyLaravel('booted')) {
+                yield this.deepLinks.markReady();
+            }
+        });
     }
     startAutoUpdater(config) {
         var _a, _b, _c, _d, _e;

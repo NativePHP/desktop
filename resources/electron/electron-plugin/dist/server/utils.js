@@ -31,8 +31,10 @@ export function notifyLaravel(endpoint_1) {
                     'X-NativePHP-Secret': state.randomSecret,
                 },
             });
+            return true;
         }
         catch (_a) {
+            return false;
         }
     });
 }

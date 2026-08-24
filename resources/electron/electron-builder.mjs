@@ -131,6 +131,7 @@ export default {
         homepage: appUrl,
         version: appVersion,
         author: appAuthor,
+        nativephpDeepLinkScheme: deepLinkProtocol,
     },
     extraResources: [
         {

@@ -34,6 +34,7 @@ trait ExecuteCommand
                 'APP_PATH' => base_path(),
                 'NATIVEPHP_APP_NAME' => config('app.name'),
                 'NATIVEPHP_DESKTOP_NAME' => $linuxDevelopmentDesktopName,
+                'NATIVEPHP_DEEPLINK_SCHEME' => config('nativephp.deeplink_scheme'),
                 'NATIVEPHP_PHP_BINARY_VERSION' => PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
                 'NATIVEPHP_PHP_BINARY_PATH' => $builder->phpBinaryPath(),
                 'NATIVE_PHP_SKIP_QUEUE' => $skip_queue,

@@ -23,8 +23,9 @@ export async function notifyLaravel(endpoint: string, payload = {}) {
                 'X-NativePHP-Secret': state.randomSecret,
             },
         });
+        return true;
     } catch {
-        //
+        return false;
     }
 }
 
