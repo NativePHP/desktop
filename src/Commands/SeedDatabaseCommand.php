@@ -8,13 +8,12 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-#[AsCommand(
-    name: 'native:seed',
-    description: 'Seed the database in the NativePHP development environment',
-)]
+#[AsCommand(name: 'native:seed')]
 class SeedDatabaseCommand extends BaseSeedCommand
 {
     protected $signature = 'native:seed';
+
+    protected $description = 'Seed the database in the NativePHP development environment';
 
     protected function configure(): void
     {
