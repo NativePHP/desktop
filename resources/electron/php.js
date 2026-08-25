@@ -1,6 +1,7 @@
 import fs from 'fs';
 import fs_extra from 'fs-extra';
 import { join } from 'path';
+import { pipeline } from 'stream/promises';
 import unzip from 'yauzl';
 const { removeSync, ensureDirSync } = fs_extra;
 
@@ -63,35 +64,39 @@ if (platform.phpBinary) {
 
         ensureDirSync(binaryDestDir);
 
-        // Unzip the files
-        unzip.open(binarySrcDir, { lazyEntries: true }, function (err, zipfile) {
-            if (err) throw err;
-            zipfile.readEntry();
-            zipfile.on('entry', function (entry) {
-                zipfile.openReadStream(entry, function (err, readStream) {
-                    if (err) throw err;
+        await new Promise((resolve, reject) => {
+            unzip.open(binarySrcDir, { lazyEntries: true }, function (err, zipfile) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
 
-                    const binaryPath = join(binaryDestDir, platform.phpBinary);
-                    const writeStream = fs.createWriteStream(binaryPath);
+                zipfile.on('error', reject);
+                zipfile.on('end', resolve);
+                zipfile.on('entry', function (entry) {
+                    zipfile.openReadStream(entry, function (err, readStream) {
+                        if (err) {
+                            reject(err);
+                            return;
+                        }
 
-                    readStream.pipe(writeStream);
+                        const binaryPath = join(binaryDestDir, platform.phpBinary);
+                        const writeStream = fs.createWriteStream(binaryPath);
 
-                    writeStream.on('close', function () {
-                        console.log('Copied PHP binary to ', binaryPath);
-
-                        // Add execute permissions
-                        fs.chmod(binaryPath, 0o755, (err) => {
-                            if (err) {
-                                console.log(`Error setting permissions: ${err}`);
-                            }
-                        });
-
-                        zipfile.readEntry();
+                        pipeline(readStream, writeStream)
+                            .then(() => fs.promises.chmod(binaryPath, 0o755))
+                            .then(() => {
+                                console.log('Copied PHP binary to ', binaryPath);
+                                zipfile.readEntry();
+                            })
+                            .catch(reject);
                     });
                 });
+                zipfile.readEntry();
             });
         });
     } catch (e) {
         console.error('Error copying PHP binary', e);
+        process.exitCode = 1;
     }
 }
