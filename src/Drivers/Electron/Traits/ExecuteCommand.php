@@ -5,6 +5,7 @@ namespace Native\Desktop\Drivers\Electron\Traits;
 use Illuminate\Support\Facades\Process;
 use Native\Desktop\Builder\Builder;
 use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
+use Symfony\Component\Process\Process as SymfonyProcess;
 
 use function Laravel\Prompts\error;
 
@@ -40,7 +41,7 @@ trait ExecuteCommand
         $result = Process::path(ElectronServiceProvider::electronPath())
             ->env($envs[$type])
             ->forever()
-            ->tty(! $withoutInteraction && PHP_OS_FAMILY != 'Windows')
+            ->tty(! $withoutInteraction && SymfonyProcess::isTtySupported() && PHP_OS_FAMILY != 'Windows')
             ->run($command, function (string $type, string $output) {
                 if ($this->getOutput()->isVerbose()) {
                     echo $output;
