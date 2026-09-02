@@ -1,5 +1,6 @@
 import NativePHP from '#plugin';
 import { app } from 'electron';
+import { readFileSync } from 'fs';
 import path from 'path';
 
 // Inherit User's PATH in Process & ChildProcess
@@ -13,8 +14,9 @@ const certificate = path.join(buildPath, 'cacert.pem');
 const executable = process.platform === 'win32' ? 'php.exe' : 'php';
 const phpBinary = path.join(buildPath, 'php', executable);
 const appPath = path.join(buildPath, 'app');
+const packageMetadata = JSON.parse(readFileSync(path.join(app.getAppPath(), 'package.json'), 'utf8'));
 
 /**
  * Turn on the lights for the NativePHP app.
  */
-NativePHP.bootstrap(app, defaultIcon, phpBinary, certificate, appPath);
+NativePHP.bootstrap(app, defaultIcon, phpBinary, certificate, appPath, packageMetadata.nativephpDeepLinkScheme);

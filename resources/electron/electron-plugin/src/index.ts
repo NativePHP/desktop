@@ -5,6 +5,8 @@ import CrossProcessExports, { app, powerMonitor, session } from 'electron';
 import killSync from 'kill-sync';
 import { resolve } from 'path';
 import ps from 'ps-node';
+import { DeepLinkQueue } from './deepLinks.js';
+import { configureLinuxDevelopmentDesktop } from './linuxDevelopmentDesktop.js';
 import { stopAllProcesses } from './server/api/childProcess.js';
 import {
     killScheduler,
@@ -23,11 +25,29 @@ const { autoUpdater } = electronUpdater;
 
 class NativePHP {
     processes: ChildProcessWithoutNullStreams[] = [];
-    mainWindow = null;
     schedulerInterval = undefined;
     quitting = false;
+    singleInstanceConfigured = false;
+    deepLinks = new DeepLinkQueue((url) =>
+        notifyLaravel('events', {
+            event: '\\Native\\Desktop\\Events\\App\\OpenedFromURL',
+            payload: { url },
+        }),
+    );
 
-    public bootstrap(app: CrossProcessExports.App, icon: string, phpBinary: string, cert: string, appPath: string) {
+    public bootstrap(
+        app: CrossProcessExports.App,
+        icon: string,
+        phpBinary: string,
+        cert: string,
+        appPath: string,
+        deepLinkProtocol?: string,
+    ) {
+        configureLinuxDevelopmentDesktop(icon, {
+            executable: process.execPath,
+            entryScript: process.argv[1] ? resolve(process.argv[1]) : undefined,
+            scheme: deepLinkProtocol,
+        });
         initialize();
 
         state.icon = icon;
@@ -35,16 +55,20 @@ class NativePHP {
         state.caCert = cert;
         state.appPath = appPath;
 
-        this.bootstrapApp(app);
+        this.deepLinks.configure(deepLinkProtocol, process.argv);
+
+        if (!this.configureSingleInstance(app, deepLinkProtocol)) {
+            return;
+        }
+
         this.addEventListeners(app);
+        this.bootstrapApp(app);
     }
 
     private addEventListeners(app: Electron.CrossProcessExports.App) {
         app.on('open-url', (event, url) => {
-            notifyLaravel('events', {
-                event: '\\Native\\Desktop\\Events\\App\\OpenedFromURL',
-                payload: [url],
-            });
+            event.preventDefault();
+            this.deepLinks.captureUrl(url);
         });
 
         app.on('open-file', (event, path) => {
@@ -97,11 +121,11 @@ class NativePHP {
             optimizer.watchWindowShortcuts(window);
         });
 
-        app.on('activate', function (event, hasVisibleWindows) {
+        app.on('activate', (event, hasVisibleWindows) => {
             // On macOS it's common to re-create a window in the app when the
             // dock icon is clicked and there are no other windows open.
             if (!hasVisibleWindows) {
-                notifyLaravel('booted');
+                void this.notifyBootedAndFlushDeepLinks();
             }
 
             event.preventDefault();
@@ -115,7 +139,9 @@ class NativePHP {
 
         this.setDockIcon();
         this.setAppUserModelId(config);
-        this.setDeepLinkHandler(config);
+        if (!this.setDeepLinkHandler(app, config)) {
+            return;
+        }
         this.startAutoUpdater(config);
 
         await this.startElectronApi();
@@ -148,7 +174,7 @@ class NativePHP {
             state.noFocusOnRestart = true;
         }
 
-        await notifyLaravel('booted');
+        await this.notifyBootedAndFlushDeepLinks();
     }
 
     private async loadConfig() {
@@ -176,10 +202,16 @@ class NativePHP {
         electronApp.setAppUserModelId(config?.app_id);
     }
 
-    private setDeepLinkHandler(config) {
+    private setDeepLinkHandler(app: Electron.CrossProcessExports.App, config): boolean {
         const deepLinkProtocol = config?.deeplink_scheme;
 
         if (deepLinkProtocol) {
+            this.deepLinks.configure(deepLinkProtocol, process.argv);
+
+            if (!this.configureSingleInstance(app, deepLinkProtocol)) {
+                return false;
+            }
+
             if (process.defaultApp) {
                 if (process.argv.length >= 2) {
                     app.setAsDefaultProtocolClient(deepLinkProtocol, process.execPath, [resolve(process.argv[1])]);
@@ -187,37 +219,42 @@ class NativePHP {
             } else {
                 app.setAsDefaultProtocolClient(deepLinkProtocol);
             }
+        }
 
-            /**
-             * Handle protocol url for windows and linux
-             * This code will be different in Windows and Linux compared to MacOS.
-             * This is due to both platforms emitting the second-instance event rather
-             * than the open-url event and Windows requiring additional code in order to
-             * open the contents of the protocol link within the same Electron instance.
-             */
-            if (process.platform !== 'darwin') {
-                const gotTheLock = app.requestSingleInstanceLock();
-                if (!gotTheLock) {
-                    app.quit();
-                    return;
-                } else {
-                    app.on('second-instance', (event, commandLine) => {
-                        // Someone tried to run a second instance, we should focus our window.
-                        if (this.mainWindow) {
-                            if (this.mainWindow.isMinimized()) this.mainWindow.restore();
-                            this.mainWindow.focus();
-                        }
+        return true;
+    }
 
-                        // the commandLine is array of strings in which last element is deep link url
-                        notifyLaravel('events', {
-                            event: '\\Native\\Desktop\\Events\\App\\OpenedFromURL',
-                            payload: {
-                                url: commandLine[commandLine.length - 1],
-                            },
-                        });
-                    });
+    private configureSingleInstance(app: Electron.CrossProcessExports.App, deepLinkProtocol?: string): boolean {
+        if (!deepLinkProtocol || process.platform === 'darwin' || this.singleInstanceConfigured) {
+            return true;
+        }
+
+        if (!app.requestSingleInstanceLock()) {
+            app.quit();
+
+            return false;
+        }
+
+        this.singleInstanceConfigured = true;
+        app.on('second-instance', (_event, commandLine) => {
+            Object.values(state.windows).forEach((window) => {
+                if (window.isMinimized()) {
+                    window.restore();
                 }
-            }
+
+                window.show();
+                window.focus();
+            });
+
+            this.deepLinks.captureArguments(commandLine);
+        });
+
+        return true;
+    }
+
+    private async notifyBootedAndFlushDeepLinks(): Promise<void> {
+        if (await notifyLaravel('booted')) {
+            await this.deepLinks.markReady();
         }
     }
 

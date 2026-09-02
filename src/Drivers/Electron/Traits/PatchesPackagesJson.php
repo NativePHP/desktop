@@ -3,6 +3,7 @@
 namespace Native\Desktop\Drivers\Electron\Traits;
 
 use Native\Desktop\Drivers\Electron\ElectronServiceProvider;
+use Native\Desktop\Support\LinuxDevelopmentIdentity;
 
 trait PatchesPackagesJson
 {
@@ -27,6 +28,19 @@ trait PatchesPackagesJson
         $packageJson['description'] = config('nativephp.description');
         $packageJson['author'] = config('nativephp.author');
         $packageJson['homepage'] = config('nativephp.website');
+        $deepLinkScheme = trim((string) config('nativephp.deeplink_scheme'));
+
+        if ($deepLinkScheme !== '') {
+            $packageJson['nativephpDeepLinkScheme'] = $deepLinkScheme;
+        } else {
+            unset($packageJson['nativephpDeepLinkScheme']);
+        }
+
+        if ($developmentMode && $desktopName = LinuxDevelopmentIdentity::name((string) config('nativephp.app_id'), base_path())) {
+            $packageJson['desktopName'] = $desktopName;
+        } else {
+            unset($packageJson['desktopName']);
+        }
 
         file_put_contents($packageJsonPath, json_encode($packageJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 

@@ -11,7 +11,7 @@ describe('Utils test', () => {
         state.phpPort = 8000;
         state.randomSecret = 'i-am-secret';
 
-        await notifyLaravel('endpoint', { payload: 'payload' });
+        const delivered = await notifyLaravel('endpoint', { payload: 'payload' });
 
         expect(axios.post).toHaveBeenCalledWith(
             `http://127.0.0.1:8000/_native/api/endpoint`,
@@ -22,5 +22,6 @@ describe('Utils test', () => {
                 },
             },
         );
+        expect(delivered).toBe(true);
     });
 });
