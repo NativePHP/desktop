@@ -12,8 +12,9 @@ use Native\Desktop\Enums\SystemThemesEnum;
  * @method static string encrypt(string $string)
  * @method static string decrypt(string $string)
  * @method static array printers()
- * @method static void print(string $html, ?\Native\Desktop\DataObjects\Printer $printer = null)
- * @method static string printToPDF(string $reason)
+ * @method static void print(string $html, ?\Native\Desktop\DataObjects\Printer $printer = null, ?array $settings = [])
+ * @method static bool printFile(string $path, \Native\Desktop\DataObjects\Printer|string|null $printer = null, ?array $settings = [])
+ * @method static string printToPDF(string $html, ?array $settings = [])
  * @method static string timezone()
  * @method static SystemThemesEnum theme(?SystemThemesEnum $theme = null)
  */

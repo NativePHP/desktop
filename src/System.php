@@ -73,6 +73,18 @@ class System
     }
 
     /**
+     * Print an on-disk PDF natively via Chromium's PDF viewer.
+     */
+    public function printFile(string $path, Printer|string|null $printer = null, ?array $settings = []): bool
+    {
+        return $this->client->post('system/print-file', [
+            'path' => $path,
+            'printer' => $printer instanceof Printer ? $printer->name : ($printer ?? ''),
+            'settings' => $settings,
+        ])->successful();
+    }
+
+    /**
      * For $settings options, see https://www.electronjs.org/docs/latest/api/web-contents#contentsprinttopdfoptions
      */
     public function printToPDF(string $html, ?array $settings = []): string
