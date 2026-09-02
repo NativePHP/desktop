@@ -14,6 +14,7 @@ use Native\Desktop\Fakes\WindowManagerFake;
  * @method static void resize($width, $height, $id = null)
  * @method static void position($x, $y, $animated = false, $id = null)
  * @method static void alwaysOnTop($alwaysOnTop = true, $id = null)
+ * @method static void fullscreen($fullscreen = true, $id = null)
  * @method static void reload($id = null)
  * @method static void maximize($id = null)
  * @method static void unmaximize($id = null)

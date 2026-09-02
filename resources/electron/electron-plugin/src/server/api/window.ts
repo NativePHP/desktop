@@ -152,6 +152,14 @@ router.post('/always-on-top', (req, res) => {
     res.sendStatus(200);
 });
 
+router.post('/fullscreen', (req, res) => {
+    const { id, fullscreen } = req.body;
+
+    state.windows[id]?.setFullScreen(fullscreen);
+
+    res.sendStatus(200);
+});
+
 router.get('/current', (req, res) => {
     // Find the current window object
     const currentWindow = Object.values(state.windows).find(
@@ -359,6 +367,20 @@ router.post('/open', (req, res) => {
     window.on('unmaximize', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowUnmaximized',
+            payload: [id],
+        });
+    });
+
+    window.on('enter-full-screen', () => {
+        notifyLaravel('events', {
+            event: 'Native\\Desktop\\Events\\Windows\\WindowFullscreened',
+            payload: [id],
+        });
+    });
+
+    window.on('leave-full-screen', () => {
+        notifyLaravel('events', {
+            event: 'Native\\Desktop\\Events\\Windows\\WindowUnfullscreened',
             payload: [id],
         });
     });
