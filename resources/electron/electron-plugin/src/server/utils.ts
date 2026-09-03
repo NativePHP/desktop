@@ -23,8 +23,10 @@ export async function notifyLaravel(endpoint: string, payload = {}) {
                 'X-NativePHP-Secret': state.randomSecret,
             },
         });
-    } catch {
-        //
+    } catch (e) {
+        if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
+            console.error(`notifyLaravel('${endpoint}') failed:`, e instanceof Error ? e.message : e);
+        }
     }
 }
 

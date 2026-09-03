@@ -32,7 +32,10 @@ export function notifyLaravel(endpoint_1) {
                 },
             });
         }
-        catch (_a) {
+        catch (e) {
+            if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
+                console.error(`notifyLaravel('${endpoint}') failed:`, e instanceof Error ? e.message : e);
+            }
         }
     });
 }
