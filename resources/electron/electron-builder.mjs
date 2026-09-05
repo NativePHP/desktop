@@ -13,6 +13,19 @@ const deepLinkProtocol = process.env.NATIVEPHP_DEEPLINK_SCHEME;
 const updaterEnabled = process.env.NATIVEPHP_UPDATER_ENABLED === 'true';
 const deleteAppDataOnUninstall = process.env.NATIVEPHP_NSIS_DELETE_APP_DATA === 'true';
 
+/*
+ * On macOS, electron-builder NFD-normalises every name it writes to disk - the .app bundle,
+ * the executable and each of the Electron helper apps - but it writes CFBundleName straight
+ * from the product name, which reaches us composed (NFC). Electron locates its helper apps
+ * by appending ' Helper (GPU).app' and friends to CFBundleName, so the two have to agree:
+ * for a name like 'MUNĖ' they don't, and the app traps on launch before it can spawn a
+ * single child process. Decomposing it ourselves puts CFBundleName in the same form as the
+ * names on disk. NFD leaves ASCII names untouched, so this is a no-op for everyone else.
+ *
+ * https://github.com/NativePHP/desktop/issues/98
+ */
+const macBundleName = appName ? appName.normalize('NFD') : undefined;
+
 // Azure signing configuration
 const azureEndpoint = process.env.NATIVEPHP_AZURE_ENDPOINT;
 const azureCertificateProfileName = process.env.NATIVEPHP_AZURE_CERTIFICATE_PROFILE_NAME;
@@ -108,6 +121,7 @@ export default {
         entitlementsInherit: 'build/entitlements.mac.plist',
         artifactName: appName + '-${version}-${arch}.${ext}',
         extendInfo: {
+            ...(macBundleName ? { CFBundleName: macBundleName, CFBundleDisplayName: macBundleName } : {}),
             NSCameraUsageDescription: "Application requests access to the device's camera.",
             NSMicrophoneUsageDescription: "Application requests access to the device's microphone.",
             NSDocumentsFolderUsageDescription: "Application requests access to the user's Documents folder.",
