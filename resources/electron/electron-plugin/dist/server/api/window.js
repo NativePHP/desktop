@@ -116,8 +116,19 @@ router.post('/always-on-top', (req, res) => {
     (_a = state.windows[id]) === null || _a === void 0 ? void 0 : _a.setAlwaysOnTop(alwaysOnTop);
     res.sendStatus(200);
 });
+router.post('/fullscreen', (req, res) => {
+    var _a;
+    const { id, fullscreen } = req.body;
+    (_a = state.windows[id]) === null || _a === void 0 ? void 0 : _a.setFullScreen(fullscreen);
+    res.sendStatus(200);
+});
 router.get('/current', (req, res) => {
-    const currentWindow = Object.values(state.windows).find((window) => window.id === BrowserWindow.getFocusedWindow().id);
+    const focused = BrowserWindow.getFocusedWindow();
+    if (!focused) {
+        res.sendStatus(404);
+        return;
+    }
+    const currentWindow = Object.values(state.windows).find((window) => window.id === focused.id);
     const id = Object.keys(state.windows).find((key) => state.windows[key] === currentWindow);
     res.json(getWindowData(id));
 });
@@ -236,6 +247,18 @@ router.post('/open', (req, res) => {
     window.on('unmaximize', () => {
         notifyLaravel('events', {
             event: 'Native\\Desktop\\Events\\Windows\\WindowUnmaximized',
+            payload: [id],
+        });
+    });
+    window.on('enter-full-screen', () => {
+        notifyLaravel('events', {
+            event: 'Native\\Desktop\\Events\\Windows\\WindowFullscreened',
+            payload: [id],
+        });
+    });
+    window.on('leave-full-screen', () => {
+        notifyLaravel('events', {
+            event: 'Native\\Desktop\\Events\\Windows\\WindowUnfullscreened',
             payload: [id],
         });
     });
