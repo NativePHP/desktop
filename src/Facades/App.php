@@ -5,6 +5,8 @@ namespace Native\Desktop\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
+ * @deprecated v3 renames this facade to NativeApp, because it collides with Laravel's own App facade. Nothing changes in v2.
+ *
  * @method static void quit()
  * @method static void relaunch()
  * @method static void focus()
