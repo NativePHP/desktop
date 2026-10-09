@@ -47,7 +47,7 @@ trait CopiesBundleToBuildDirectory
         warning('                    * * * INSECURE BUILD * * *');
         warning('===================================================================');
         warning('Secure app bundle not found! Building with exposed source files.');
-        warning('See https://nativephp.com/docs/publishing/building#security');
+        warning('See https://nativephp.com/docs/mobile/1/concepts/security');
         warning('===================================================================');
     }
 }
