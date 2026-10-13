@@ -108,6 +108,9 @@ class System
         return $timezone;
     }
 
+    /**
+     * @deprecated v3 moves this to AppShell::theme(), which v2 does not have yet. There it returns the word as a string and keeps the look across launches.
+     */
     public function theme(?SystemThemesEnum $theme = null): SystemThemesEnum
     {
         if ($theme) {

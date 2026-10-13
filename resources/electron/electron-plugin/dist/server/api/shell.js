@@ -40,8 +40,10 @@ router.delete('/trash-item', (req, res) => __awaiter(void 0, void 0, void 0, fun
         yield shell.trashItem(path);
         res.sendStatus(200);
     }
-    catch (_a) {
-        res.status(400).json();
+    catch (e) {
+        res.status(400).json({
+            error: e instanceof Error ? e.message : String(e),
+        });
     }
 }));
 export default router;
