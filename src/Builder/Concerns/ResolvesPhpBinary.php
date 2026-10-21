@@ -12,7 +12,7 @@ use function Laravel\Prompts\warning;
  *
  * Controlled by NATIVEPHP_BIN_SOURCE:
  *   - "r2" (default): resolve the binary from Cloudflare R2 (via the
- *     versions.json manifest) into a per-user cache and point
+ *     versions.json manifest) into nativephp/binaries in the app and point
  *     NATIVEPHP_PHP_BINARY_PATH there.
  *   - "local": use the binaries from nativephp/php-bin (which apps have to
  *     require themselves), or the custom NATIVEPHP_PHP_BINARY_PATH.
@@ -44,7 +44,7 @@ trait ResolvesPhpBinary
 
     /**
      * Ensure the PHP binary for the given platform/version is present in the
-     * per-user R2 cache and return the cache root directory (the value that
+     * R2 cache and return the cache root directory (the value that
      * should be used for NATIVEPHP_PHP_BINARY_PATH).
      *
      * os/arch/version default to the current host when not supplied, matching

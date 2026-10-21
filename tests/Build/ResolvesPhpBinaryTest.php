@@ -30,24 +30,21 @@ function fakeZipBytes(string $entryName = 'php', string $contents = 'fake-php-bi
     return $bytes;
 }
 
-$cacheRoot = testsDir('_test_bin_cache');
+beforeEach(function () {
+    $this->cacheRoot = Path::join(base_path('nativephp/binaries'), 'main');
+    (new Filesystem)->remove(base_path('nativephp/binaries'));
 
-beforeEach(function () use ($cacheRoot) {
-    (new Filesystem)->remove($cacheRoot);
-
-    // Point the per-user cache at a disposable test directory and select R2.
-    putenv("NATIVEPHP_BIN_CACHE_PATH={$cacheRoot}");
     putenv('NATIVEPHP_BIN_SOURCE=r2');
     putenv('NATIVEPHP_BIN_BRANCH=main');
-    $_ENV['NATIVEPHP_BIN_CACHE_PATH'] = $cacheRoot;
     $_ENV['NATIVEPHP_BIN_SOURCE'] = 'r2';
     $_ENV['NATIVEPHP_BIN_BRANCH'] = 'main';
 });
 
-afterEach(function () use ($cacheRoot) {
-    (new Filesystem)->remove($cacheRoot);
+afterEach(function () {
+    (new Filesystem)->remove(base_path('nativephp/binaries'));
+    @rmdir(base_path('nativephp'));
 
-    foreach (['NATIVEPHP_BIN_CACHE_PATH', 'NATIVEPHP_BIN_SOURCE', 'NATIVEPHP_BIN_BRANCH'] as $key) {
+    foreach (['NATIVEPHP_BIN_SOURCE', 'NATIVEPHP_BIN_BRANCH'] as $key) {
         putenv($key);
         unset($_ENV[$key], $_SERVER[$key]);
     }
@@ -59,11 +56,11 @@ afterEach(function () use ($cacheRoot) {
 |--------------------------------------------------------------------------
 */
 
-it('reuses a cached zip whose sha256 matches the manifest without downloading it again', function () use ($cacheRoot) {
+it('reuses a cached zip whose sha256 matches the manifest without downloading it again', function () {
     $zipBytes = fakeZipBytes();
     $zipUrl = 'https://r2.example.com/mac/arm64/php-8.3.zip';
 
-    $cachedPath = Path::join($cacheRoot, 'mac', 'arm64', 'php-8.3.zip');
+    $cachedPath = Path::join($this->cacheRoot, 'mac', 'arm64', 'php-8.3.zip');
     (new Filesystem)->dumpFile($cachedPath, $zipBytes);
 
     Http::fake([
@@ -77,17 +74,17 @@ it('reuses a cached zip whose sha256 matches the manifest without downloading it
 
     $returned = (new PhpBinaryDownloader)->ensure('mac', 'arm64', '8.3');
 
-    expect($returned)->toBe($cacheRoot);
+    expect($returned)->toBe($this->cacheRoot);
     Http::assertSentCount(1);
     Http::assertNotSent(fn ($request) => $request->url() === $zipUrl);
 });
 
-it('replaces a cached zip once the manifest points at a newer build', function () use ($cacheRoot) {
+it('replaces a cached zip once the manifest points at a newer build', function () {
     $oldBytes = fakeZipBytes('php', 'php-8.3.35');
     $newBytes = fakeZipBytes('php', 'php-8.3.36');
     $zipUrl = 'https://r2.example.com/mac/arm64/php-8.3.zip';
 
-    $cachedPath = Path::join($cacheRoot, 'mac', 'arm64', 'php-8.3.zip');
+    $cachedPath = Path::join($this->cacheRoot, 'mac', 'arm64', 'php-8.3.zip');
     (new Filesystem)->dumpFile($cachedPath, $oldBytes);
 
     Http::fake([
@@ -105,11 +102,11 @@ it('replaces a cached zip once the manifest points at a newer build', function (
     Http::assertSent(fn ($request) => $request->url() === $zipUrl);
 });
 
-it('keeps the cached zip when a newer build fails to download', function () use ($cacheRoot) {
+it('keeps the cached zip when a newer build fails to download', function () {
     $oldBytes = fakeZipBytes('php', 'php-8.3.35');
     $zipUrl = 'https://r2.example.com/mac/arm64/php-8.3.zip';
 
-    $cachedPath = Path::join($cacheRoot, 'mac', 'arm64', 'php-8.3.zip');
+    $cachedPath = Path::join($this->cacheRoot, 'mac', 'arm64', 'php-8.3.zip');
     (new Filesystem)->dumpFile($cachedPath, $oldBytes);
 
     Http::fake([
@@ -123,23 +120,23 @@ it('keeps the cached zip when a newer build fails to download', function () use 
 
     $returned = (new PhpBinaryDownloader)->ensure('mac', 'arm64', '8.3');
 
-    expect($returned)->toBe($cacheRoot)
+    expect($returned)->toBe($this->cacheRoot)
         ->and(hash_file('sha256', $cachedPath))->toBe(hash('sha256', $oldBytes))
-        ->and(glob(Path::join($cacheRoot, 'mac', 'arm64', '*.part')))->toBe([]);
+        ->and(glob(Path::join($this->cacheRoot, 'mac', 'arm64', '*.part')))->toBe([]);
 });
 
-it('uses a cached zip when the manifest cannot be fetched', function () use ($cacheRoot) {
-    $cachedPath = Path::join($cacheRoot, 'mac', 'arm64', 'php-8.3.zip');
+it('uses a cached zip when the manifest cannot be fetched', function () {
+    $cachedPath = Path::join($this->cacheRoot, 'mac', 'arm64', 'php-8.3.zip');
     (new Filesystem)->dumpFile($cachedPath, fakeZipBytes());
 
     Http::fake([
         'bin.nativephp.com/*' => Http::response('', 404),
     ]);
 
-    expect((new PhpBinaryDownloader)->ensure('mac', 'arm64', '8.3'))->toBe($cacheRoot);
+    expect((new PhpBinaryDownloader)->ensure('mac', 'arm64', '8.3'))->toBe($this->cacheRoot);
 });
 
-it('fetches the manifest once when prefetching several build targets', function () use ($cacheRoot) {
+it('fetches the manifest once when prefetching several build targets', function () {
     $zipBytes = fakeZipBytes();
     $sha = hash('sha256', $zipBytes);
 
@@ -159,10 +156,10 @@ it('fetches the manifest once when prefetching several build targets', function 
     $builder = resolve(Builder::class);
     $path = $builder->prefetchPhpBinariesForBuild('mac', '8.4');
 
-    expect($path)->toBe($cacheRoot)
-        ->and($builder->phpBinaryPath())->toBe($cacheRoot)
-        ->and(Path::join($cacheRoot, 'mac', 'x64', 'php-8.4.zip'))->toBeFile()
-        ->and(Path::join($cacheRoot, 'mac', 'arm64', 'php-8.4.zip'))->toBeFile();
+    expect($path)->toBe($this->cacheRoot)
+        ->and($builder->phpBinaryPath())->toBe($this->cacheRoot)
+        ->and(Path::join($this->cacheRoot, 'mac', 'x64', 'php-8.4.zip'))->toBeFile()
+        ->and(Path::join($this->cacheRoot, 'mac', 'arm64', 'php-8.4.zip'))->toBeFile();
 
     Http::assertSentCount(3);
 });
@@ -214,7 +211,7 @@ it('uses R2 by default unless the app points at its own binaries', function () {
     }
 });
 
-it('fetches the manifest and selects the correct {os}-{arch}/version entry, then verifies sha256', function () use ($cacheRoot) {
+it('fetches the manifest and selects the correct {os}-{arch}/version entry, then verifies sha256', function () {
     $os = 'linux';
     $arch = 'x64';
     $version = '8.4';
@@ -245,9 +242,9 @@ it('fetches the manifest and selects the correct {os}-{arch}/version entry, then
     $downloader = new PhpBinaryDownloader;
     $returned = $downloader->ensure($os, $arch, $version);
 
-    $cachedPath = Path::join($cacheRoot, $os, $arch, "php-{$version}.zip");
+    $cachedPath = Path::join($this->cacheRoot, $os, $arch, "php-{$version}.zip");
 
-    expect($returned)->toBe($cacheRoot)
+    expect($returned)->toBe($this->cacheRoot)
         ->and($cachedPath)->toBeFile()
         ->and(hash_file('sha256', $cachedPath))->toBe($sha);
 
@@ -258,7 +255,7 @@ it('fetches the manifest and selects the correct {os}-{arch}/version entry, then
     Http::assertNotSent(fn ($request) => $request->url() === $wrongUrl);
 });
 
-it('validates a bare-url entry (no sha256) as a real zip via ZipArchive', function () use ($cacheRoot) {
+it('validates a bare-url entry (no sha256) as a real zip via ZipArchive', function () {
     $os = 'mac';
     $arch = 'x64';
     $version = '8.3';
@@ -279,13 +276,13 @@ it('validates a bare-url entry (no sha256) as a real zip via ZipArchive', functi
     $downloader = new PhpBinaryDownloader;
     $returned = $downloader->ensure($os, $arch, $version);
 
-    $cachedPath = Path::join($cacheRoot, $os, $arch, "php-{$version}.zip");
+    $cachedPath = Path::join($this->cacheRoot, $os, $arch, "php-{$version}.zip");
 
-    expect($returned)->toBe($cacheRoot)
+    expect($returned)->toBe($this->cacheRoot)
         ->and($cachedPath)->toBeFile();
 });
 
-it('rejects a sha256 mismatch and writes nothing to the cache', function () use ($cacheRoot) {
+it('rejects a sha256 mismatch and writes nothing to the cache', function () {
     $os = 'mac';
     $arch = 'arm64';
     $version = '8.3';
@@ -310,12 +307,12 @@ it('rejects a sha256 mismatch and writes nothing to the cache', function () use 
     expect(fn () => $downloader->ensure($os, $arch, $version))
         ->toThrow(RuntimeException::class);
 
-    $cachedPath = Path::join($cacheRoot, $os, $arch, "php-{$version}.zip");
+    $cachedPath = Path::join($this->cacheRoot, $os, $arch, "php-{$version}.zip");
 
     // Nothing should be left in the cache: no final file and no temp .part files.
     expect($cachedPath)->not->toBeFile();
 
-    $leftovers = glob(Path::join($cacheRoot, $os, $arch, '*'));
+    $leftovers = glob(Path::join($this->cacheRoot, $os, $arch, '*'));
     expect($leftovers === false ? [] : $leftovers)->toBe([]);
 });
 
@@ -351,7 +348,7 @@ it('bypasses the resolver entirely when NATIVEPHP_BIN_SOURCE=local', function ()
     Http::assertNothingSent();
 });
 
-it('routes Builder::phpBinaryPath() through the R2 resolver when NATIVEPHP_BIN_SOURCE=r2', function () use ($cacheRoot) {
+it('routes Builder::phpBinaryPath() through the R2 resolver when NATIVEPHP_BIN_SOURCE=r2', function () {
     $os = match (PHP_OS_FAMILY) {
         'Windows' => 'win',
         'Darwin' => 'mac',
@@ -383,7 +380,44 @@ it('routes Builder::phpBinaryPath() through the R2 resolver when NATIVEPHP_BIN_S
 
     $path = $builder->phpBinaryPath();
 
-    // The build env var now points at the per-user cache root.
-    expect($path)->toBe($cacheRoot)
-        ->and(Path::join($cacheRoot, $os, $arch, "php-{$version}.zip"))->toBeFile();
+    // The build env var now points at the app's binaries directory.
+    expect($path)->toBe($this->cacheRoot)
+        ->and(Path::join($this->cacheRoot, $os, $arch, "php-{$version}.zip"))->toBeFile();
+});
+
+it('keeps downloads in nativephp/binaries and out of git', function () {
+    $zipBytes = fakeZipBytes();
+    $zipUrl = 'https://r2.example.com/mac/arm64/php-8.4.zip';
+
+    Http::fake([
+        'bin.nativephp.com/main/desktop/versions.json' => Http::response([
+            'versions' => ['8.4' => ['mac-arm64' => [['url' => $zipUrl, 'sha256' => hash('sha256', $zipBytes)]]]],
+        ]),
+        $zipUrl => Http::response($zipBytes, 200),
+    ]);
+
+    (new PhpBinaryDownloader)->ensure('mac', 'arm64', '8.4');
+
+    expect(base_path('nativephp/binaries/main/mac/arm64/php-8.4.zip'))->toBeFile()
+        ->and(file_get_contents(base_path('nativephp/binaries/.gitignore')))->toBe('*'.PHP_EOL);
+});
+
+it('keeps each branch in its own directory', function () {
+    putenv('NATIVEPHP_BIN_BRANCH=feat/new-php/');
+    $_ENV['NATIVEPHP_BIN_BRANCH'] = 'feat/new-php/';
+
+    $zipBytes = fakeZipBytes();
+    $zipUrl = 'https://r2.example.com/feat/mac/arm64/php-8.4.zip';
+
+    Http::fake([
+        'bin.nativephp.com/feat/new-php/desktop/versions.json' => Http::response([
+            'versions' => ['8.4' => ['mac-arm64' => [['url' => $zipUrl, 'sha256' => hash('sha256', $zipBytes)]]]],
+        ]),
+        $zipUrl => Http::response($zipBytes, 200),
+    ]);
+
+    $returned = (new PhpBinaryDownloader)->ensure('mac', 'arm64', '8.4');
+
+    expect($returned)->toBe(Path::join(base_path('nativephp/binaries'), 'feat-new-php'))
+        ->and(Path::join($returned, 'mac/arm64/php-8.4.zip'))->toBeFile();
 });

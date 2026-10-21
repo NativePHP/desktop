@@ -21,7 +21,7 @@ trait LocatesPhpBinary
      * laid out as <path>/<os>/<arch>/php-<version>.zip.
      *
      * When the R2 source is in use this resolves (and, if needed, downloads)
-     * the binary into a per-user cache and returns that cache directory, so the
+     * the binary into nativephp/binaries and returns that directory, so the
      * existing php.js / build flow works unchanged. Otherwise it returns the
      * bundled vendor/nativephp/php-bin/bin/ directory, or the custom
      * NATIVEPHP_PHP_BINARY_PATH.

@@ -12,8 +12,8 @@ use function Laravel\Prompts\warning;
 
 /**
  * Resolves NativePHP desktop PHP binaries from Cloudflare R2 (via the
- * https://bin.nativephp.com/{branch}/desktop/versions.json manifest) into a
- * per-user cache, local-first.
+ * https://bin.nativephp.com/{branch}/desktop/versions.json manifest) into
+ * nativephp/binaries in the app.
  *
  * Mirrors the blessed local-first → download → validate flow used by
  * nativephp-mobile-air's InstallsAndroid / InstallsIos traits.
@@ -34,8 +34,8 @@ class PhpBinaryDownloader
 
     /**
      * Ensure the PHP binary zip for the given {os}-{arch}/version exists in the
-     * per-user cache, downloading it from R2 if necessary, and return the cache
-     * root directory.
+     * cache, downloading it from R2 if necessary, and return the cache root
+     * directory.
      *
      * The returned directory is laid out as:
      *   <cacheRoot>/<os>/<arch>/php-<version>.zip
@@ -73,6 +73,7 @@ class PhpBinaryDownloader
         }
 
         $this->ensureDirectoryExists(dirname($targetFile));
+        $this->ensureIgnoredByGit();
 
         $lastError = null;
 
@@ -161,36 +162,44 @@ class PhpBinaryDownloader
     }
 
     /**
-     * The per-user cache root: ~/.nativephp/bin (with ~ resolved properly).
+     * Where downloaded binaries are kept: nativephp/binaries in the app,
+     * scoped to the branch they came from, the same as nativephp/mobile.
      *
-     * May be overridden with NATIVEPHP_BIN_CACHE_PATH (an absolute path or a
-     * path beginning with ~ which is expanded to the user's home directory).
+     * The zips are named for the PHP minor only, so main and a feature branch
+     * both publish php-8.4.zip. Without the branch in the path, switching
+     * NATIVEPHP_BIN_BRANCH back and forth would download them every time.
      */
     public function cacheRoot(): string
     {
-        $override = env('NATIVEPHP_BIN_CACHE_PATH');
+        return Path::join($this->binariesDirectory(), $this->branchSegment());
+    }
 
-        if (is_string($override) && $override !== '') {
-            return $this->expandTilde($override);
-        }
-
-        return Path::join($this->homeDirectory(), '.nativephp', 'bin');
+    protected function binariesDirectory(): string
+    {
+        return base_path('nativephp/binaries');
     }
 
     /**
-     * Expand a leading ~ to the user's home directory.
+     * The branch as one safe path segment, so feat/foo doesn't nest
+     * directories or collide with a branch named feat.
      */
-    protected function expandTilde(string $path): string
+    protected function branchSegment(): string
     {
-        if ($path === '~') {
-            return $this->homeDirectory();
-        }
+        return preg_replace('/[^A-Za-z0-9._-]+/', '-', $this->branch()) ?: 'main';
+    }
 
-        if (str_starts_with($path, '~/') || str_starts_with($path, '~\\')) {
-            return Path::join($this->homeDirectory(), substr($path, 2));
-        }
+    /**
+     * Keep the binaries out of version control. Unlike mobile, the whole of
+     * nativephp/ can't be ignored, because a published Electron project
+     * lives in nativephp/electron.
+     */
+    protected function ensureIgnoredByGit(): void
+    {
+        $gitignore = Path::join($this->binariesDirectory(), '.gitignore');
 
-        return $path;
+        if (! is_file($gitignore)) {
+            file_put_contents($gitignore, '*'.PHP_EOL);
+        }
     }
 
     /**
@@ -370,32 +379,11 @@ class PhpBinaryDownloader
         return "https://bin.nativephp.com/{$this->branch()}/desktop/versions.json";
     }
 
+    /** NATIVEPHP_BIN_BRANCH as set, or main. */
     protected function branch(): string
     {
-        return env('NATIVEPHP_BIN_BRANCH', 'main');
-    }
+        $branch = trim((string) env('NATIVEPHP_BIN_BRANCH', ''), " \t/");
 
-    /**
-     * Resolve the current user's home directory cross-platform.
-     */
-    protected function homeDirectory(): string
-    {
-        $home = getenv('HOME');
-
-        if ($home === false || $home === '') {
-            // Windows fallback.
-            $drive = getenv('HOMEDRIVE');
-            $path = getenv('HOMEPATH');
-
-            if ($drive !== false && $path !== false) {
-                $home = $drive.$path;
-            }
-        }
-
-        if ($home === false || $home === '') {
-            $home = getenv('USERPROFILE') ?: sys_get_temp_dir();
-        }
-
-        return $home;
+        return $branch === '' ? 'main' : $branch;
     }
 }
