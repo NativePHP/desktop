@@ -3,7 +3,7 @@
 use Native\Desktop\Builder\Builder;
 use Symfony\Component\Filesystem\Filesystem;
 
-it('can copy the default CA certificate from php-bin', function () {
+it('can copy the CA certificate bundled with the package', function () {
 
     $builder = resolve(Builder::class);
     $certificatePath = $builder->buildPath('cacert.pem');

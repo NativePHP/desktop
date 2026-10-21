@@ -38,15 +38,14 @@
     },
     "require": {
         "php": "^8.3",
+        "guzzlehttp/guzzle": "^7.8|^8.0",
         "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
         "laravel/prompts": "^0.1.1|^0.2|^0.3",
-        "nativephp/php-bin": "^1.0",
         "spatie/laravel-package-tools": "^1.16.4",
         "symfony/filesystem": "^6.4|^7.2|^8.0",
         "ext-zip": "*"
     },
     "require-dev": {
-        "guzzlehttp/guzzle": "^7.0",
         "laravel/pint": "^1.0",
         "larastan/larastan": "^2.0|^3.1",
         "nunomaduro/collision": "^7.11|^8.1.1",
@@ -58,6 +57,9 @@
         "phpstan/phpstan-deprecation-rules": "^1.0|^2.0",
         "phpstan/phpstan-phpunit": "^1.0|^2.0",
         "spatie/laravel-ray": "^1.26"
+    },
+    "suggest": {
+        "nativephp/php-bin": "Bundled PHP binaries for working offline. Used when the binaries can't be downloaded, or always with NATIVEPHP_BIN_SOURCE=local."
     },
     "autoload": {
         "psr-4": {

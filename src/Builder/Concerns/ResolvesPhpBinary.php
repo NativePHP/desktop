@@ -14,8 +14,8 @@ use function Laravel\Prompts\warning;
  *   - "r2" (default): resolve the binary from Cloudflare R2 (via the
  *     versions.json manifest) into a per-user cache and point
  *     NATIVEPHP_PHP_BINARY_PATH there.
- *   - "local": use the bundled vendor/nativephp/php-bin binaries, or the
- *     custom NATIVEPHP_PHP_BINARY_PATH.
+ *   - "local": use the binaries from nativephp/php-bin (which apps have to
+ *     require themselves), or the custom NATIVEPHP_PHP_BINARY_PATH.
  *
  * When NATIVEPHP_BIN_SOURCE is not set but NATIVEPHP_PHP_BINARY_PATH is, the
  * app ships its own binaries, so "local" is used.
@@ -88,18 +88,27 @@ trait ResolvesPhpBinary
     }
 
     /**
-     * Run an R2 resolve, falling back to the bundled binaries when R2 can't
-     * provide one (offline, manifest missing, platform not published yet).
+     * Run an R2 resolve. When R2 can't provide a binary (offline, manifest
+     * missing, platform not published yet), fall back to nativephp/php-bin
+     * if the app has installed it.
      *
      * php.js reads every binary from a single directory, so a build either
-     * gets all of its binaries from R2 or all of them from the bundle.
+     * gets all of its binaries from R2 or all of them from php-bin.
      */
     protected function withBundledFallback(callable $resolve): string
     {
         try {
             return $resolve();
         } catch (RuntimeException $e) {
-            warning('Could not get the PHP binary from R2, using the bundled nativephp/php-bin binaries instead, which may be out of date. '.$e->getMessage());
+            if (! is_dir($this->bundledPhpBinaryPath())) {
+                throw new RuntimeException(
+                    'Could not get the PHP binary from R2. '.$e->getMessage()
+                    .' To work offline, install the bundled binaries with `composer require nativephp/php-bin`.',
+                    previous: $e
+                );
+            }
+
+            warning('Could not get the PHP binary from R2, using the nativephp/php-bin binaries instead, which may be out of date. '.$e->getMessage());
 
             return $this->bundledPhpBinaryPath();
         }

@@ -15,7 +15,7 @@ trait CopiesCertificateAuthority
     public function copyCertificateAuthority(): void
     {
         try {
-            $srcPath = Composer::phpPackagePath('cacert.pem');
+            $srcPath = Composer::desktopPackagePath('resources/cacert.pem');
             $destPath = ElectronServiceProvider::buildPath();
 
             if (! file_exists($srcPath)) {

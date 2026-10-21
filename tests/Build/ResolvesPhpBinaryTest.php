@@ -167,15 +167,32 @@ it('fetches the manifest once when prefetching several build targets', function 
     Http::assertSentCount(3);
 });
 
-it('falls back to the bundled binaries when R2 has nothing usable', function () {
+it('falls back to nativephp/php-bin when R2 has nothing usable and php-bin is installed', function () {
+    $appPath = testsDir('_test_app');
+    (new Filesystem)->mkdir(Path::join($appPath, 'vendor/nativephp/php-bin/bin'));
+
     Http::fake([
         'bin.nativephp.com/*' => Http::response('', 404),
     ]);
 
-    $builder = resolve(Builder::class);
+    try {
+        $builder = Builder::make(buildPath: testsDir('_test_app_build'), sourcePath: $appPath);
 
-    expect($builder->usesR2BinarySource())->toBeTrue()
-        ->and($builder->phpBinaryPath())->toEndWith('vendor/nativephp/php-bin/bin');
+        expect($builder->phpBinaryPath())->toBe(Path::join($appPath, 'vendor/nativephp/php-bin/bin'));
+    } finally {
+        (new Filesystem)->remove($appPath);
+    }
+});
+
+it('says how to work offline when R2 has nothing usable and php-bin is not installed', function () {
+    Http::fake([
+        'bin.nativephp.com/*' => Http::response('', 404),
+    ]);
+
+    $builder = Builder::make(buildPath: testsDir('_test_app_build'), sourcePath: testsDir('_test_app'));
+
+    expect(fn () => $builder->phpBinaryPath())
+        ->toThrow(RuntimeException::class, 'composer require nativephp/php-bin');
 });
 
 it('uses R2 by default unless the app points at its own binaries', function () {
