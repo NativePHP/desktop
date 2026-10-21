@@ -7,7 +7,8 @@ use RuntimeException;
 use Symfony\Component\Filesystem\Path;
 use ZipArchive;
 
-use function Laravel\Prompts\task;
+use function Laravel\Prompts\spin;
+use function Laravel\Prompts\warning;
 
 /**
  * Resolves NativePHP desktop PHP binaries from Cloudflare R2 (via the
@@ -25,6 +26,13 @@ class PhpBinaryDownloader
     protected int $maxAttempts = 3;
 
     /**
+     * The decoded manifest, fetched at most once per process.
+     *
+     * @var array<string, mixed>|null
+     */
+    protected ?array $manifest = null;
+
+    /**
      * Ensure the PHP binary zip for the given {os}-{arch}/version exists in the
      * per-user cache, downloading it from R2 if necessary, and return the cache
      * root directory.
@@ -34,80 +42,50 @@ class PhpBinaryDownloader
      * so it can be handed straight to NATIVEPHP_PHP_BINARY_PATH and consumed,
      * unchanged, by resources/electron/php.js and LocatesPhpBinary.
      *
+     * The R2 keys only carry the PHP minor and are overwritten by every weekly
+     * build, so a cached zip is only reused while its sha256 still matches the
+     * manifest. If the manifest can't be reached, a cached zip is used as is.
+     *
      * @return string Absolute path to the cache root directory (no trailing slash forced).
      */
     public function ensure(string $os, string $arch, string $version): string
     {
         $cacheRoot = $this->cacheRoot();
         $targetFile = $this->cachedZipPath($os, $arch, $version);
+        $platformKey = "{$os}-{$arch}";
 
-        $expectedSha256 = null;
-        $entry = null;
-
-        // Local-first: if the zip is already cached and (when we can cheaply
-        // know it) we have no reason to distrust it, short-circuit the download.
-        if (is_file($targetFile)) {
-            // We don't have manifest metadata yet, so trust an existing valid
-            // cached file unless we later learn its sha256 doesn't match.
-            if ($this->isValidZip($targetFile)) {
-                return $cacheRoot;
+        try {
+            $entry = $this->selectEntry($this->manifest(), $os, $arch, $version);
+        } catch (RuntimeException $e) {
+            if (! $this->isValidZip($targetFile)) {
+                throw $e;
             }
 
-            // Corrupt cache entry — remove it and fall through to re-download.
-            @unlink($targetFile);
-        }
+            warning("Could not check for a newer PHP {$version} binary ({$platformKey}), using the cached copy. {$e->getMessage()}");
 
-        // Fetch the manifest and resolve the entry for this platform/version.
-        $manifest = $this->fetchManifest();
-        $entry = $this->selectEntry($manifest, $os, $arch, $version);
+            return $cacheRoot;
+        }
 
         [$url, $expectedSha256, $expectedSize] = $this->normaliseEntry($entry);
 
-        $this->ensureDirectoryExists(dirname($targetFile));
+        if ($this->isCurrent($targetFile, $expectedSha256)) {
+            return $cacheRoot;
+        }
 
-        $platformKey = "{$os}-{$arch}";
+        $this->ensureDirectoryExists(dirname($targetFile));
 
         $lastError = null;
 
         for ($attempt = 1; $attempt <= $this->maxAttempts; $attempt++) {
             $label = $attempt === 1
                 ? "Downloading PHP {$version} binary ({$platformKey})"
-                : "Downloading PHP {$version} binary ({$platformKey}) — retry {$attempt}/{$this->maxAttempts}";
+                : "Downloading PHP {$version} binary ({$platformKey}), retry {$attempt}/{$this->maxAttempts}";
 
             $tempFile = $targetFile.'.'.bin2hex(random_bytes(6)).'.part';
 
-            $ok = task($label, function () use ($url, $tempFile, $expectedSha256, &$lastError) {
-                try {
-                    $this->downloadTo($url, $tempFile);
-                } catch (\Throwable $e) {
-                    $lastError = $e->getMessage();
-                    @unlink($tempFile);
+            $lastError = spin(fn () => $this->downloadAndVerify($url, $tempFile, $expectedSha256, $expectedSize), $label);
 
-                    return false;
-                }
-
-                // Validate: prefer sha256 when the manifest provides it,
-                // otherwise fall back to verifying it is a real zip archive.
-                if ($expectedSha256 !== null) {
-                    $actual = hash_file('sha256', $tempFile);
-
-                    if (! hash_equals(strtolower($expectedSha256), strtolower((string) $actual))) {
-                        $lastError = 'SHA-256 mismatch (expected '.$expectedSha256.', got '.$actual.')';
-                        @unlink($tempFile);
-
-                        return false;
-                    }
-                } elseif (! $this->isValidZip($tempFile)) {
-                    $lastError = 'Downloaded file is not a valid ZIP archive';
-                    @unlink($tempFile);
-
-                    return false;
-                }
-
-                return true;
-            });
-
-            if ($ok) {
+            if ($lastError === null) {
                 // Atomic publish: temp file → final cache path.
                 if (! @rename($tempFile, $targetFile)) {
                     @unlink($tempFile);
@@ -117,17 +95,69 @@ class PhpBinaryDownloader
 
                 return $cacheRoot;
             }
+
+            @unlink($tempFile);
         }
 
-        $message = "Failed to download PHP {$version} binary for {$platformKey} from R2 after {$this->maxAttempts} attempts.";
+        // An older verified download still beats falling back to the bundled binaries.
+        if ($this->isValidZip($targetFile)) {
+            warning("Could not download the latest PHP {$version} binary ({$platformKey}), using the cached copy. Last error: {$lastError}.");
 
-        if ($lastError !== null) {
-            $message .= " Last error: {$lastError}.";
+            return $cacheRoot;
         }
 
-        $message .= ' Check your internet connection, or set NATIVEPHP_BIN_SOURCE=local to use the bundled vendor/nativephp/php-bin binaries.';
+        throw new RuntimeException(
+            "Failed to download PHP {$version} binary for {$platformKey} from R2 after {$this->maxAttempts} attempts. Last error: {$lastError}."
+        );
+    }
 
-        throw new RuntimeException($message);
+    /**
+     * Download a binary and check it against the manifest metadata.
+     *
+     * @return string|null The reason the download is unusable, or null when it's good.
+     */
+    protected function downloadAndVerify(string $url, string $destination, ?string $expectedSha256, ?int $expectedSize): ?string
+    {
+        try {
+            $this->downloadTo($url, $destination);
+        } catch (\Throwable $e) {
+            return $e->getMessage();
+        }
+
+        if ($expectedSize !== null && filesize($destination) !== $expectedSize) {
+            return 'Size mismatch (expected '.$expectedSize.' bytes, got '.filesize($destination).')';
+        }
+
+        // Prefer sha256 when the manifest provides it, otherwise fall back
+        // to checking that it is a real zip archive.
+        if ($expectedSha256 !== null) {
+            $actual = (string) hash_file('sha256', $destination);
+
+            if (! hash_equals(strtolower($expectedSha256), strtolower($actual))) {
+                return 'SHA-256 mismatch (expected '.$expectedSha256.', got '.$actual.')';
+            }
+
+            return null;
+        }
+
+        return $this->isValidZip($destination) ? null : 'Downloaded file is not a valid ZIP archive';
+    }
+
+    /**
+     * Whether the cached zip is the one the manifest currently points at.
+     * Plain-URL entries carry no checksum, so any valid zip counts.
+     */
+    protected function isCurrent(string $file, ?string $expectedSha256): bool
+    {
+        if (! $this->isValidZip($file)) {
+            return false;
+        }
+
+        if ($expectedSha256 === null) {
+            return true;
+        }
+
+        return hash_equals(strtolower($expectedSha256), strtolower((string) hash_file('sha256', $file)));
     }
 
     /**
@@ -169,6 +199,14 @@ class PhpBinaryDownloader
     public function cachedZipPath(string $os, string $arch, string $version): string
     {
         return Path::join($this->cacheRoot(), $os, $arch, "php-{$version}.zip");
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function manifest(): array
+    {
+        return $this->manifest ??= $this->fetchManifest();
     }
 
     /**

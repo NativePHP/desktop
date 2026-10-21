@@ -3,23 +3,43 @@
 namespace Native\Desktop\Builder\Concerns;
 
 use Native\Desktop\Builder\PhpBinaryDownloader;
+use RuntimeException;
+
+use function Laravel\Prompts\warning;
 
 /**
- * Local-first download resolver for NativePHP desktop PHP binaries.
+ * Download resolver for NativePHP desktop PHP binaries.
  *
- * Gated behind NATIVEPHP_BIN_SOURCE:
- *   - "local" (default): bundled vendor/nativephp/php-bin behaviour (unchanged).
- *   - "r2": resolve the binary from Cloudflare R2 (via the versions.json
- *     manifest) into a per-user cache and point NATIVEPHP_PHP_BINARY_PATH there.
+ * Controlled by NATIVEPHP_BIN_SOURCE:
+ *   - "r2" (default): resolve the binary from Cloudflare R2 (via the
+ *     versions.json manifest) into a per-user cache and point
+ *     NATIVEPHP_PHP_BINARY_PATH there.
+ *   - "local": use the bundled vendor/nativephp/php-bin binaries, or the
+ *     custom NATIVEPHP_PHP_BINARY_PATH.
+ *
+ * When NATIVEPHP_BIN_SOURCE is not set but NATIVEPHP_PHP_BINARY_PATH is, the
+ * app ships its own binaries, so "local" is used.
  */
 trait ResolvesPhpBinary
 {
+    /**
+     * The binary directory this builder has settled on, so the manifest and
+     * downloads are only dealt with once per build or serve.
+     */
+    protected ?string $resolvedPhpBinaryPath = null;
+
     /**
      * Whether the R2 download resolver is enabled.
      */
     public function usesR2BinarySource(): bool
     {
-        return strtolower((string) env('NATIVEPHP_BIN_SOURCE', 'local')) === 'r2';
+        $source = strtolower((string) env('NATIVEPHP_BIN_SOURCE', ''));
+
+        if ($source !== '') {
+            return $source === 'r2';
+        }
+
+        return env('NATIVEPHP_PHP_BINARY_PATH') === null;
     }
 
     /**
@@ -56,13 +76,33 @@ trait ResolvesPhpBinary
     {
         $version ??= $this->currentPhpVersion();
 
-        $cacheRoot = $this->phpBinaryDownloader()->cacheRoot();
+        return $this->resolvedPhpBinaryPath = $this->withBundledFallback(function () use ($buildTarget, $version) {
+            $cacheRoot = $this->phpBinaryDownloader()->cacheRoot();
 
-        foreach ($this->expandBuildTargets($buildTarget) as [$os, $arch]) {
-            $cacheRoot = $this->phpBinaryDownloader()->ensure($os, $arch, $version);
+            foreach ($this->expandBuildTargets($buildTarget) as [$os, $arch]) {
+                $cacheRoot = $this->phpBinaryDownloader()->ensure($os, $arch, $version);
+            }
+
+            return $cacheRoot;
+        });
+    }
+
+    /**
+     * Run an R2 resolve, falling back to the bundled binaries when R2 can't
+     * provide one (offline, manifest missing, platform not published yet).
+     *
+     * php.js reads every binary from a single directory, so a build either
+     * gets all of its binaries from R2 or all of them from the bundle.
+     */
+    protected function withBundledFallback(callable $resolve): string
+    {
+        try {
+            return $resolve();
+        } catch (RuntimeException $e) {
+            warning('Could not get the PHP binary from R2, using the bundled nativephp/php-bin binaries instead, which may be out of date. '.$e->getMessage());
+
+            return $this->bundledPhpBinaryPath();
         }
-
-        return $cacheRoot;
     }
 
     /**
