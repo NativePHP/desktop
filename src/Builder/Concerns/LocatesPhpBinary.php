@@ -4,6 +4,8 @@ namespace Native\Desktop\Builder\Concerns;
 
 trait LocatesPhpBinary
 {
+    use ResolvesPhpBinary;
+
     abstract public function sourcePath(string $path = ''): string;
 
     /**
@@ -15,11 +17,29 @@ trait LocatesPhpBinary
     }
 
     /**
-     * Returns the path to the PHP binary.
+     * Returns the path to the directory containing the PHP binary zips,
+     * laid out as <path>/<os>/<arch>/php-<version>.zip.
      *
-     * @return string The path to the PHP binary (not including the filename)
+     * When the R2 source is in use this resolves (and, if needed, downloads)
+     * the binary into nativephp/binaries and returns that directory, so the
+     * existing php.js / build flow works unchanged. Otherwise it returns the
+     * bundled vendor/nativephp/php-bin/bin/ directory, or the custom
+     * NATIVEPHP_PHP_BINARY_PATH.
+     *
+     * @return string The path to the PHP binary directory (not including the filename)
      */
     public function phpBinaryPath(): string
+    {
+        if (! $this->usesR2BinarySource()) {
+            return $this->bundledPhpBinaryPath();
+        }
+
+        return $this->resolvedPhpBinaryPath ??= $this->withBundledFallback(
+            fn () => $this->resolvePhpBinaryFromR2()
+        );
+    }
+
+    protected function bundledPhpBinaryPath(): string
     {
         return $this->sourcePath($this->binaryPackageDirectory().'bin/');
     }

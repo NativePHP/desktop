@@ -16,11 +16,6 @@ class Composer
         return Path::join(__DIR__, '../../', $path);
     }
 
-    public static function phpPackagePath(string $path = '')
-    {
-        return self::vendorPath("nativephp/php-bin/{$path}");
-    }
-
     public static function vendorPath(string $path = '')
     {
         $rootPath = realpath(InstalledVersions::getRootPackage()['install_path']);

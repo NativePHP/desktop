@@ -58,6 +58,12 @@ class BuildCommand extends Command
             $this->buildCommand = 'publish';
         }
 
+        if ($this->builder->usesR2BinarySource()) {
+            $this->newLine();
+            intro('Resolving PHP binaries from R2...');
+            $this->builder->prefetchPhpBinariesForBuild($this->buildOS);
+        }
+
         if ($this->builder->hasBundled()) {
             $this->buildBundle();
         } else {

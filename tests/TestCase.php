@@ -14,6 +14,10 @@ class TestCase extends Orchestra
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Keep tests off the network. Tests that cover the R2 resolver opt in.
+        putenv('NATIVEPHP_BIN_SOURCE=local');
+        $_ENV['NATIVEPHP_BIN_SOURCE'] = 'local';
     }
 
     protected function getPackageProviders($app)
