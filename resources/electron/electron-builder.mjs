@@ -30,6 +30,7 @@ const macBundleName = appName ? appName.normalize('NFD') : undefined;
 const azureEndpoint = process.env.NATIVEPHP_AZURE_ENDPOINT;
 const azureCertificateProfileName = process.env.NATIVEPHP_AZURE_CERTIFICATE_PROFILE_NAME;
 const azureCodeSigningAccountName = process.env.NATIVEPHP_AZURE_CODE_SIGNING_ACCOUNT_NAME;
+const azurePublisherName = process.env.NATIVEPHP_AZURE_PUBLISHER_NAME;
 
 // Since we do not copy the php executable here, we only need these for building
 const isWindows = process.argv.includes('--win');
@@ -99,6 +100,7 @@ export default {
         ...(azureEndpoint && azureCertificateProfileName && azureCodeSigningAccountName
             ? {
                   azureSignOptions: {
+                      publisherName: azurePublisherName,
                       endpoint: azureEndpoint,
                       certificateProfileName: azureCertificateProfileName,
                       codeSigningAccountName: azureCodeSigningAccountName,
