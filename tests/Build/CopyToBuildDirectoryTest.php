@@ -240,3 +240,26 @@ it('keeps cleanup_include_files if their parent directory is excluded', function
     expect("$buildPath/app/excluded/foo/remove.txt")->not->toBeFile();
     expect("$buildPath/app/excluded/foo/keep.txt")->toBeFile();
 });
+
+it('supports brace patterns in cleanup_include_files', function () use ($sourcePath, $buildPath, $command) {
+
+    createFiles([
+        "$sourcePath/excluded/foo/keep.txt",
+        "$sourcePath/excluded/bar/keep.txt",
+        "$sourcePath/excluded/baz/remove.txt",
+    ]);
+
+    config()->set('nativephp.cleanup_exclude_files', [
+        'excluded/*',
+    ]);
+
+    config()->set('nativephp-internal.cleanup_include_files', [
+        'excluded/{foo,bar}/keep.txt',
+    ]);
+
+    $command->copyToBuildDirectory();
+
+    expect("$buildPath/app/excluded/foo/keep.txt")->toBeFile();
+    expect("$buildPath/app/excluded/bar/keep.txt")->toBeFile();
+    expect("$buildPath/app/excluded/baz/remove.txt")->not->toBeFile();
+})->skip(! defined('GLOB_BRACE'), 'GLOB_BRACE is not available on this platform');

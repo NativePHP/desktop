@@ -137,7 +137,11 @@ trait CopiesToBuildDirectory
             // Normalize the pattern path separators
             $pattern = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $pattern);
 
-            $matchingFiles = glob($sourcePath.DIRECTORY_SEPARATOR.$pattern, GLOB_BRACE);
+            // GLOB_BRACE is unavailable on some systems (e.g. musl/Alpine, Solaris)
+            // so only pass it when the platform defines it
+            $flags = defined('GLOB_BRACE') ? GLOB_BRACE : 0;
+
+            $matchingFiles = glob($sourcePath.DIRECTORY_SEPARATOR.$pattern, $flags);
 
             foreach ($matchingFiles as $sourceFile) {
                 $relativePath = substr($sourceFile, strlen($sourcePath) + 1);
