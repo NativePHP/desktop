@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
 import { join } from 'path';
 
 const appUrl = process.env.APP_URL;
@@ -91,7 +91,22 @@ export default {
         }
 
         console.log(`  • building php binary - exec php.js --${targetOs} --${arch}`);
-        exec(`node php.js --${targetOs} --${arch}`);
+
+        // electron-builder copies NATIVEPHP_BUILD_PATH into the app as soon as this hook resolves,
+        // so php.js has to have finished unzipping by then. Otherwise the app can ship without a
+        // PHP binary, or with one left over from an earlier build. Rejecting fails the build.
+        await new Promise((resolve, reject) => {
+            const php = spawn(process.execPath, ['php.js', `--${targetOs}`, `--${arch}`], { stdio: 'inherit' });
+
+            php.on('error', reject);
+            php.on('close', (code, signal) => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`php.js failed (${signal ?? `exit code ${code}`})`));
+                }
+            });
+        });
     },
     afterSign: 'build/notarize.js',
     win: {

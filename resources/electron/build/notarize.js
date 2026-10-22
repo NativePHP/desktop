@@ -7,20 +7,19 @@ export default async (context) => {
     // And the current build target is macOS
     if (context.packager.platform.name !== 'mac') return;
 
-    console.log('aftersign hook triggered, start to notarize app.');
-
+    // BuildCommand always passes these, as empty strings when they aren't configured
     if (
-        !(
-            'NATIVEPHP_APPLE_ID' in process.env &&
-            'NATIVEPHP_APPLE_ID_PASS' in process.env &&
-            'NATIVEPHP_APPLE_TEAM_ID' in process.env
-        )
+        !process.env.NATIVEPHP_APPLE_ID ||
+        !process.env.NATIVEPHP_APPLE_ID_PASS ||
+        !process.env.NATIVEPHP_APPLE_TEAM_ID
     ) {
         console.warn(
             'skipping notarizing, NATIVEPHP_APPLE_ID, NATIVEPHP_APPLE_ID_PASS and NATIVEPHP_APPLE_TEAM_ID env variables must be set.',
         );
         return;
     }
+
+    console.log('aftersign hook triggered, start to notarize app.');
 
     const appId = process.env.NATIVEPHP_APP_ID;
 
