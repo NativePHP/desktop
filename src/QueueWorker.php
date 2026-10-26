@@ -6,6 +6,9 @@ use Native\Desktop\Contracts\ChildProcess as ChildProcessContract;
 use Native\Desktop\Contracts\QueueWorker as QueueWorkerContract;
 use Native\Desktop\DataObjects\QueueConfig;
 
+/**
+ * @deprecated v3 has no QueueWorker class. Its queue workers come from the queue_workers config alone. Nothing changes in v2.
+ */
 class QueueWorker implements QueueWorkerContract
 {
     public function __construct(
