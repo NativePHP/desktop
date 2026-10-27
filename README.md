@@ -31,7 +31,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Please see [Contributing](/nativephp/desktop?tab=contributing-ov-file) for details.
 
 ## Security Vulnerabilities
 
