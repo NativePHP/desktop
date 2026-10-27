@@ -37,16 +37,25 @@ class App
         return $this->client->get('app/is-hidden')->json('is_hidden');
     }
 
+    /**
+     * @deprecated v3 moves this to System::language(), which v2 does not have yet.
+     */
     public function getLocale(): string
     {
         return $this->client->get('app/locale')->json('locale');
     }
 
+    /**
+     * @deprecated v3 moves this to System::region(), which v2 does not have yet.
+     */
     public function getLocaleCountryCode(): string
     {
         return $this->client->get('app/locale-country-code')->json('locale_country_code');
     }
 
+    /**
+     * @deprecated v3 moves this to System::locale(), which v2 does not have yet.
+     */
     public function getSystemLocale(): string
     {
         return $this->client->get('app/system-locale')->json('system_locale');
@@ -57,6 +66,9 @@ class App
         return $this->client->get('app/version')->json('version');
     }
 
+    /**
+     * @deprecated Use Dock::badge(?string $label) instead, v3 removes this method.
+     */
     public function badgeCount($count = null): int
     {
         if ($count === null) {
@@ -111,6 +123,9 @@ class App
         return (bool) $this->client->get('app/is-emoji-panel-supported')->json('supported');
     }
 
+    /**
+     * @deprecated v3 removes this method and replaces it with a Blade element. There is no v2 replacement.
+     */
     public function showEmojiPanel(): void
     {
         $this->client->post('app/show-emoji-panel');

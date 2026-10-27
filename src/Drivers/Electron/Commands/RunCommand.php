@@ -13,6 +13,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 
 use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
+use function Laravel\Prompts\warning;
 
 #[AsCommand(
     name: 'native:run',
@@ -35,6 +36,10 @@ class RunCommand extends Command
 
     public function handle(): void
     {
+        if ($this->option('no-queue')) {
+            warning('[Deprecated] - The `--no-queue` option does nothing and will be removed in v3.x. To start no queue workers, set `queue_workers` to an empty array in your config.');
+        }
+
         intro('Starting NativePHP dev server…');
 
         note('Fetching latest dependencies…');
