@@ -1,5 +1,5 @@
 import remote from '@electron/remote';
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 
 // -------------------------------------------------------------------
 // The Native helper
@@ -20,6 +20,10 @@ const Native = {
         const menu = remote.Menu.buildFromTemplate(template);
         menu.popup({ window: remote.getCurrentWindow() });
     },
+    // The file system path of a File from a drop or an <input type="file">.
+    // Electron 32 removed File.path and webUtils is only available in a preload.
+    // Returns an empty string when the File isn't backed by a file on disk.
+    getPathForFile: (file: File): string => webUtils.getPathForFile(file),
 };
 
 contextBridge.exposeInMainWorld('Native', Native);

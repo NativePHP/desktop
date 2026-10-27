@@ -1,5 +1,5 @@
 import remote from '@electron/remote';
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 const Native = {
     on: (event, callback) => {
         ipcRenderer.on('native-event', (_, data) => {
@@ -14,6 +14,7 @@ const Native = {
         const menu = remote.Menu.buildFromTemplate(template);
         menu.popup({ window: remote.getCurrentWindow() });
     },
+    getPathForFile: (file) => webUtils.getPathForFile(file),
 };
 contextBridge.exposeInMainWorld('Native', Native);
 ipcRenderer.on('log', (event, { level, message, context }) => {
