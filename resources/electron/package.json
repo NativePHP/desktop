@@ -80,7 +80,7 @@
         "@vitest/coverage-v8": "^4.1.8",
         "@vue/eslint-config-prettier": "^10.2.0",
         "cross-env": "^10.1.0",
-        "electron": "^40.10.2",
+        "electron": "^45.0.0",
         "electron-builder": "^26.8.1",
         "electron-chromedriver": "^40.10.2",
         "electron-vite": "^4.0.1",
