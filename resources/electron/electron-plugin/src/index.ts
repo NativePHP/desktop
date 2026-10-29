@@ -223,6 +223,8 @@ class NativePHP {
 
     private startAutoUpdater(config) {
         if (config?.updater?.enabled === true) {
+            autoUpdater.autoInstallOnAppQuit = config?.updater?.auto_install_on_app_quit !== false;
+
             // If a public URL is configured for the current provider, use it for updates
             const defaultProvider = config?.updater?.default;
             const publicUrl = config?.updater?.providers?.[defaultProvider]?.public_url;
