@@ -378,6 +378,14 @@ function getDefaultPhpIniSettings() {
     };
 }
 
+// How serveApp() launched the PHP server, kept so it can be launched again.
+let phpServerLaunch: {
+    serverPath: string;
+    cwd: string;
+    env: EnvironmentVariables;
+    phpIniSettings: Record<string, string>;
+} | null = null;
+
 async function serveApp(secret, apiPort, phpIniSettings): Promise<ProcessResult> {
     const appPath = getAppPath();
 
@@ -476,6 +484,19 @@ async function serveApp(secret, apiPort, phpIniSettings): Promise<ProcessResult>
 
     console.log('Starting PHP server...');
     const phpPort = await getPhpPort();
+
+    phpServerLaunch = { serverPath, cwd, env, phpIniSettings };
+
+    return startPhpServer(phpPort);
+}
+
+/**
+ * Starts `php -S` on the given port, the same way serveApp() first started it.
+ * The watchdog uses this to bring a dead or hung server back on its old port.
+ */
+function startPhpServer(phpPort: number): Promise<ProcessResult> {
+    const { serverPath, cwd, env, phpIniSettings } = phpServerLaunch;
+
     const phpServer = callPhp(
         ['-S', `127.0.0.1:${phpPort}`, serverPath],
         {
@@ -525,9 +546,12 @@ async function serveApp(secret, apiPort, phpIniSettings): Promise<ProcessResult>
             reject(error);
         });
 
-        // Log when the PHP server exits
+        // Log when the PHP server exits. If it never got as far as listening
+        // (the port was taken, say), fail the start rather than hang forever.
         phpServer.on('close', (code) => {
             console.log(`PHP server exited with code ${code}`);
+
+            reject(new Error(`PHP server exited with code ${code} before it started`));
         });
     });
 }
@@ -540,5 +564,6 @@ export {
     retrievePhpIniSettings,
     runningSecureBuild,
     serveApp,
+    startPhpServer,
     startScheduler,
 };

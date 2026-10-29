@@ -162,6 +162,18 @@ return [
     ],
 
     /**
+     * Electron keeps an eye on the PHP server behind your app's windows.
+     * If it exits, or stops answering health checks, it is restarted
+     * on the same port and your windows reload. Times are in seconds.
+     */
+    'watchdog' => [
+        'enabled' => env('NATIVEPHP_WATCHDOG_ENABLED', true),
+        'interval' => 30,
+        'timeout' => 10,
+        'misses' => 3,
+    ],
+
+    /**
      * Define your own scripts to run before and after the build process.
      */
     'prebuild' => [
