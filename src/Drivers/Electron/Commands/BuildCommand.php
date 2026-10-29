@@ -147,6 +147,8 @@ class BuildCommand extends Command
                 'NATIVEPHP_APP_COPYRIGHT' => config('nativephp.copyright'),
                 'NATIVEPHP_APP_FILENAME' => Str::slug(config('app.name')),
                 'NATIVEPHP_APP_AUTHOR' => config('nativephp.author'),
+                'NATIVEPHP_REPOSITORY_TYPE' => config('nativephp.repository.type'),
+                'NATIVEPHP_REPOSITORY_URL' => config('nativephp.repository.url'),
                 'NATIVEPHP_UPDATER_CONFIG' => json_encode(Updater::builderOptions()),
                 'NATIVEPHP_NSIS_DELETE_APP_DATA' => config('nativephp.nsis.delete_app_data_on_uninstall') ? 'true' : 'false',
                 'NATIVEPHP_DEEPLINK_SCHEME' => config('nativephp.deeplink_scheme'),
