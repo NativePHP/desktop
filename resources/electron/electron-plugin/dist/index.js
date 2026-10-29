@@ -14,9 +14,10 @@ import killSync from 'kill-sync';
 import { resolve } from 'path';
 import ps from 'ps-node';
 import { stopAllProcesses } from './server/api/childProcess.js';
-import { killScheduler, retrieveNativePHPConfig, retrievePhpIniSettings, runScheduler, startAPI, startPhpApp, } from './server/index.js';
+import { killScheduler, restartPhpServer, retrieveNativePHPConfig, retrievePhpIniSettings, runScheduler, startAPI, startPhpApp, } from './server/index.js';
 import state from './server/state.js';
-import { notifyLaravel } from './server/utils.js';
+import { notifyLaravel, pingPhpServer, reloadWindows } from './server/utils.js';
+import { PhpServerWatchdog, watchdogOptionsFromConfig } from './server/watchdog.js';
 import electronUpdater from 'electron-updater';
 const { autoUpdater } = electronUpdater;
 class NativePHP {
@@ -24,6 +25,7 @@ class NativePHP {
         this.processes = [];
         this.mainWindow = null;
         this.schedulerInterval = undefined;
+        this.phpWatchdog = null;
         this.quitting = false;
     }
     bootstrap(app, icon, phpBinary, cert, appPath) {
@@ -54,11 +56,13 @@ class NativePHP {
             }
         });
         app.on('before-quit', (event) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             if (this.quitting) {
                 return;
             }
             this.quitting = true;
             event.preventDefault();
+            (_a = this.phpWatchdog) === null || _a === void 0 ? void 0 : _a.stop();
             this.killChildProcesses();
             stopAllProcesses();
             const deadline = Date.now() + 12000;
@@ -87,14 +91,18 @@ class NativePHP {
             this.startAutoUpdater(config);
             yield this.startElectronApi();
             state.phpIni = yield this.loadPhpIni();
-            yield this.startPhpApp();
+            yield this.startPhpApp(config);
             this.startScheduler();
             powerMonitor.on('suspend', () => {
+                var _a;
                 this.stopScheduler();
+                (_a = this.phpWatchdog) === null || _a === void 0 ? void 0 : _a.pause();
             });
             powerMonitor.on('resume', () => {
+                var _a;
                 this.stopScheduler();
                 this.startScheduler();
+                (_a = this.phpWatchdog) === null || _a === void 0 ? void 0 : _a.resume();
             });
             const filter = {
                 urls: [`http://127.0.0.1:${state.phpPort}/*`],
@@ -199,9 +207,24 @@ class NativePHP {
             return config;
         });
     }
-    startPhpApp() {
+    startPhpApp(config) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.processes.push(yield startPhpApp());
+            var _a;
+            const phpServer = yield startPhpApp();
+            this.processes.push(phpServer);
+            if (((_a = config === null || config === void 0 ? void 0 : config.watchdog) === null || _a === void 0 ? void 0 : _a.enabled) === false) {
+                return;
+            }
+            this.phpWatchdog = new PhpServerWatchdog({
+                start: restartPhpServer,
+                ping: pingPhpServer,
+                reloadWindows,
+                onRestart: (previous, next) => {
+                    this.processes = this.processes.filter((p) => p !== previous);
+                    this.processes.push(next);
+                },
+            }, watchdogOptionsFromConfig(config === null || config === void 0 ? void 0 : config.watchdog));
+            this.phpWatchdog.watch(phpServer);
         });
     }
     stopScheduler() {
