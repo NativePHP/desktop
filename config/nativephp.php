@@ -102,6 +102,12 @@ return [
         'enabled' => env('NATIVEPHP_UPDATER_ENABLED', true),
 
         /**
+         * Whether a downloaded update should be installed automatically
+         * when the application quits.
+         */
+        'auto_install_on_app_quit' => env('NATIVEPHP_AUTO_INSTALL_ON_APP_QUIT', true),
+
+        /**
          * The updater provider to use.
          * Supported: "github", "s3", "spaces"
          * Note: The "s3" provider is compatible with S3-compatible services like Cloudflare R2.
