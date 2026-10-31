@@ -166,7 +166,7 @@ class NativePHP {
         }
     }
     startAutoUpdater(config) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
         if (((_a = config === null || config === void 0 ? void 0 : config.updater) === null || _a === void 0 ? void 0 : _a.enabled) === true) {
             const defaultProvider = (_b = config === null || config === void 0 ? void 0 : config.updater) === null || _b === void 0 ? void 0 : _b.default;
             const publicUrl = (_e = (_d = (_c = config === null || config === void 0 ? void 0 : config.updater) === null || _c === void 0 ? void 0 : _c.providers) === null || _d === void 0 ? void 0 : _d[defaultProvider]) === null || _e === void 0 ? void 0 : _e.public_url;
@@ -176,6 +176,7 @@ class NativePHP {
                     url: publicUrl,
                 });
             }
+            autoUpdater.autoDownload = ((_f = config === null || config === void 0 ? void 0 : config.updater) === null || _f === void 0 ? void 0 : _f.auto_download) !== false;
             autoUpdater.checkForUpdatesAndNotify();
         }
     }

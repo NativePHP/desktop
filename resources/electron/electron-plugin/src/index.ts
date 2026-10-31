@@ -234,6 +234,10 @@ class NativePHP {
                 });
             }
 
+            // With auto_download disabled, the startup check only reports the update
+            // (UpdateAvailable); the app downloads it with AutoUpdater::downloadUpdate().
+            autoUpdater.autoDownload = config?.updater?.auto_download !== false;
+
             autoUpdater.checkForUpdatesAndNotify();
         }
     }

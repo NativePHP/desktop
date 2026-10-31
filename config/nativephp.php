@@ -102,6 +102,13 @@ return [
         'enabled' => env('NATIVEPHP_UPDATER_ENABLED', true),
 
         /**
+         * Whether an available update is downloaded automatically. Set this
+         * to false to only check for updates on startup, then call
+         * AutoUpdater::downloadUpdate() once the user agrees.
+         */
+        'auto_download' => env('NATIVEPHP_UPDATER_AUTO_DOWNLOAD', true),
+
+        /**
          * The updater provider to use.
          * Supported: "github", "s3", "spaces"
          * Note: The "s3" provider is compatible with S3-compatible services like Cloudflare R2.
