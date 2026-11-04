@@ -177,6 +177,7 @@ class NativePHP {
                     url: publicUrl,
                 });
             }
+            autoUpdater.autoDownload = ((_f = config === null || config === void 0 ? void 0 : config.updater) === null || _f === void 0 ? void 0 : _f.auto_download) !== false;
             autoUpdater.checkForUpdatesAndNotify();
         }
     }

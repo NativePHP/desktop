@@ -111,6 +111,13 @@ return [
         'enabled' => env('NATIVEPHP_UPDATER_ENABLED', true),
 
         /**
+         * Whether an available update is downloaded automatically. Set this
+         * to false to only check for updates on startup, then call
+         * AutoUpdater::downloadUpdate() once the user agrees.
+         */
+        'auto_download' => env('NATIVEPHP_UPDATER_AUTO_DOWNLOAD', true),
+
+        /**
          * Whether a downloaded update should be installed automatically
          * when the application quits.
          */
