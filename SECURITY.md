@@ -1,9 +1,9 @@
 # Security Policy
 
-**PLEASE DON'T DISCLOSE SECURITY-RELATED ISSUES PUBLICLY.**
+**Please don't disclose security issues publicly.** Don't open a
+public issue, pull request or discussion about a vulnerability.
 
-## Reporting a Vulnerability
+To report one, follow the NativePHP security policy at
+[nativephp.com/security](https://nativephp.com/security).
 
-If you discover a security vulnerability within NativePHP for Mobile, please send an email to support@nativephp.com or use GitHub's [Report a vulnerability](https://github.com/NativePHP/desktop/security/advisories/new).
-
-All security vulnerabilities will be promptly addressed.
+If this repository isn't listed there, email support@nativephp.com.
