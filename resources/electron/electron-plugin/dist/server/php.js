@@ -18,6 +18,7 @@ import { createServer } from 'net';
 import { join } from 'path';
 import { promisify } from 'util';
 import state from './state.js';
+import { configureSigning } from './nativeEventSignature.js';
 const storagePath = join(app.getPath('userData'), 'storage');
 const databasePath = join(app.getPath('userData'), 'database');
 const databaseFile = join(databasePath, 'database.sqlite');
@@ -244,6 +245,9 @@ function getDefaultEnvironmentVariables(secret, apiPort) {
     if (secret && apiPort) {
         variables.NATIVEPHP_API_URL = `http://127.0.0.1:${apiPort}/api/`;
         variables.NATIVEPHP_SECRET = secret;
+    }
+    if (configureSigning(getAppPath())) {
+        variables.NATIVEPHP_EVENTS_SIGNED = '1';
     }
     if (runningSecureBuild()) {
         variables.APP_SERVICES_CACHE = join(bootstrapCache, 'services.php');

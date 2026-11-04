@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { session } from 'electron';
 import state from './state.js';
+import { signEventBody } from './nativeEventSignature.js';
 
 export async function appendCookie() {
     const cookie = {
@@ -17,11 +18,29 @@ export async function notifyLaravel(endpoint: string, payload = {}) {
         broadcastToWindows('native-event', payload);
     }
 
+    const headers: Record<string, string> = {
+        'X-NativePHP-Secret': state.randomSecret,
+    };
+
+    let data: any = payload;
+
+    if (endpoint === 'events') {
+        // Serialize once and sign the exact bytes PHP reads as the request body,
+        // so the HMAC matches request()->getContent() byte for byte. The app key
+        // signs it; a page cannot, so PHP can reject a forged event.
+        const body = JSON.stringify(payload);
+        headers['Content-Type'] = 'application/json';
+        data = body;
+
+        const signature = signEventBody(body);
+        if (signature) {
+            Object.assign(headers, signature);
+        }
+    }
+
     try {
-        await axios.post(`http://127.0.0.1:${state.phpPort}/_native/api/${endpoint}`, payload, {
-            headers: {
-                'X-NativePHP-Secret': state.randomSecret,
-            },
+        await axios.post(`http://127.0.0.1:${state.phpPort}/_native/api/${endpoint}`, data, {
+            headers,
         });
     } catch {
         //

@@ -12,6 +12,7 @@ import { join } from 'path';
 import { promisify } from 'util';
 import { ProcessResult } from './ProcessResult.js';
 import state from './state.js';
+import { configureSigning } from './nativeEventSignature.js';
 
 // TODO: maybe in dev, don't go to the userData folder and stay in the Laravel app folder
 const storagePath = join(app.getPath('userData'), 'storage');
@@ -305,6 +306,7 @@ interface EnvironmentVariables {
     NATIVEPHP_API_URL?: string;
     NATIVEPHP_RUNNING: string;
     NATIVEPHP_SECRET?: string;
+    NATIVEPHP_EVENTS_SIGNED?: string;
     NATIVEPHP_USER_HOME_PATH: string;
     NATIVEPHP_APP_DATA_PATH: string;
     NATIVEPHP_USER_DATA_PATH: string;
@@ -355,6 +357,13 @@ function getDefaultEnvironmentVariables(secret?: string, apiPort?: number): Envi
     if (secret && apiPort) {
         variables.NATIVEPHP_API_URL = `http://127.0.0.1:${apiPort}/api/`;
         variables.NATIVEPHP_SECRET = secret;
+    }
+
+    // Tell PHP to enforce native-event signatures, but only once we have a key
+    // to sign them with. Without a key we leave this off and the endpoint keeps
+    // accepting events as before, rather than rejecting everything.
+    if (configureSigning(getAppPath())) {
+        variables.NATIVEPHP_EVENTS_SIGNED = '1';
     }
 
     // Only add cache paths if in production mode

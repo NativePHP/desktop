@@ -1,8 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Event;
+use Native\Desktop\Events\Contracts\DispatchableFromNative;
 
-class TestEvent
+// Stands in for a real native event: the controller only constructs classes the
+// native side is allowed to dispatch, so a test event must opt in the same way.
+class TestEvent implements DispatchableFromNative
+{
+    public function __construct(public string $test = '') {}
+}
+
+// A class the native side is NOT allowed to dispatch — no marker interface.
+class UnmarkedEvent
 {
     public function __construct(public string $test = '') {}
 }
@@ -45,4 +54,35 @@ it('passes the payload to the event', function () {
     Event::assertDispatched(TestEvent::class, function ($event) {
         return $event->test === 'Some payload string';
     });
+});
+
+it('refuses to construct a class that is not marked dispatchable (object-injection gate)', function () {
+    Event::fake();
+
+    $this->withoutMiddleware()
+        ->post('_native/api/events', [
+            'event' => UnmarkedEvent::class,
+        ])
+        ->assertStatus(403)
+        ->assertJson(['success' => false]);
+
+    Event::assertNotDispatched(UnmarkedEvent::class);
+});
+
+it('refuses an object-injection gadget even with constructor arguments', function () {
+    // SplFileObject($path, 'w') would create/truncate a file. It is not a
+    // DispatchableFromNative, so the controller must never construct it.
+    $target = tempnam(sys_get_temp_dir(), 'nativephp-gadget').'-sentinel';
+    file_put_contents($target, 'keep me');
+
+    $this->withoutMiddleware()
+        ->post('_native/api/events', [
+            'event' => SplFileObject::class,
+            'payload' => [$target, 'w'],
+        ])
+        ->assertStatus(403);
+
+    expect(file_get_contents($target))->toBe('keep me');
+
+    @unlink($target);
 });

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import axios from 'axios';
 import { session } from 'electron';
 import state from './state.js';
+import { signEventBody } from './nativeEventSignature.js';
 export function appendCookie() {
     return __awaiter(this, void 0, void 0, function* () {
         const cookie = {
@@ -25,11 +26,22 @@ export function notifyLaravel(endpoint_1) {
         if (endpoint === 'events') {
             broadcastToWindows('native-event', payload);
         }
+        const headers = {
+            'X-NativePHP-Secret': state.randomSecret,
+        };
+        let data = payload;
+        if (endpoint === 'events') {
+            const body = JSON.stringify(payload);
+            headers['Content-Type'] = 'application/json';
+            data = body;
+            const signature = signEventBody(body);
+            if (signature) {
+                Object.assign(headers, signature);
+            }
+        }
         try {
-            yield axios.post(`http://127.0.0.1:${state.phpPort}/_native/api/${endpoint}`, payload, {
-                headers: {
-                    'X-NativePHP-Secret': state.randomSecret,
-                },
+            yield axios.post(`http://127.0.0.1:${state.phpPort}/_native/api/${endpoint}`, data, {
+                headers,
             });
         }
         catch (_a) {
