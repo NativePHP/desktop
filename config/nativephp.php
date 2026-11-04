@@ -49,6 +49,15 @@ return [
     'website' => env('NATIVEPHP_APP_WEBSITE', 'https://nativephp.com'),
 
     /**
+     * The repository information used by electron-builder when publishing.
+     * Only needed when electron-builder cannot detect it from .git/config.
+     */
+    'repository' => [
+        'type' => env('NATIVEPHP_REPOSITORY_TYPE', 'git'),
+        'url' => env('NATIVEPHP_REPOSITORY_URL'),
+    ],
+
+    /**
      * The default service provider for your application. This provider
      * takes care of bootstrapping your application and configuring
      * any global hotkeys, menus, windows, etc.

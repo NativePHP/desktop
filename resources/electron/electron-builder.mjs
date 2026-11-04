@@ -6,6 +6,8 @@ const appId = process.env.NATIVEPHP_APP_ID;
 const appName = process.env.NATIVEPHP_APP_NAME;
 const isBuilding = process.env.NATIVEPHP_BUILDING;
 const appAuthor = process.env.NATIVEPHP_APP_AUTHOR;
+const repositoryType = process.env.NATIVEPHP_REPOSITORY_TYPE || 'git';
+const repositoryUrl = process.env.NATIVEPHP_REPOSITORY_URL;
 const fileName = process.env.NATIVEPHP_APP_FILENAME;
 const appVersion = process.env.NATIVEPHP_APP_VERSION;
 const appCopyright = process.env.NATIVEPHP_APP_COPYRIGHT;
@@ -162,6 +164,7 @@ export default {
         homepage: appUrl,
         version: appVersion,
         author: appAuthor,
+        ...(repositoryUrl ? { repository: { type: repositoryType, url: repositoryUrl } } : {}),
     },
     extraResources: [
         {

@@ -53,4 +53,22 @@ describe('electron-builder config', () => {
             "Application requests access to the device's camera.",
         );
     });
+
+    it('adds repository metadata when a repository URL is configured', async () => {
+        vi.stubEnv('NATIVEPHP_REPOSITORY_TYPE', 'git');
+        vi.stubEnv('NATIVEPHP_REPOSITORY_URL', 'https://github.com/acme/app.git');
+
+        const config = await loadBuilderConfig('My App');
+
+        expect(config.extraMetadata.repository).toEqual({
+            type: 'git',
+            url: 'https://github.com/acme/app.git',
+        });
+    });
+
+    it('omits repository metadata when no repository URL is configured', async () => {
+        const config = await loadBuilderConfig('My App');
+
+        expect(config.extraMetadata).not.toHaveProperty('repository');
+    });
 });
