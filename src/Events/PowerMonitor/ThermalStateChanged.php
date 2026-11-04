@@ -8,8 +8,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Native\Desktop\Enums\ThermalStatesEnum;
+use Native\Desktop\Events\Contracts\DispatchableFromNative;
 
-class ThermalStateChanged implements ShouldBroadcastNow
+class ThermalStateChanged implements DispatchableFromNative, ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

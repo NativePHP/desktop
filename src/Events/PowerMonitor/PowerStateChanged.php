@@ -8,8 +8,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Native\Desktop\Enums\PowerStatesEnum;
+use Native\Desktop\Events\Contracts\DispatchableFromNative;
 
-class PowerStateChanged implements ShouldBroadcastNow
+class PowerStateChanged implements DispatchableFromNative, ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

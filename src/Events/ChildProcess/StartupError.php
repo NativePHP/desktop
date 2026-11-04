@@ -6,8 +6,9 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Native\Desktop\Events\Contracts\DispatchableFromNative;
 
-class StartupError implements ShouldBroadcastNow
+class StartupError implements DispatchableFromNative, ShouldBroadcastNow
 {
     use Dispatchable, SerializesModels;
 
