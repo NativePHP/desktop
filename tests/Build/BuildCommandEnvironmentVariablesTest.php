@@ -29,3 +29,21 @@ it('defaults NSIS delete app data flag to false when config is not set', functio
 
     expect($envVars['NATIVEPHP_NSIS_DELETE_APP_DATA'])->toBe('false');
 });
+
+it('passes the updater enabled flag as true when the updater is enabled', function () {
+    Config::set('nativephp.updater.enabled', true);
+
+    $command = app(BuildCommand::class);
+    $envVars = (new ReflectionMethod($command, 'getEnvironmentVariables'))->invoke($command);
+
+    expect($envVars['NATIVEPHP_UPDATER_ENABLED'])->toBe('true');
+});
+
+it('passes the updater enabled flag as false when the updater is disabled', function () {
+    Config::set('nativephp.updater.enabled', false);
+
+    $command = app(BuildCommand::class);
+    $envVars = (new ReflectionMethod($command, 'getEnvironmentVariables'))->invoke($command);
+
+    expect($envVars['NATIVEPHP_UPDATER_ENABLED'])->toBe('false');
+});
