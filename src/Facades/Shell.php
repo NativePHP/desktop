@@ -7,6 +7,8 @@ use Native\Desktop\Contracts\Shell as ShellContract;
 use Native\Desktop\Fakes\ShellFake;
 
 /**
+ * @deprecated v3 has no Shell facade. Its methods move to the AppShell facade under the same names. Nothing changes in v2.
+ *
  * @method static void showInFolder(string $path)
  * @method static string openFile(string $path)
  * @method static void trashFile(string $path)
