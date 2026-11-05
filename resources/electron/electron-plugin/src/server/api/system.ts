@@ -25,14 +25,14 @@ router.post('/prompt-touch-id', async (req, res) => {
 
 router.get('/can-encrypt', async (req, res) => {
     res.json({
-        result: await safeStorage.isEncryptionAvailable(),
+        result: await safeStorage.isAsyncEncryptionAvailable(),
     });
 });
 
 router.post('/encrypt', async (req, res) => {
     try {
         res.json({
-            result: await safeStorage.encryptString(req.body.string).toString('base64'),
+            result: (await safeStorage.encryptStringAsync(req.body.string)).toString('base64'),
         });
     } catch (e) {
         res.status(400).json({
@@ -43,8 +43,11 @@ router.post('/encrypt', async (req, res) => {
 
 router.post('/decrypt', async (req, res) => {
     try {
+        // Also decrypts data written by the old synchronous encryptString().
+        const { result } = await safeStorage.decryptStringAsync(Buffer.from(req.body.string, 'base64'));
+
         res.json({
-            result: await safeStorage.decryptString(Buffer.from(req.body.string, 'base64')),
+            result,
         });
     } catch (e) {
         res.status(400).json({
