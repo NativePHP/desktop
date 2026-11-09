@@ -1,68 +1,92 @@
-import { clipboard, nativeImage } from 'electron';
+import { clipboard, ClipboardItem, nativeImage } from 'electron';
 import * as express from 'express';
 const router = express.Router();
 
-const DEFAULT_TYPE = 'clipboard';
+// Electron 44 rebuilt the clipboard module around the W3C Clipboard API: reads
+// and writes are async, HTML and images go through read()/write() as MIME-typed
+// ClipboardItems, and the Linux selection clipboard moved to clipboard.selection
+// instead of a `type` argument.
+function target(type: unknown): Electron.Clipboard {
+    if (type === 'selection' && clipboard.selection) {
+        return clipboard.selection;
+    }
 
-router.get('/text', (req, res) => {
-    const { type } = req.query;
+    return clipboard;
+}
 
+async function readType(board: Electron.Clipboard, matches: (mimeType: string) => boolean): Promise<Blob | null> {
+    for (const item of await board.read()) {
+        const mimeType = item.types.find(matches);
+
+        if (mimeType) {
+            return (await item.getType(mimeType)) as Blob;
+        }
+    }
+
+    return null;
+}
+
+router.get('/text', async (req, res) => {
     res.json({
-        // @ts-ignore
-        text: clipboard.readText(type || DEFAULT_TYPE),
+        text: await target(req.query.type).readText(),
     });
 });
 
-router.post('/text', (req, res) => {
+router.post('/text', async (req, res) => {
     const { text } = req.body;
-    const { type } = req.query;
 
-    // @ts-ignore
-    clipboard.writeText(text, type || DEFAULT_TYPE);
+    await target(req.query.type).writeText(text);
 
     res.json({
         text,
     });
 });
 
-router.get('/html', (req, res) => {
-    const { type } = req.query;
+router.get('/html', async (req, res) => {
+    const blob = await readType(target(req.query.type), (mimeType) => mimeType === 'text/html');
 
     res.json({
-        // @ts-ignore
-        html: clipboard.readHTML(type || DEFAULT_TYPE),
+        html: blob ? await blob.text() : '',
     });
 });
 
-router.post('/html', (req, res) => {
+router.post('/html', async (req, res) => {
     const { html } = req.body;
-    const { type } = req.query;
-    // @ts-ignore
-    clipboard.writeHTML(html, type || DEFAULT_TYPE);
+
+    await target(req.query.type).write([new ClipboardItem({ 'text/html': html })]);
 
     res.json({
         html,
     });
 });
 
-router.get('/image', (req, res) => {
-    const { type } = req.query;
-    // @ts-ignore
-    const image = clipboard.readImage(type || DEFAULT_TYPE);
+router.get('/image', async (req, res) => {
+    const board = target(req.query.type);
+
+    const blob =
+        (await readType(board, (mimeType) => mimeType === 'image/png')) ??
+        (await readType(board, (mimeType) => mimeType.startsWith('image/')));
+
+    const image = blob ? nativeImage.createFromBuffer(Buffer.from(await blob.arrayBuffer())) : null;
 
     res.json({
-        image: image.isEmpty() ? null : image.toDataURL(),
+        image: !image || image.isEmpty() ? null : image.toDataURL(),
     });
 });
 
-router.post('/image', (req, res) => {
+router.post('/image', async (req, res) => {
     const { image } = req.body;
-    const { type } = req.query;
+
+    let png: Buffer;
 
     try {
-        const _nativeImage = nativeImage.createFromDataURL(image);
-        // @ts-ignore
-        clipboard.writeImage(_nativeImage, type || DEFAULT_TYPE);
+        const decoded = nativeImage.createFromDataURL(image);
+
+        if (decoded.isEmpty()) {
+            throw new Error('The image could not be decoded');
+        }
+
+        png = decoded.toPNG();
     } catch (e) {
         res.status(400).json({
             error: e.message,
@@ -70,14 +94,15 @@ router.post('/image', (req, res) => {
         return;
     }
 
+    await target(req.query.type).write([
+        new ClipboardItem({ 'image/png': new Blob([new Uint8Array(png)], { type: 'image/png' }) }),
+    ]);
+
     res.sendStatus(200);
 });
 
-router.delete('/', (req, res) => {
-    const { type } = req.query;
-
-    // @ts-ignore
-    clipboard.clear(type || DEFAULT_TYPE);
+router.delete('/', async (req, res) => {
+    await target(req.query.type).clear();
 
     res.sendStatus(200);
 });

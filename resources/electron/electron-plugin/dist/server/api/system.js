@@ -30,13 +30,13 @@ router.post('/prompt-touch-id', (req, res) => __awaiter(void 0, void 0, void 0, 
 }));
 router.get('/can-encrypt', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.json({
-        result: yield safeStorage.isEncryptionAvailable(),
+        result: yield safeStorage.isAsyncEncryptionAvailable(),
     });
 }));
 router.post('/encrypt', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         res.json({
-            result: yield safeStorage.encryptString(req.body.string).toString('base64'),
+            result: (yield safeStorage.encryptStringAsync(req.body.string)).toString('base64'),
         });
     }
     catch (e) {
@@ -47,8 +47,9 @@ router.post('/encrypt', (req, res) => __awaiter(void 0, void 0, void 0, function
 }));
 router.post('/decrypt', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const { result } = yield safeStorage.decryptStringAsync(Buffer.from(req.body.string, 'base64'));
         res.json({
-            result: yield safeStorage.decryptString(Buffer.from(req.body.string, 'base64')),
+            result,
         });
     }
     catch (e) {
