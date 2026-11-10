@@ -51,6 +51,35 @@ export function notifyLaravel(endpoint_1) {
         }
     });
 }
+export function pingPhpServer(timeout) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield axios.get(`http://127.0.0.1:${state.phpPort}/_native/api/health`, {
+                headers: {
+                    'X-NativePHP-Secret': state.randomSecret,
+                },
+                timeout,
+                validateStatus: () => true,
+            });
+            return true;
+        }
+        catch (_a) {
+            return false;
+        }
+    });
+}
+export function reloadWindows() {
+    var _a;
+    const windows = Object.values(state.windows);
+    if ((_a = state.activeMenuBar) === null || _a === void 0 ? void 0 : _a.window) {
+        windows.push(state.activeMenuBar.window);
+    }
+    windows
+        .filter((window) => !window.isDestroyed())
+        .forEach((window) => {
+        window.webContents.reload();
+    });
+}
 export function broadcastToWindows(event, payload) {
     var _a;
     Object.values(state.windows).forEach((window) => {
