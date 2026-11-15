@@ -9,6 +9,9 @@ class Notification
 {
     use Conditionable;
 
+    /**
+     * @deprecated v3's show() returns nothing, and getId() reads the id. v2 does not have getId() yet.
+     */
     public ?string $reference = null;
 
     protected string $title;
@@ -37,6 +40,9 @@ class Notification
         return new static(new Client);
     }
 
+    /**
+     * @deprecated v3 renames this to id(), which v2 does not have yet. A notification sent with the id of one still on screen replaces it.
+     */
     public function reference(string $reference): self
     {
         $this->reference = $reference;
@@ -51,6 +57,9 @@ class Notification
         return $this;
     }
 
+    /**
+     * @deprecated v3 renames this to notificationClicked(), which v2 does not have yet. In v3 NotificationClicked still fires as well, and the class's constructor gets the values it names, such as id and data, where v2 passed reference and event. notificationClicked() also takes a class with handle() or __invoke, which is called on a click.
+     */
     public function event(string $event): self
     {
         $this->event = $event;
@@ -72,6 +81,9 @@ class Notification
         return $this;
     }
 
+    /**
+     * @deprecated v3 replaces this with reply(placeholder: $placeholder), which v2 does not have yet.
+     */
     public function hasReply(string $placeholder = ''): self
     {
         $this->hasReply = true;
@@ -80,6 +92,9 @@ class Notification
         return $this;
     }
 
+    /**
+     * @deprecated v3 replaces this with action($label), which v2 does not have yet. In v3 a button can carry a key, which comes back in NotificationActionClicked, and a class that a press fires or calls.
+     */
     public function addAction(string $label): self
     {
         $this->actions[] = $label;
