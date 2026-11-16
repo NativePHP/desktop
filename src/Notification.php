@@ -58,7 +58,7 @@ class Notification
     }
 
     /**
-     * @deprecated v3 renames this to notificationClicked(), which v2 does not have yet. In v3 NotificationClicked still fires as well, and the class's constructor gets the values it names, such as id and data, where v2 passed reference and event. notificationClicked() also takes a class with handle() or __invoke, which is called on a click.
+     * @deprecated v3 renames this to clicked(), which v2 does not have yet. In v3 NotificationClicked still fires as well, and the class's constructor gets the values it names, such as id and data, where v2 passed reference and event. clicked() also takes a class with handle() or __invoke, which is called on a click.
      */
     public function event(string $event): self
     {
