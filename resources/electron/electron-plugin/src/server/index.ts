@@ -1,6 +1,6 @@
 import { ChildProcess } from 'child_process';
 import startAPIServer, { APIProcess } from './api.js';
-import { retrieveNativePHPConfig, retrievePhpIniSettings, serveApp, startScheduler } from './php.js';
+import { retrieveNativePHPConfig, retrievePhpIniSettings, serveApp, startPhpServer, startScheduler } from './php.js';
 import state from './state.js';
 import { appendCookie } from './utils.js';
 
@@ -12,6 +12,12 @@ export async function startPhpApp() {
     state.phpPort = result.port;
 
     await appendCookie();
+
+    return result.process;
+}
+
+export async function restartPhpServer() {
+    const result = await startPhpServer(state.phpPort);
 
     return result.process;
 }

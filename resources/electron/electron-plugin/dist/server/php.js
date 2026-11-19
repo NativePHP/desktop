@@ -265,6 +265,7 @@ function getDefaultPhpIniSettings() {
         'openssl.cafile': state.caCert,
     };
 }
+let phpServerLaunch = null;
 function serveApp(secret, apiPort, phpIniSettings) {
     return __awaiter(this, void 0, void 0, function* () {
         const appPath = getAppPath();
@@ -333,45 +334,51 @@ function serveApp(secret, apiPort, phpIniSettings) {
         }
         console.log('Starting PHP server...');
         const phpPort = yield getPhpPort();
-        const phpServer = callPhp(['-S', `127.0.0.1:${phpPort}`, serverPath], {
-            cwd: cwd,
-            env,
-        }, phpIniSettings);
-        const portRegex = /Development Server \(.*:([0-9]+)\) started/gm;
-        return new Promise((resolve, reject) => {
-            phpServer.stdout.on('data', (data) => {
-                if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
-                    console.log(data.toString().trim());
-                }
-            });
-            phpServer.stderr.on('data', (data) => {
-                const error = data.toString();
-                const match = portRegex.exec(data.toString());
-                if (match) {
-                    const port = parseInt(match[1]);
-                    console.log('PHP Server started on port: ', port);
-                    resolve({
-                        port,
-                        process: phpServer,
-                    });
-                }
-                else if (error.includes('[NATIVE_EXCEPTION]:')) {
-                    const logFile = join(storagePath, 'logs');
-                    console.log();
-                    console.error('Error in PHP:');
-                    console.error('  ' + error.split('[NATIVE_EXCEPTION]:')[1].trim());
-                    console.log('Please check your log files:');
-                    console.log('  ' + logFile);
-                    console.log();
-                }
-            });
-            phpServer.on('error', (error) => {
-                reject(error);
-            });
-            phpServer.on('close', (code) => {
-                console.log(`PHP server exited with code ${code}`);
-            });
+        phpServerLaunch = { serverPath, cwd, env, phpIniSettings };
+        return startPhpServer(phpPort);
+    });
+}
+function startPhpServer(phpPort) {
+    const { serverPath, cwd, env, phpIniSettings } = phpServerLaunch;
+    const phpServer = callPhp(['-S', `127.0.0.1:${phpPort}`, serverPath], {
+        cwd: cwd,
+        env,
+    }, phpIniSettings);
+    const portRegex = /Development Server \(.*:([0-9]+)\) started/gm;
+    return new Promise((resolve, reject) => {
+        phpServer.stdout.on('data', (data) => {
+            if (parseInt(process.env.SHELL_VERBOSITY) > 0) {
+                console.log(data.toString().trim());
+            }
+        });
+        phpServer.stderr.on('data', (data) => {
+            const error = data.toString();
+            const match = portRegex.exec(data.toString());
+            if (match) {
+                const port = parseInt(match[1]);
+                console.log('PHP Server started on port: ', port);
+                resolve({
+                    port,
+                    process: phpServer,
+                });
+            }
+            else if (error.includes('[NATIVE_EXCEPTION]:')) {
+                const logFile = join(storagePath, 'logs');
+                console.log();
+                console.error('Error in PHP:');
+                console.error('  ' + error.split('[NATIVE_EXCEPTION]:')[1].trim());
+                console.log('Please check your log files:');
+                console.log('  ' + logFile);
+                console.log();
+            }
+        });
+        phpServer.on('error', (error) => {
+            reject(error);
+        });
+        phpServer.on('close', (code) => {
+            console.log(`PHP server exited with code ${code}`);
+            reject(new Error(`PHP server exited with code ${code} before it started`));
         });
     });
 }
-export { getAppPath, getDefaultEnvironmentVariables, getDefaultPhpIniSettings, retrieveNativePHPConfig, retrievePhpIniSettings, runningSecureBuild, serveApp, startScheduler, };
+export { getAppPath, getDefaultEnvironmentVariables, getDefaultPhpIniSettings, retrieveNativePHPConfig, retrievePhpIniSettings, runningSecureBuild, serveApp, startPhpServer, startScheduler, };
