@@ -107,6 +107,9 @@ class MenuBuilder
         return new Items\Role(RolesEnum::TOGGLE_FULL_SCREEN, $label);
     }
 
+    /**
+     * @deprecated v3 removes this role: its windows have no web view, so there are no developer tools to open. There is no v2 replacement.
+     */
     public function devTools(?string $label = null): Items\Role
     {
         return new Items\Role(RolesEnum::TOGGLE_DEV_TOOLS, $label);
@@ -142,6 +145,9 @@ class MenuBuilder
         return new Items\Role(RolesEnum::PASTE_STYLE, $label);
     }
 
+    /**
+     * @deprecated v3 removes this role: its windows have no web view, so there is no page to reload. There is no v2 replacement.
+     */
     public function reload(?string $label = null): Items\Role
     {
         return new Items\Role(RolesEnum::RELOAD, $label);
