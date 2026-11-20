@@ -40,8 +40,8 @@ use Native\Desktop\Menu\MenuBuilder;
  * @method static Role close(?string $label = null)
  * @method static Role quit(?string $label = null)
  * @method static Role hide(?string $label = null)
- * @method static void create(MenuItem ...$items)
- * @method static void default()
+ * @method static void create(MenuItem ...$items) Deprecated: v3 removes this; set the menu with AppShell::menu().
+ * @method static void default() Deprecated: v3 returns the menu bar and sets nothing: AppShell::menu(Menu::default()).
  * @method static static when($value = null, ?callable $callback = null, ?callable $default = null)
  * @method static static unless($value = null, ?callable $callback = null, ?callable $default = null)
  */

@@ -21,12 +21,18 @@ class MenuBuilder
         return $menu;
     }
 
+    /**
+     * @deprecated v3 removes this: build the menu with Menu::make() and set it with AppShell::menu(), which v2 does not have yet. Nothing changes in v2.
+     */
     public function create(MenuItem ...$items): void
     {
         $this->make(...$items)
             ->register();
     }
 
+    /**
+     * @deprecated v3 returns the default menu bar and sets nothing: AppShell::menu(Menu::default()), which v2 does not have yet. Nothing changes in v2.
+     */
     public function default(): void
     {
         $this->create(

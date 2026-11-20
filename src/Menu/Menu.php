@@ -17,6 +17,9 @@ class Menu implements JsonSerializable, MenuItem
 
     public function __construct(protected Client $client) {}
 
+    /**
+     * @deprecated v3 removes this: set the menu with AppShell::menu(), which v2 does not have yet. Nothing changes in v2.
+     */
     public function register(): void
     {
         $items = $this->toArray()['submenu'];
