@@ -15,7 +15,7 @@ use Native\Desktop\Menu\MenuBuilder;
 /**
  * @method static \Native\Desktop\Menu\Menu make(MenuItem ...$items)
  * @method static Checkbox checkbox(string $label, bool $checked = false, ?string $hotkey = null)
- * @method static Label label(string $label)
+ * @method static Label label(string $label) Deprecated: v3 deprecates this for item(), with hotkey() for the shortcut.
  * @method static Link link(string $url, string $label = null, ?string $hotkey = null) Deprecated: v3 takes the label first, link($label, $url).
  * @method static Link route(string $url, string $label = null, ?string $hotkey = null) Deprecated: v3 takes the label first, route($label, $route, $parameters).
  * @method static Radio radio(string $label, bool $checked = false, ?string $hotkey = null)

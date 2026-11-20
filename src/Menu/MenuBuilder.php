@@ -38,6 +38,9 @@ class MenuBuilder
         );
     }
 
+    /**
+     * @deprecated v3 keeps label() so v2's menus keep working, but deprecates it for item(), which v2 does not have yet. In v3 the shortcut is set with hotkey(): Menu::item('Save')->hotkey('CmdOrCtrl+S'). Nothing changes in v2.
+     */
     public function label(string $label, ?string $hotkey = null): Items\Label
     {
         return new Items\Label($label, $hotkey);
