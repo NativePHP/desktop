@@ -53,11 +53,17 @@ class MenuBuilder
         return new Items\Radio($label, $checked, $hotkey);
     }
 
+    /**
+     * @deprecated v3 keeps link() but takes the label first, link($label, $url), as v3's notification and alert actions and mobile's Tab::link() do. The label is required there. Nothing changes in v2.
+     */
     public function link(string $url, ?string $label = null, ?string $hotkey = null): Items\Link
     {
         return new Items\Link($url, $label, $hotkey);
     }
 
+    /**
+     * @deprecated v3 keeps route() but takes the label first, route($label, $route, $parameters), as link() does in v3. The label is required there. Nothing changes in v2.
+     */
     public function route(string $route, ?string $label = null, ?string $hotkey = null): Items\Link
     {
         return new Items\Link(route($route), $label, $hotkey);
