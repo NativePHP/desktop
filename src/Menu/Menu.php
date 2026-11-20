@@ -7,6 +7,9 @@ use JsonSerializable;
 use Native\Desktop\Client\Client;
 use Native\Desktop\Contracts\MenuItem;
 
+/**
+ * @deprecated v3 renames this class to Menu\MenuBuilder. A menu class extends it, and AppShell::menu(), Dock::menu() and a window take it. Nothing changes in v2.
+ */
 class Menu implements JsonSerializable, MenuItem
 {
     use Conditionable;

@@ -6,6 +6,9 @@ use Native\Desktop\Client\Client;
 use Native\Desktop\Contracts\MenuItem;
 use Native\Desktop\Enums\RolesEnum;
 
+/**
+ * @deprecated In v3 the class the Menu facade calls is Menu\MenuFactory. v3's MenuBuilder is the menu itself, what v2 calls Menu\Menu. Nothing changes in v2.
+ */
 class MenuBuilder
 {
     public function __construct(protected Client $client) {}

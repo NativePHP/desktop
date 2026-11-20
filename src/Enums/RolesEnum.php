@@ -2,6 +2,9 @@
 
 namespace Native\Desktop\Enums;
 
+/**
+ * @deprecated v3 renames this enum to Menu\Enums\MenuRole, with its cases in PascalCase, such as EditMenu for EDIT_MENU and PasteAndMatchStyle for PASTE_STYLE. RELOAD and TOGGLE_DEV_TOOLS have no case there. Nothing changes in v2.
+ */
 enum RolesEnum: string
 {
     case APP_MENU = 'appMenu'; // macOS
