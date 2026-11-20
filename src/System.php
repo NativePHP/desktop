@@ -24,11 +24,17 @@ class System
         ])->successful();
     }
 
+    /**
+     * @deprecated v3 removes this, with encrypt() and decrypt(). Use Laravel's Crypt facade there, which v3 keys with an APP_KEY per install. Nothing changes in v2.
+     */
     public function canEncrypt(): bool
     {
         return $this->client->get('system/can-encrypt')->json('result');
     }
 
+    /**
+     * @deprecated v3 removes this. Use Laravel's Crypt facade there, which v3 keys with an APP_KEY per install, kept in the keychain. Strings encrypted here cannot be decrypted in v3. Nothing changes in v2.
+     */
     public function encrypt(string $string): ?string
     {
         return $this->client->post('system/encrypt', [
@@ -36,6 +42,9 @@ class System
         ])->json('result');
     }
 
+    /**
+     * @deprecated v3 removes this. Use Laravel's Crypt facade there. It cannot decrypt strings that encrypt() made here. Nothing changes in v2.
+     */
     public function decrypt(string $string): ?string
     {
         return $this->client->post('system/decrypt', [
@@ -108,6 +117,9 @@ class System
         return $timezone;
     }
 
+    /**
+     * @deprecated v3 moves this to AppShell::theme(), which v2 does not have yet. There it returns the word as a string and keeps the look across launches.
+     */
     public function theme(?SystemThemesEnum $theme = null): SystemThemesEnum
     {
         if ($theme) {

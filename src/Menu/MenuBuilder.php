@@ -38,6 +38,9 @@ class MenuBuilder
         );
     }
 
+    /**
+     * @deprecated v3 keeps label() so v2's menus keep working, but deprecates it for item(), which v2 does not have yet. In v3 the shortcut is set with hotkey(): Menu::item('Save')->hotkey('CmdOrCtrl+S'). Nothing changes in v2.
+     */
     public function label(string $label, ?string $hotkey = null): Items\Label
     {
         return new Items\Label($label, $hotkey);
@@ -53,11 +56,17 @@ class MenuBuilder
         return new Items\Radio($label, $checked, $hotkey);
     }
 
+    /**
+     * @deprecated v3 keeps link() but takes the label first, link($label, $url), as v3's notification and alert actions and mobile's Tab::link() do. The label is required there. Nothing changes in v2.
+     */
     public function link(string $url, ?string $label = null, ?string $hotkey = null): Items\Link
     {
         return new Items\Link($url, $label, $hotkey);
     }
 
+    /**
+     * @deprecated v3 keeps route() but takes the label first, route($label, $route, $parameters), as link() does in v3. The label is required there. Nothing changes in v2.
+     */
     public function route(string $route, ?string $label = null, ?string $hotkey = null): Items\Link
     {
         return new Items\Link(route($route), $label, $hotkey);
@@ -98,6 +107,9 @@ class MenuBuilder
         return new Items\Role(RolesEnum::TOGGLE_FULL_SCREEN, $label);
     }
 
+    /**
+     * @deprecated v3 removes this role: its windows have no web view, so there are no developer tools to open. There is no v2 replacement.
+     */
     public function devTools(?string $label = null): Items\Role
     {
         return new Items\Role(RolesEnum::TOGGLE_DEV_TOOLS, $label);
@@ -133,6 +145,9 @@ class MenuBuilder
         return new Items\Role(RolesEnum::PASTE_STYLE, $label);
     }
 
+    /**
+     * @deprecated v3 removes this role: its windows have no web view, so there is no page to reload. There is no v2 replacement.
+     */
     public function reload(?string $label = null): Items\Role
     {
         return new Items\Role(RolesEnum::RELOAD, $label);

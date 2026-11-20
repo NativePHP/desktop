@@ -8,6 +8,8 @@ use Native\Desktop\DataObjects\QueueConfig;
 use Native\Desktop\Fakes\QueueWorkerFake;
 
 /**
+ * @deprecated v3 has no QueueWorker facade. Its queue workers come from the queue_workers config alone, and cannot be started or stopped at runtime. Nothing changes in v2.
+ *
  * @method static void up(QueueConfig $config)
  * @method static void down(string $alias)
  */

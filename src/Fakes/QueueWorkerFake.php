@@ -7,6 +7,9 @@ use Native\Desktop\Contracts\QueueWorker as QueueWorkerContract;
 use Native\Desktop\DataObjects\QueueConfig;
 use PHPUnit\Framework\Assert as PHPUnit;
 
+/**
+ * @deprecated v3 has no QueueWorker facade to fake. Its queue workers come from the queue_workers config alone. Nothing changes in v2.
+ */
 class QueueWorkerFake implements QueueWorkerContract
 {
     /**

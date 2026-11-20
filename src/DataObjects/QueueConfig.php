@@ -2,6 +2,9 @@
 
 namespace Native\Desktop\DataObjects;
 
+/**
+ * @deprecated v3 has no QueueConfig. Its queue workers come from the queue_workers config alone. Nothing changes in v2.
+ */
 class QueueConfig
 {
     /**
