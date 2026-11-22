@@ -87,7 +87,10 @@ class NativePHP {
                 await new Promise((resolve) => setTimeout(resolve, 200));
             }
 
-            app.quit();
+            // Quit on the next tick. Without running processes the loop above never
+            // awaits, and a synchronous app.quit() inside this handler is undone by
+            // the preventDefault() above: the windows close, but the app keeps running.
+            setImmediate(() => app.quit());
         });
 
         // Default open or close DevTools by F12 in development
