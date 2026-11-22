@@ -65,7 +65,7 @@ class NativePHP {
             while (Object.keys(state.processes).length > 0 && Date.now() < deadline) {
                 yield new Promise((resolve) => setTimeout(resolve, 200));
             }
-            app.quit();
+            setImmediate(() => app.quit());
         }));
         app.on('browser-window-created', (_, window) => {
             optimizer.watchWindowShortcuts(window);
