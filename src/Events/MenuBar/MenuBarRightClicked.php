@@ -8,6 +8,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * @deprecated v3 moves this event to SupaNative\Desktop\MenuBar\Events\MenuBarRightClicked, with the key of the item. Nothing changes in v2.
+ */
 class MenuBarRightClicked implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
