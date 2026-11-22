@@ -42,6 +42,9 @@ class Clipboard
         return $html;
     }
 
+    /**
+     * @deprecated v3 keeps image() but refuses a relative path, which v2 reads from PHP's working folder. Give a full path, such as storage_path('app/chart.png'), or a data URL. Nothing changes in v2.
+     */
     public function image($image = null): ?string
     {
         if (is_null($image)) {
