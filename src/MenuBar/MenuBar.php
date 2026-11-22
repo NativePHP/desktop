@@ -11,7 +11,9 @@ use Native\Desktop\Menu\Menu;
 
 class MenuBar
 {
-    use HasDimensions;
+    use HasDimensions {
+        position as private dimensionsPosition;
+    }
     use HasPositioner;
     use HasUrl;
     use HasVibrancy;
@@ -57,6 +59,9 @@ class MenuBar
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this: an item that has only a context menu opens it on a left click as well, so leave this call out. Nothing changes in v2.
+     */
     public function onlyShowContextMenu(bool $onlyContextMenu = true): self
     {
         $this->onlyShowContextMenu = $onlyContextMenu;
@@ -64,6 +69,9 @@ class MenuBar
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this, and creating a menu bar item no longer hides the Dock icon. The 'dock' key of v3's config sets it: always, never, or with-windows. Nothing changes in v2.
+     */
     public function showDockIcon($value = true): self
     {
         $this->showDockIcon = $value;
@@ -106,6 +114,9 @@ class MenuBar
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this for contextMenu(), which v2's MenuBar facade already has at runtime. Nothing changes in v2.
+     */
     public function withContextMenu(Menu $menu): self
     {
         $this->contextMenu = $menu;
@@ -113,11 +124,22 @@ class MenuBar
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this, as the panel of a v3 menu bar item has no web view. Nothing changes in v2.
+     */
     public function webPreferences(array $preferences): static
     {
         $this->webPreferences = $preferences;
 
         return $this;
+    }
+
+    /**
+     * @deprecated v3 removes this for a menu bar item, as its panel always sits under its icon. A window keeps position(). Nothing changes in v2.
+     */
+    public function position($x, $y): self
+    {
+        return $this->dimensionsPosition($x, $y);
     }
 
     public function toArray(): array
