@@ -60,6 +60,9 @@ class MenuBarManager
         ]);
     }
 
+    /**
+     * @deprecated v3 renames this to openMenu(), as a v3 item can have a menu for the left click and a context menu for the right one. Nothing changes in v2.
+     */
     public function showContextMenu()
     {
         $this->client->post('menu-bar/show-context-menu');

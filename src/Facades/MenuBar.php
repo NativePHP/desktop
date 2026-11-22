@@ -15,8 +15,8 @@ use Native\Desktop\MenuBar\MenuBarManager;
  * @method static void icon(string $icon)
  * @method static void resize(int $width, int $height)
  * @method static void contextMenu(Menu $contextMenu)
- * @method static void showContextMenu()
- * @method static void webPreferences(array $preferences)
+ * @method static void showContextMenu() Deprecated: v3 renames this to openMenu().
+ * @method static void webPreferences(array $preferences) Deprecated: v3 removes this, as a menu bar panel has no web view.
  */
 class MenuBar extends Facade
 {
