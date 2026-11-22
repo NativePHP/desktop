@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import startAPIServer from './api.js';
-import { retrieveNativePHPConfig, retrievePhpIniSettings, serveApp, startScheduler } from './php.js';
+import { retrieveNativePHPConfig, retrievePhpIniSettings, serveApp, startPhpServer, startScheduler } from './php.js';
 import state from './state.js';
 import { appendCookie } from './utils.js';
 let schedulerProcess = null;
@@ -17,6 +17,12 @@ export function startPhpApp() {
         const result = yield serveApp(state.randomSecret, state.electronApiPort, state.phpIni);
         state.phpPort = result.port;
         yield appendCookie();
+        return result.process;
+    });
+}
+export function restartPhpServer() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = yield startPhpServer(state.phpPort);
         return result.process;
     });
 }

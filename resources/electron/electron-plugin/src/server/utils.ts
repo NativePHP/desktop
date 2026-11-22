@@ -49,6 +49,40 @@ export async function notifyLaravel(endpoint: string, payload = {}) {
     }
 }
 
+/**
+ * Checks the PHP server is still answering. Any response counts, whatever its
+ * status: only a refused connection or a timeout means it's down or hung.
+ */
+export async function pingPhpServer(timeout: number) {
+    try {
+        await axios.get(`http://127.0.0.1:${state.phpPort}/_native/api/health`, {
+            headers: {
+                'X-NativePHP-Secret': state.randomSecret,
+            },
+            timeout,
+            validateStatus: () => true,
+        });
+
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export function reloadWindows() {
+    const windows = Object.values(state.windows);
+
+    if (state.activeMenuBar?.window) {
+        windows.push(state.activeMenuBar.window);
+    }
+
+    windows
+        .filter((window) => !window.isDestroyed())
+        .forEach((window) => {
+            window.webContents.reload();
+        });
+}
+
 export function broadcastToWindows(event, payload) {
     Object.values(state.windows).forEach((window) => {
         window.webContents.send(event, payload);

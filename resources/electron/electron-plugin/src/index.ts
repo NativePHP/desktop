@@ -8,6 +8,7 @@ import ps from 'ps-node';
 import { stopAllProcesses } from './server/api/childProcess.js';
 import {
     killScheduler,
+    restartPhpServer,
     retrieveNativePHPConfig,
     retrievePhpIniSettings,
     runScheduler,
@@ -15,7 +16,8 @@ import {
     startPhpApp,
 } from './server/index.js';
 import state from './server/state.js';
-import { notifyLaravel } from './server/utils.js';
+import { notifyLaravel, pingPhpServer, reloadWindows } from './server/utils.js';
+import { PhpServerWatchdog, watchdogOptionsFromConfig } from './server/watchdog.js';
 
 // Workaround for CommonJS module
 import electronUpdater from 'electron-updater';
@@ -25,6 +27,7 @@ class NativePHP {
     processes: ChildProcessWithoutNullStreams[] = [];
     mainWindow = null;
     schedulerInterval = undefined;
+    phpWatchdog: PhpServerWatchdog | null = null;
     quitting = false;
 
     public bootstrap(app: CrossProcessExports.App, icon: string, phpBinary: string, cert: string, appPath: string) {
@@ -68,6 +71,9 @@ class NativePHP {
             }
             this.quitting = true;
             event.preventDefault();
+
+            // Stand the watchdog down, so it doesn't restart the PHP server we're about to stop.
+            this.phpWatchdog?.stop();
 
             // Stop the framework's own processes first (the PHP server and the
             // like). While they're still up, an incoming request could boot the
@@ -122,16 +128,18 @@ class NativePHP {
 
         state.phpIni = await this.loadPhpIni();
 
-        await this.startPhpApp();
+        await this.startPhpApp(config);
         this.startScheduler();
 
         powerMonitor.on('suspend', () => {
             this.stopScheduler();
+            this.phpWatchdog?.pause();
         });
 
         powerMonitor.on('resume', () => {
             this.stopScheduler();
             this.startScheduler();
+            this.phpWatchdog?.resume();
         });
 
         const filter = {
@@ -267,8 +275,29 @@ class NativePHP {
         return config;
     }
 
-    private async startPhpApp() {
-        this.processes.push(await startPhpApp());
+    private async startPhpApp(config) {
+        const phpServer = await startPhpApp();
+
+        this.processes.push(phpServer);
+
+        if (config?.watchdog?.enabled === false) {
+            return;
+        }
+
+        this.phpWatchdog = new PhpServerWatchdog(
+            {
+                start: restartPhpServer,
+                ping: pingPhpServer,
+                reloadWindows,
+                onRestart: (previous, next) => {
+                    this.processes = this.processes.filter((p) => p !== previous);
+                    this.processes.push(next as ChildProcessWithoutNullStreams);
+                },
+            },
+            watchdogOptionsFromConfig(config?.watchdog),
+        );
+
+        this.phpWatchdog.watch(phpServer);
     }
 
     private stopScheduler() {
