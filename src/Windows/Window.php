@@ -114,6 +114,9 @@ class Window
         return $this;
     }
 
+    /**
+     * @deprecated v3 keeps url() but takes a path of the app, such as url('/settings'), and throws for a full address, such as one from Laravel's url() or route() helpers. route() with a route name works in v2 and v3. A web page opens with v3's Browser::open(). Nothing changes in v2.
+     */
     public function url(string $url)
     {
         $this->defaultUrl($url);
