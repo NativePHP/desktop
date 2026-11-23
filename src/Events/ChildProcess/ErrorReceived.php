@@ -7,6 +7,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * @deprecated v3 moves this event to ChildProcess\Events\ErrorReceived, which fires once per line there. It is no longer broadcast on the nativephp channel: Event::listen and a screen's #[On] hear it. Nothing changes in v2.
+ */
 class ErrorReceived implements ShouldBroadcastNow
 {
     use Dispatchable, SerializesModels;

@@ -7,6 +7,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * @deprecated v3 moves this event to ChildProcess\Events\StartupError, which fires at once there, with the reason. It is no longer broadcast on the nativephp channel: Event::listen and a screen's #[On] hear it. Nothing changes in v2.
+ */
 class StartupError implements ShouldBroadcastNow
 {
     use Dispatchable, SerializesModels;
