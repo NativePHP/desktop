@@ -2,6 +2,9 @@
 
 use App\Providers\NativeAppServiceProvider;
 
+/**
+ * @deprecated v3 moves this file to config/native/desktop.php, so config('nativephp.version') becomes config('native.desktop.version'). Nothing changes in v2.
+ */
 return [
     /**
      * The version of your app.
@@ -183,6 +186,8 @@ return [
 
     /**
      * Custom PHP binary path.
+     *
+     * @deprecated v3 removes this, as PHP is built into the app there. Nothing changes in v2.
      */
     'binary_path' => env('NATIVEPHP_PHP_BINARY_PATH', null),
 ];
