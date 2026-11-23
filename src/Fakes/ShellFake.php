@@ -5,6 +5,9 @@ namespace Native\Desktop\Fakes;
 use Native\Desktop\Contracts\Shell as ShellContract;
 use PHPUnit\Framework\Assert as PHPUnit;
 
+/**
+ * @deprecated v3 has no Shell facade to fake. AppShell::fake() there keeps these arrays and assertions. Nothing changes in v2.
+ */
 class ShellFake implements ShellContract
 {
     /**
