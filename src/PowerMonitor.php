@@ -7,6 +7,9 @@ use Native\Desktop\Contracts\PowerMonitor as PowerMonitorContract;
 use Native\Desktop\Enums\SystemIdleStatesEnum;
 use Native\Desktop\Enums\ThermalStatesEnum;
 
+/**
+ * @deprecated v3 has no PowerMonitor class. Its methods move to System there. Nothing changes in v2.
+ */
 class PowerMonitor implements PowerMonitorContract
 {
     public function __construct(protected Client $client) {}

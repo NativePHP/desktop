@@ -8,6 +8,9 @@ use Native\Desktop\Enums\SystemIdleStatesEnum;
 use Native\Desktop\Enums\ThermalStatesEnum;
 use PHPUnit\Framework\Assert as PHPUnit;
 
+/**
+ * @deprecated v3 has no PowerMonitor facade to fake. System::fake() there keeps these counters and assertions, named after the System methods. Nothing changes in v2.
+ */
 class PowerMonitorFake implements PowerMonitorContract
 {
     public array $getSystemIdleStateCalls = [];

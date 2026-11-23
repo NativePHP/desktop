@@ -7,6 +7,8 @@ use Native\Desktop\Contracts\PowerMonitor as PowerMonitorContract;
 use Native\Desktop\Fakes\PowerMonitorFake;
 
 /**
+ * @deprecated v3 has no PowerMonitor facade. getSystemIdleState() moves to System::idleState(), getSystemIdleTime() to System::idleTime(), getCurrentThermalState() to System::thermalState() and isOnBatteryPower() to System::isOnBatteryPower(). PowerMonitor::fake() is System::fake(). Nothing changes in v2.
+ *
  * @method static \Native\Desktop\Enums\SystemIdleStatesEnum getSystemIdleState(int $threshold)
  * @method static int getSystemIdleTime()
  * @method static \Native\Desktop\Enums\ThermalStatesEnum getCurrentThermalState()
