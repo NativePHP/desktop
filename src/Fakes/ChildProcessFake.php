@@ -120,6 +120,9 @@ class ChildProcessFake implements ChildProcessContract
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this with ChildProcess::node(). Nothing changes in v2.
+     */
     public function node(
         string|array $cmd,
         string $alias,
@@ -250,6 +253,8 @@ class ChildProcessFake implements ChildProcessContract
     }
 
     /**
+     * @deprecated v3 removes this with ChildProcess::node(). Nothing changes in v2.
+     *
      * @param  Closure(array|string $cmd, string $alias, ?array $env, ?bool $persistent): bool  $callback
      */
     public function assertNode(Closure $callback): void
