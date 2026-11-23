@@ -4,6 +4,9 @@ namespace Native\Desktop;
 
 use Native\Desktop\Client\Client;
 
+/**
+ * @deprecated v3 moves this class to ProgressBar\ProgressBar, with the same methods, and create() is called the same way. Its constructor takes v3's BridgeClient in place of Client. Nothing changes in v2.
+ */
 class ProgressBar
 {
     protected float $percent = 0;
