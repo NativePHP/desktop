@@ -35,6 +35,9 @@ class Notification
         $this->title = config('app.name');
     }
 
+    /**
+     * @deprecated v3 removes this, as every call to the Notification facade makes a new notification there.
+     */
     public static function new()
     {
         return new static(new Client);
