@@ -12,11 +12,17 @@ class System
 {
     public function __construct(protected Client $client) {}
 
+    /**
+     * @deprecated v3 removes this from the package, as biometrics move to a plugin. Nothing changes in v2.
+     */
     public function canPromptTouchID(): bool
     {
         return $this->client->get('system/can-prompt-touch-id')->json('result');
     }
 
+    /**
+     * @deprecated v3 removes this from the package, as biometrics move to a plugin. Nothing changes in v2.
+     */
     public function promptTouchID(string $reason): bool
     {
         return $this->client->post('system/prompt-touch-id', [
