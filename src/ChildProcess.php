@@ -88,6 +88,8 @@ class ChildProcess implements ChildProcessContract
     /**
      * @param  string|string[]  $cmd
      * @return $this
+     *
+     * @deprecated v3 keeps php() but the command starts with a script inside the app. A PHP option such as -r or -d throws there: pass ini settings as iniSettings. A script outside the app fails to start, with a StartupError. Nothing changes in v2.
      */
     public function php(string|array $cmd, string $alias, ?array $env = null, ?bool $persistent = false, ?array $iniSettings = null, bool $handlesOwnShutdown = false): self
     {
