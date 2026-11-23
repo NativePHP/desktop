@@ -46,6 +46,9 @@ class Dock
         $this->client->post('dock/cancel-bounce');
     }
 
+    /**
+     * @deprecated v3 keeps badge() but it returns nothing, and a call with no label clears the badge, where v2 reads it back. v3 has no way to read the badge. To clear it, badge('') works in v2 and v3. Nothing changes in v2.
+     */
     public function badge(?string $label = null): ?string
     {
         if (is_null($label)) {
