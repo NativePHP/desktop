@@ -225,6 +225,9 @@ class Window
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this: its windows have no web view, so there are no developer tools to open. Nothing changes in v2.
+     */
     public function showDevTools(bool $showDevTools = true): self
     {
         $this->showDevTools = $showDevTools;
@@ -238,6 +241,9 @@ class Window
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this: its windows have no web view, so there are no developer tools to open. Nothing changes in v2.
+     */
     public function hideDevTools(): self
     {
         if (! $this instanceof PendingOpenWindow) {
@@ -249,6 +255,9 @@ class Window
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this: its windows have no web view, so there are no developer tools to open. Nothing changes in v2.
+     */
     public function devToolsOpen(): bool
     {
         return $this->devToolsOpen;
@@ -343,6 +352,9 @@ class Window
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this, as its windows have no web view. Nothing changes in v2.
+     */
     public function webPreferences(array $preferences): static
     {
         $this->webPreferences = $preferences;
@@ -350,6 +362,9 @@ class Window
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this, as its windows have no web view. Nothing changes in v2.
+     */
     public function zoomFactor(float $zoomFactor = 1.0): self
     {
         $this->zoomFactor = $zoomFactor;
@@ -364,6 +379,9 @@ class Window
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this, as its windows have no web view. Nothing changes in v2.
+     */
     public function preventLeaveDomain(bool $preventLeaveDomain = true): self
     {
         $this->preventLeaveDomain = $preventLeaveDomain;
@@ -371,6 +389,9 @@ class Window
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this, as its windows have no web view. Nothing changes in v2.
+     */
     public function preventLeavePage(bool $preventLeavePage = true): self
     {
         $this->preventLeavePage = $preventLeavePage;
@@ -378,6 +399,9 @@ class Window
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this, as its windows have no web view. Nothing changes in v2.
+     */
     public function suppressNewWindows(): self
     {
         $this->suppressNewWindows = true;
