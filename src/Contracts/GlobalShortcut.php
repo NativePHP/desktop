@@ -2,6 +2,9 @@
 
 namespace Native\Desktop\Contracts;
 
+/**
+ * @deprecated v3 removes this interface. A test there swaps the GlobalShortcut\GlobalShortcut class instead. Nothing changes in v2.
+ */
 interface GlobalShortcut
 {
     public function key(string $key): self;

@@ -6,6 +6,9 @@ use Closure;
 use Native\Desktop\Contracts\GlobalShortcut as GlobalShortcutContract;
 use PHPUnit\Framework\Assert as PHPUnit;
 
+/**
+ * @deprecated v3 moves this class to Testing\GlobalShortcutFake, which GlobalShortcut::fake() returns there. Nothing changes in v2.
+ */
 class GlobalShortcutFake implements GlobalShortcutContract
 {
     /**
