@@ -8,6 +8,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * @deprecated v3 moves this event to AppShell\Events\OpenFile, with the same $path. It is no longer broadcast on the nativephp channel: Event::listen and a screen's #[On] hear it. Nothing changes in v2.
+ */
 class OpenFile implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
