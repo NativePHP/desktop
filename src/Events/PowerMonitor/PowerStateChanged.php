@@ -9,6 +9,9 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Native\Desktop\Enums\PowerStatesEnum;
 
+/**
+ * @deprecated v3 moves this event to System\Events\PowerStateChanged, where its state is a System\Enums\PowerState. It is no longer broadcast on the nativephp channel: Event::listen and a screen's #[On] hear it. Nothing changes in v2.
+ */
 class PowerStateChanged implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
