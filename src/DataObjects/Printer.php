@@ -2,6 +2,9 @@
 
 namespace Native\Desktop\DataObjects;
 
+/**
+ * @deprecated v3 removes this with System::printers(), as printing moves to a plugin. Nothing changes in v2.
+ */
 class Printer
 {
     public function __construct(

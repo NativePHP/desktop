@@ -59,6 +59,8 @@ class System
     }
 
     /**
+     * @deprecated v3 removes this from the package, as printing moves to a plugin. Nothing changes in v2.
+     *
      * @return array<Printer>
      */
     public function printers(): array
@@ -77,6 +79,8 @@ class System
 
     /**
      * For $settings options, see https://www.electronjs.org/docs/latest/api/web-contents#contentsprintoptions-callback
+     *
+     * @deprecated v3 removes this from the package, as printing moves to a plugin. Nothing changes in v2.
      */
     public function print(string $html, ?Printer $printer = null, ?array $settings = []): void
     {
@@ -89,6 +93,8 @@ class System
 
     /**
      * Print an on-disk PDF natively via Chromium's PDF viewer.
+     *
+     * @deprecated v3 removes this from the package, as printing moves to a plugin. Nothing changes in v2.
      */
     public function printFile(string $path, Printer|string|null $printer = null, ?array $settings = []): bool
     {
@@ -101,6 +107,8 @@ class System
 
     /**
      * For $settings options, see https://www.electronjs.org/docs/latest/api/web-contents#contentsprinttopdfoptions
+     *
+     * @deprecated v3 removes this from the package, as printing moves to a plugin. Nothing changes in v2.
      */
     public function printToPDF(string $html, ?array $settings = []): string
     {
