@@ -6,6 +6,9 @@ use Illuminate\Database\Console\Migrations\FreshCommand as BaseFreshCommand;
 use Native\Desktop\NativeServiceProvider;
 use Symfony\Component\Console\Attribute\AsCommand;
 
+/**
+ * @deprecated v3 renames native:migrate:fresh to native:db fresh. The old name still works there, prints the new form and goes in a later major version. Its --database, --drop-types, --path, --realpath, --schema-path and --step options are gone. Nothing changes in v2.
+ */
 #[AsCommand(name: 'native:migrate:fresh')]
 class FreshCommand extends BaseFreshCommand
 {

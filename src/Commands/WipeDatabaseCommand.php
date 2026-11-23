@@ -6,6 +6,9 @@ use Illuminate\Database\Console\WipeCommand as BaseWipeCommand;
 use Native\Desktop\NativeServiceProvider;
 use Symfony\Component\Console\Attribute\AsCommand;
 
+/**
+ * @deprecated v3 renames native:db:wipe to native:db wipe. The old name still works there, prints the new form and goes in a later major version. Its --database and --drop-types options are gone. Nothing changes in v2.
+ */
 #[AsCommand(name: 'native:db:wipe')]
 class WipeDatabaseCommand extends BaseWipeCommand
 {

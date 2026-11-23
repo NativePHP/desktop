@@ -8,6 +8,9 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
+/**
+ * @deprecated v3 renames native:seed to native:db seed, which takes the seeder class as an argument or --class. The old name still works there, prints the new form and goes in a later major version. Nothing changes in v2.
+ */
 #[AsCommand(name: 'native:seed')]
 class SeedDatabaseCommand extends BaseSeedCommand
 {
