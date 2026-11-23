@@ -28,6 +28,9 @@ class Dialog
 
     final public function __construct(protected Client $client) {}
 
+    /**
+     * @deprecated v3 removes this. A panel there comes from Dialog::pickFiles(), pickFolders() or saveFile() on the Dialog facade, and the option methods keep their names. Nothing changes in v2.
+     */
     public static function new()
     {
         return new static(new Client);
@@ -115,6 +118,9 @@ class Dialog
         return $this;
     }
 
+    /**
+     * @deprecated v3 removes this, as a panel there does not wait for the user. The answer runs a callback, pathsSelected() or cancelled(), and the paths always come as a list. Nothing changes in v2.
+     */
     public function open()
     {
         $result = $this->client->post('dialog/open', $this->dialogData())->json('result');
@@ -126,6 +132,9 @@ class Dialog
         return $result;
     }
 
+    /**
+     * @deprecated v3 removes this, as a panel there does not wait for the user. Dialog::saveFile() answers in pathsSelected() or cancelled(). Nothing changes in v2.
+     */
     public function save()
     {
         return $this->client->post('dialog/save', $this->dialogData())->json('result');
