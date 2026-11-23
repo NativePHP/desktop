@@ -8,6 +8,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * @deprecated v3 moves this event to Window\Events\WindowMinimized, with the same $id, and a $surface. It is no longer broadcast on the nativephp channel: Event::listen and a screen's #[On] hear it. Nothing changes in v2.
+ */
 class WindowMinimized implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
