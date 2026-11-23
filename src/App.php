@@ -99,6 +99,9 @@ class App
         $this->client->delete('app/recent-documents');
     }
 
+    /**
+     * @deprecated v3 removes this method, as PHP there never runs from a Bifrost bundle. There is no replacement.
+     */
     public function isRunningBundled(): bool
     {
         return Phar::running() !== '';
@@ -118,6 +121,9 @@ class App
         return $open;
     }
 
+    /**
+     * @deprecated v3 removes this method with showEmojiPanel(). There is no replacement.
+     */
     public function isEmojiPanelSupported(): bool
     {
         return (bool) $this->client->get('app/is-emoji-panel-supported')->json('supported');

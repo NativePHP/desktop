@@ -20,9 +20,9 @@ use Illuminate\Support\Facades\Facade;
  * @method static void addRecentDocument(string $path)
  * @method static array recentDocuments()
  * @method static void clearRecentDocuments()
- * @method static bool isRunningBundled()
+ * @method static bool isRunningBundled() Deprecated: v3 removes this method, as PHP there never runs from a Bifrost bundle. There is no replacement.
  * @method static bool openAtLogin(?bool $open = null)
- * @method static bool isEmojiPanelSupported()
+ * @method static bool isEmojiPanelSupported() Deprecated: v3 removes this method with showEmojiPanel(). There is no replacement.
  * @method static void showEmojiPanel() Deprecated: v3 removes this method and replaces it with a Blade element. There is no v2 replacement.
  * @method static static when($value = null, ?callable $callback = null, ?callable $default = null)
  * @method static static unless($value = null, ?callable $callback = null, ?callable $default = null)
